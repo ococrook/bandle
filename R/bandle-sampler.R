@@ -1,20 +1,3 @@
-# Testing ground for diff Loc = 
-
-require(Rcpp)
-require(RcppArmadillo)
-sourceCpp("dmvtCpp.cpp")
-source("gradientGP.R")
-sourceCpp("gradienthyp.cpp")
-sourceCpp("leapfrogGPcpp.cpp")
-sourceCpp("trenchDetcpp.cpp")
-source("likelihoodGP.R")
-source("metropolisGP.R")
-source("fitGP.R")
-sourceCpp("pg_sample.cpp")
-sourceCpp("Bessel2ndKind.cpp")
-
-require(lbfgs)
-
 diffLoc <- function(objectCond1,
                     objectCond2,
                     fcol = "markers",
@@ -335,29 +318,54 @@ diffLoc <- function(objectCond1,
         }  
     }
     
-    return(list(allocOut = allocOut,
-                alloc = alloc,
-                allocprob = allocprob,
-                hypers = hypers,
-                weights = weights,
-                epsilons = epsilons))
-    
+    nicheParam <- list()
+    .niche <- alloc
+    .nicheProb <- allocprob
+    .outlier <- allocOut
     for (i in seq.int(numCond)){
-        .niche <- alloc[[i]]
-        .nicheProb <- allocprob[[i]]
-        .outlier <- allocOut[[i]]
-        for (j in seq.int(numRepl))
-        if (i == 1){
-         .nicheParam <- .nicheParam(dataset = "control",
-                                   replicate = j,) 
-        }    
 
-        
-        .bandleChain(dataset = "control",
-                     replicate = length(objectCond1),
-                     n = length(toRetain),
-                     K = K,
-                     N = N, )
+        for (j in seq.int(numRepl)){
+            if (i == 1){
+                nicheParam[[j]] <- .nicheParam(dataset = "control",
+                                               replicate = as.integer(j),
+                                               K = K,
+                                               D = D, 
+                                               method = "bandle",
+                                               params = hypers[[j]]) 
+            } else{
+                nicheParam[[numRepl + j]] <- .nicheParam(dataset = "treatment",
+                                                          replicate = j,
+                                                          K = K,
+                                                          D = D, 
+                                                          method = "bandle",
+                                                          params = hypers[[numRepl + j]])     
+            }    
+        }
     }
+    
+    # set correct dimension names
+    dimnames(weights)[[1]] <- dimnames(weights)[[2]] <- getMarkerClasses(object = objectCond1[[1]],
+                                                                         fcol = fcol)
+    rownames(epsilons) <- c("Dataset 1", "Dataset 2")
+    .niche <-  lapply(.niche, function(x){ rownames(x) <- rownames(objectCond1[[1]]); x})
+    .nicheProb <- lapply(.nicheProb, function(x) {
+                                        dimnames(x)[[1]] <- rownames(objectCond1[[1]])
+                                        dimnames(x)[[3]] <- getMarkerClasses(objectCond1[[1]]); x})
+    .outlier <- lapply(.outlier, function(x){ rownames(x) <- rownames(objectCond1[[1]]); x})
+    
+    ## construct bandleChains object
+    .out <- .bandleChain(dataset = "bandleExperiment",
+                         replicates = length(object_cmb),
+                         n = length(toRetain),
+                         K = K,
+                         N = numProtein[[1]], 
+                         weights = weights,
+                         epsilons = epsilons,
+                         niche = .niche,
+                         nicheProb = .nicheProb,
+                         outlier = .outlier,
+                         nicheParams = .nicheParams(params = nicheParam))
+    
+    return(.out)
     
 }

@@ -135,7 +135,9 @@ bandle <- function(objectCond1,
                                         hyperMean = hyperMean,
                                         hyperSd = hyperSd), 
                           seed = .seed, 
-                          summary = .bandleSummaries(),
+                          summary = .bandleSummaries(
+                                        summaries = list(.bandleSummary(),
+                                                         .bandleSummary())),
                           chains = .ans)
     
     return(.out)

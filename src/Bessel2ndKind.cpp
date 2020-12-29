@@ -2,6 +2,10 @@
 #include <boost/math/special_functions/bessel.hpp>
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(BH)]]
+
+
+
+
 using namespace Rcpp;
 
 // [[Rcpp::export]]
@@ -589,3 +593,73 @@ List comploglikelist(const List &centereddata,
   
 }
 
+// [[Rcpp::export]]
+arma::vec sampleDirichlet(int numSamples,
+                          NumericVector alpha
+){
+  
+  int j;
+  NumericVector shape = alpha;
+  arma::vec gamma(numSamples);
+  NumericVector dirichlet;
+  double scale = 1;
+  
+  for(j = 0; j < numSamples; j++){
+    gamma(j) = rgamma(1, shape(j), scale)(0); 
+  }
+  
+  dirichlet = gamma/sum(gamma);
+  
+  return(dirichlet);
+}
+
+// [[Rcpp::export]]
+arma::vec sampleOutliercpp(arma::mat allocoutlierprob){
+  
+  int i;
+  int N = allocoutlierprob.n_rows;
+  arma::vec u; 
+  arma::vec outlier = arma::zeros(N);
+  Rcpp::NumericVector allocoutlierprobi;
+  
+  for (i = 0; i < N; i++) {
+    allocoutlierprobi = allocoutlierprob.row(i);
+    
+    u = runif(1, 0, 1);
+    if (u(0) > allocoutlierprobi(1)) {
+      outlier(i) = 1;
+    }
+  }
+  
+  return(outlier);
+  
+}
+
+// [[Rcpp::export]]
+arma::vec sampleAlloccpp(arma::mat allocprob) {
+  
+  int i;
+  int N = allocprob.n_rows;
+  int k;
+  int classNumber = allocprob.n_cols;
+  arma::vec u;
+  arma::vec u1 = arma::ones(classNumber);
+  arma::vec alloc = arma::zeros(N);
+  arma::vec allocprobi;
+  arma::vec probcum;
+  Rcpp::LogicalVector loc;
+  
+  
+  for (i = 0; i < N; i++) {
+    allocprobi = allocprob.row(i).t(); 
+    probcum = cumsum(allocprobi);
+    u = runif(1, 0, 1);
+    u1 = (u * u1.t()).t();
+    loc = (probcum <= u1);
+    k = sum(loc) + 1;
+    alloc(i) = k;
+    u1 = arma::ones(classNumber); //reset u1
+  }
+  
+  return(alloc);
+}
