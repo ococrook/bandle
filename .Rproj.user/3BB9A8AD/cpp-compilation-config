@@ -4,6 +4,7 @@
         "-IC:/Program Files/RStudio/resources/libclang/builtin-headers/libc++/5.0.2",
         "-IC:/Users/OllyC/Documents/R/win-library/4.0/Rcpp/include",
         "-IC:/Users/OllyC/Documents/R/win-library/4.0/RcppArmadillo/include",
+        "-IC:/Users/OllyC/Documents/R/win-library/4.0/BH/include",
         "-std=gnu++11",
         "-IC:/PROGRA~1/R/R-40~1.3PA/include",
         "-DNDEBUG",
@@ -11,5 +12,5 @@
     ],
     "pch": "RcppArmadillo",
     "is_cpp": true,
-    "hash": "160898438816089843881608984388"
+    "hash": "160923900216089843881608984388"
 }
