@@ -2,6 +2,14 @@
 # include "utils.h"
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
+//' Computes gradients of hyperaparamters with respect to GP
+//' @params Y The data
+//' @param drv matrix derivative
+//' @param nk number of observations
+//' @param D number of samples
+//' @param Z internal matrix required for computations
+//' @param A internal matrix required for computations
+//' @param sigmak standard deviation parameter
 
 arma::vec gradienthyp(arma::vec Y,
                       arma::mat drv,
@@ -15,9 +23,7 @@ arma::vec gradienthyp(arma::vec Y,
   arma::mat J = arma::ones(nk, nk);
   arma::mat eye = arma::eye(D, D);
   arma::mat C;
-  
   arma::vec gradienthyp;
-  
   arma::mat invZdrv = Z * drv * Z;
   
   //B = (((Xk.t() * covInv) * arma::kron(J, drv)) * (covInv * Xk)) / 2 ;
@@ -25,11 +31,16 @@ arma::vec gradienthyp(arma::vec Y,
   //C = arma::accu(arma::kron(J, drv) % covInv)/2; //use trace is sum of entrywise product
   C = nk * trace(drv)/(2 * sigmak) - nk * arma::accu((eye - Z) % drv)/(2 * sigmak);
   
-  //gradienthyp = B - C;  
   gradienthyp = B - C;
   
   return(gradienthyp); 
 }
+//' Computes gradients of  GP
+//' @params Xk The data
+//' @param tau indexing term
+//' @param h vector of hyperparamters
+//' @param nk number of observations
+//' @param D number of samples
 
 // [[Rcpp::export]]
 arma::vec gradientGPcpp(arma::mat Xk,
@@ -72,7 +83,6 @@ arma::vec gradientGPcpp(arma::mat Xk,
   trenchres = trenchDetcpp(R.row(0).t());
   logdet = trenchres["logdet"];
   v = as<arma::vec>(trenchres["v"]);
-  
   
   if(R_IsNA(logdet)){
     negloglike = R_NegInf;

@@ -98,11 +98,11 @@ sample_weights_pg <- function(nk_mat, pgPrior, w, K, tau = tau) {
     return(list(currentweights = currentweights, w = w))
 }
 
-sample_weights_dir <- function(nk_mat, dir_prior){
+sample_weights_dir <- function(nk_mat, dirPrior){
     
     #sample weights from dirichlet by normalising gammas
     K <- ncol(nk_mat)
-    concentration <- dir_prior + nk_mat
+    concentration <- dirPrior + nk_mat
     currentweights <- t(sampleDirichlet(K^2, c(concentration)))
     return(currentweights)
 }

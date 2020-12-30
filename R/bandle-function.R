@@ -59,8 +59,10 @@
 ##' Defaults to 4.
 ##' @param BPPARAM BiocParallel parameter. Defaults to machine default backend
 ##' using bpparam()
-
-
+##' @return  `bandle` returns an instance of class `bandleParams`
+##' @md
+##' 
+##' @rdname bandle
 bandle <- function(objectCond1,
                    objectCond2,
                    fcol = "markers",
@@ -123,6 +125,26 @@ bandle <- function(objectCond1,
                      nu = nu,
                      propSd = propSd,
                      BPPARAM = BPPARAM)
+    
+    K <- length(getMarkerClasses(objectCond1[[1]], fcol = fcol))
+    
+    # construct empirical Bayes Polya-Gamma prior
+    if (is.null(pgPrior)) {
+        pgPrior <- pg_prior(objectCond1, objectCond2, K = K, pgPrior = NULL)
+    }
+    
+    #or Dirichlet weights Prior, unless dirPrior is provided by default
+    if(pg == FALSE){
+        if (is.null(dirPrior)){
+            dirPrior <- diag(rep(1, K)) + matrix(0.05, nrow = K, ncol = K)
+            rownames(dirPrior) <- colnames(dirPrior) <- getMarkerClasses(objectCond1[[1]],
+                                                                       fcol = fcol)
+        }
+    }
+    
+    # name objects
+    colnames(pcPrior) <- c("length-scale", "amplitude", "sigma")
+    
     
     ## Construct class bandleChains
     .ans <- .bandleChains(chains = .res)
