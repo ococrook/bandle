@@ -1,5 +1,16 @@
-## Simulating dynamic experiment using bootstrap method
-
+##' A function to simulate dynamic spatial proteomics data using a bootstrap method
+##' 
+##' 
+##' @title Generate a dynamic spatial proteomics experiment
+##' @param object A instance of class `MSnSet` from which to generate a spatial
+##' proteomics dataset.
+##' @param currentweights the current allocations weights
+##' @param alloctemp the current protein allocations
+##' @param cond the control = 1, treatment = 2
+##' @return returns samples for protein allocations, log likelihoods and probabilities
+##' @md
+##' 
+##' @rdname bandle-sim
 sim_dynamic <- function(object,
                         subnum = NULL,
                         knn_par = 10,

@@ -1,5 +1,19 @@
-
-proteinAllocation <- function(loglikelihoods, currentweights, alloctemp, cond) {
+##' Internal sampling function, not for outside use documented for completness
+##' 
+##' 
+##' @title sample allocations, probabilities and compute loglikilihoods
+##' @param loglikelihoods the log likelihoods
+##' @param currentweights the current allocations weights
+##' @param alloctemp the current protein allocations
+##' @param cond the control = 1, treatment = 2
+##' @return returns samples for protein allocations, log likelihoods and probabilities
+##' @md
+##' 
+##' @rdname bandle-internal
+proteinAllocation <- function(loglikelihoods,
+                              currentweights,
+                              alloctemp,
+                              cond) {
     
     K <- ncol(currentweights)
     loglikelihoods_comb <- Reduce("+", loglikelihoods)
@@ -15,10 +29,26 @@ proteinAllocation <- function(loglikelihoods, currentweights, alloctemp, cond) {
     #alloctemp <- apply(allocprobtemp, 1, function(x) sample.int(n = K, size = 1, replace = F, prob = x))
     alloctemp <- sampleAlloccpp(allocprobtemp)
     
-    return(list(alloctemp = alloctemp, loglikelihoods_comb = loglikelihoods_comb, allocprobtemp = allocprobtemp))
+    return(list(alloctemp = alloctemp,
+                loglikelihoods_comb = loglikelihoods_comb,
+                allocprobtemp = allocprobtemp))
 }
 
-outlierAllocationProbs <- function(outlierlikelihood, loglikelihoods, epsilon, alloctemp, cond) {
+##' @title computer outlier allocations probabilties
+##' @param outlierlikelihoods the outlier log likelihoods 
+##' @param loglikelihoods the log likelihoods
+##' @param epsilon the outlier component weight
+##' @param alloctemp the current protein allocations
+##' @param cond the control = 1, treatment = 2
+##' @return returns outlier probabilities
+##' @md
+##' 
+##' @rdname bandle-internal
+outlierAllocationProbs <- function(outlierlikelihood,
+                                   loglikelihoods,
+                                   epsilon,
+                                   alloctemp,
+                                   cond) {
     
     subset <- cbind(1:length(alloctemp[[cond]]), alloctemp[[cond]])
     outlierlikelihood_comb <- Reduce("+", outlierlikelihood)
@@ -28,7 +58,12 @@ outlierAllocationProbs <- function(outlierlikelihood, loglikelihoods, epsilon, a
     return(list(allocnotOutprob = allocnotOutprob, allocOutprob = allocOutprob))
     
 }
-
+##' @title sample outlier probabilities
+##' @param allocoutlierprob the outlier probabilities
+##' @return returns outlier allocations
+##' @md
+##' 
+##' @rdname bandle-internal
 sampleOutlier <- function(allocoutlierprob){
     
     c <- apply(allocoutlierprob , 1, max) 
@@ -42,20 +77,33 @@ sampleOutlier <- function(allocoutlierprob){
     
     return(outlier)
 }
-
-
-covOrganelle <- function(mydata, fcol = "markers"){
+##' @title compute organelle covariances
+##' @param object An instance of class `MSnSet`
+##' @return returns covariance of organelles using marker proteins
+##' @md
+##' 
+##' @rdname bandle-internal
+covOrganelle <- function(object, fcol = "markers"){
     
-    M <- matrix(NA, nrow = length(getMarkerClasses(mydata, fcol = fcol)), ncol = ncol(mydata))
-    rownames(M) <- getMarkerClasses(mydata, fcol = fcol)
-    for (j in getMarkerClasses(mydata, fcol = fcol)) {
-        M[j, ] <- colMeans(exprs(mydata)[fData(mydata)[, fcol] == j,])
+    M <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
+    rownames(M) <- getMarkerClasses(object, fcol = fcol)
+    for (j in getMarkerClasses(object, fcol = fcol)) {
+        M[j, ] <- colMeans(exprs(object)[fData(object)[, fcol] == j, ])
     }
     sigma <- cov(t(M))
     
     return(sigma)
 }
-
+##' @title Compute empirical Bayes Polya-Gamma prior
+##' @param object_cond1 A list of instance of class `MSnSets` usually control
+##' @param object_cond2 A list of instance of class `MSnSets` usually treatment
+##' @param K the number of organelle classes
+##' @param pgPrior The Polya-Gamma if user provided. Default is NULL to obtain value
+##'  empirically
+##' @return returns the Polya-Gamma prior
+##' @md
+##' 
+##' @rdname bandle-internal
 pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
     
     if (is.null(pgPrior)) {
@@ -67,9 +115,22 @@ pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
     pgPrior <- list(mu_prior = mu_prior, sigma1 =  sigma1, sigma2 = sigma2)
     return(pgPrior)
 }
-
-
-sample_weights_pg <- function(nk_mat, pgPrior, w, K, tau = tau) {
+##' @title Sample mixture weights given the polya-gamma prior
+##' @param nk_mat The summary matrix of allocations
+##' @param pgPrior The Polya-Gamma prior
+##' @param w The Polya-Gamma auxiliary variable 
+##' @param K The number of organelle classes
+##' @param tau The empirical bayes parameter for the Polya-Gamma variable. 
+##'  Defaults to 0.2. 
+##' @return returns A sample of the weights using Polya-Gamma priors. 
+##' @md
+##' 
+##' @rdname bandle-internal
+sample_weights_pg <- function(nk_mat,
+                              pgPrior,
+                              w,
+                              K,
+                              tau = 0.2) {
     
     # Polya-Gamma prior
     mu_prior <- pgPrior$mu_prior
@@ -97,7 +158,13 @@ sample_weights_pg <- function(nk_mat, pgPrior, w, K, tau = tau) {
     
     return(list(currentweights = currentweights, w = w))
 }
-
+##' @title Sample mixture weights given the Dirichlet prior
+##' @param nk_mat The summary matrix of allocations
+##' @param dirPrior The Dirichlet prior
+##' @return returns A sample of the weights using Dirichlet prior. 
+##' @md
+##' 
+##' @rdname bandle-internal
 sample_weights_dir <- function(nk_mat, dirPrior){
     
     #sample weights from dirichlet by normalising gammas
