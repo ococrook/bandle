@@ -113,6 +113,24 @@ dmvtCpp <- function(X_, mu_, sigma_, df_, log_, isChol_) {
     .Call(`_bandle_dmvtCpp`, X_, mu_, sigma_, df_, log_, isChol_)
 }
 
+#' Computes gradients of hyperaparamters with respect to GP
+#' @params Y The data
+#' @param drv matrix derivative
+#' @param nk number of observations
+#' @param D number of samples
+#' @param Z internal matrix required for computations
+#' @param A internal matrix required for computations
+#' @param sigmak standard deviation parameter
+NULL
+
+#' Computes gradients of  GP
+#' @params Xk The data
+#' @param tau indexing term
+#' @param h vector of hyperparamters
+#' @param nk number of observations
+#' @param D number of samples
+NULL
+
 gradientGPcpp <- function(Xk, tau, h, nk, D) {
     .Call(`_bandle_gradientGPcpp`, Xk, tau, h, nk, D)
 }

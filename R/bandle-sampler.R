@@ -441,8 +441,10 @@ diffLoc <- function(objectCond1,
     rownames(epsilons) <- c("Dataset 1", "Dataset 2")
     .niche <-  lapply(.niche, function(x){ rownames(x) <- rownames(unknown_cmb[[1]]); x})
     .nicheProb <- lapply(.nicheProb, function(x) {
-                                        dimnames(x)[[1]] <- rownames(unknown_cmb[[1]])
-                                        dimnames(x)[[3]] <- getMarkerClasses(unknown_cmb[[1]]); x})
+                                        dimnames(x)[[1]] <- rownames(unknown_cmb[[1]]); x})
+    .nicheProb <- lapply(.nicheProb, function(x) {
+        dimnames(x)[[3]] <- getMarkerClasses(object = objectCond1[[1]],
+                                             fcol = fcol); x})
     .outlier <- lapply(.outlier, function(x){ rownames(x) <- rownames(unknown_cmb[[1]]); x})
     
     ## construct bandleChains object

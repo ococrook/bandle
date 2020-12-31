@@ -1,50 +1,87 @@
-## diff loc helpers
-
-
-probsameorganelle <- function(params) {
+##' These functions implement helper functions for the bandle method
+##' 
+##' 
+##' @title Compute differential localisation probabilities from ms-based
+##' experiments using the bandle method
+##' @param params An instance of class `bandleParams`
+##' @return  returns a named vector of differential localisation probabilities
+##' @md
+##' 
+##' @rdname bandle
+diffLocalisationProb <- function(params) {
     
-    res <- vector(mode = "numeric", length = nrow(unknownMSnSet(object)))
-    for (i in 1:nrow(unknownMSnSet(object))) {
-        res[i] <- sum(params$alloc[[1]][i, ] == params$alloc[[2]][i, ])
-    }
-    names(res) <- rownames(unknownMSnSet(object))
+    # Must be a valid bandleParams object
+    stopifnot(class(params) == "bandleParams")
+    
+    res <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]] - params@chains@chains[[1]]@niche[[2]]) != 0)
+    res <- res/ncol(params@chains@chains[[1]]@niche[[1]])
     
     return(res)
 }
 
-## Bootstrap Probabilities
-
-bootstrapdiffloc <- function(object, params, top = 20, Bootsample = 5000, decreasing = FALSE) {
+##' @title Obtain bootstrap uncertainty estimates for differential localisations
+##' probabilities
+##' @param params An instance of class `bandleParams`
+##' @param top The number of proteins for which to compute bootstrap distributions
+##'  default is 20.
+##' @param Bootsample Number of Bootstramp samples. Default is 5000
+##' @param Descreasing Starting at proteins most likely to be differentially localised.
+##'  default is 5000.
+##' @return  returns a matrix of size Bootsample * top containing bootstrap 
+##' @md
+##' 
+##' @rdname bandle
+bootstrapdiffLocprob <- function(params,
+                                 top = 20,
+                                 Bootsample = 5000,
+                                 decreasing = TRUE) {
     
     res <- matrix(NA, ncol = Bootsample, nrow = top)
-    probs <- probsameorganelle(object = object, params = params)
+    probs <- diffLocalisationProb(params = params)
     
     prBootnames <- names(probs[order(probs, decreasing = decreasing)][seq.int(top)])
-    rownames(params$alloc[[1]]) <- rownames(params$alloc[[2]]) <- rownames(unknownMSnSet(object))
-    
     rownames(res) <- prBootnames
+    
     for (t in seq.int(Bootsample)){
-        bootidx <- sample.int(ncol(params$alloc[[1]]), replace = TRUE)
-        for (i in prBootnames) {
-            res[i,t] <- sum(params$alloc[[1]][i, bootidx] == params$alloc[[2]][i, bootidx])
-        }
+        bootidx <- sample.int(ncol(params@chains@chains[[1]]@niche[[1]]),
+                              replace = TRUE)
+        res[,t] <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]][prBootnames, bootidx] - 
+                                    params@chains@chains[[1]]@niche[[2]][prBootnames, bootidx] != 0))/length(bootidx)
     }
     
     return(res)
 }
 
-## Compute means of each organelle just using markers
-meanOrganelle <- function(mydata, fcol = "markers"){
+##' @title Computes Organelle means and variances using markers
+##' @param object a instance of class `MSnset`
+##' @param fcol a feature column indicating which feature define the markers
+##' @return returns a list of means and variances for each 
+##' @md
+##' 
+##' @rdname bandle
+meanOrganelle <- function(object, fcol = "markers"){
     
-    M <- V <- matrix(NA, nrow = length(getMarkerClasses(mydata, fcol = fcol)), ncol = ncol(mydata))
-    rownames(M) <- rownames(V) <-  getMarkerClasses(mydata, fcol = fcol)
-    for (j in getMarkerClasses(mydata, fcol = fcol)) {
-        M[j, ] <- colMeans(exprs(mydata)[fData(mydata)[, fcol] == j,])
-        V[j, ] <- apply(exprs(mydata)[fData(mydata)[, fcol] == j,], 2, var)
+    stopifnot(class(object) == "MSnSet")
+    
+    M <- V <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
+    rownames(M) <- rownames(V) <-  getMarkerClasses(object, fcol = fcol)
+    for (j in getMarkerClasses(object, fcol = fcol)) {
+        M[j, ] <- colMeans(exprs(object)[fData(object)[, fcol] == j,])
+        V[j, ] <- apply(exprs(object)[fData(object)[, fcol] == j,], 2, var)
     }
     
     return(list(M = M, V = V))
 }
+
+##' @title Computes the Kullback-Leiber divergence between Polya-Gamma and 
+##' Dirichlet priors
+##' @param sigma the sigma parameter of the Polya-Gamma prior
+##' @param mu the mu parameter of the Polya-Gamma prior
+##' @param alpha the alpha (concentration) parameter of the Dirichlet prior
+##' @return returns a numeric indicating the KL divergence
+##' @md
+##' 
+##' @rdname bandle
 
 kldirpg <- function(sigma, mu, alpha) {
     
@@ -61,6 +98,14 @@ kldirpg <- function(sigma, mu, alpha) {
     return(res)
 }
 
+##' @title  Compute the KL divergence between two Dirichlet distributions
+##' 
+##' @param alpha The concentration parameter of the first Dirichlet distribution
+##' @param beta The concentration parameter of the second Dirichlet distribution
+##' @return a numeric indicating the KL divergence
+##' @md
+##' 
+##' @rdname bandle
 kldir <- function(alpha, beta) {
     
     res <- lgamma(sum(alpha)) - sum(lgamma(alpha)) - lgamma(sum(beta)) + sum(lgamma(beta)) +
@@ -71,25 +116,37 @@ kldir <- function(alpha, beta) {
     
 }
 
-
-
-# prior predictive checks for dirichlet prior
-
+##' @title A function to compute the prior predictive distribution of the 
+##' Dirichet prior.
+##' 
+##' @param object An instance of class `MSnSet`
+##' @param iter Number of sample to use from prior predictive distribution.
+##'  Default is 5000
+##' @param dirPrior The Dirichlet prior used. If NULL (default) will generate a 
+##'  a default Dirichlet prior
+##' @param q The upper tail value. That is the prior probability of having more 
+##'  than q differential localisations. Default is 15. 
+##' @return A list contain the prior predictive distribution of
+##'   differential localisations, the mean number of differential localised proteins
+##'   and the probability than more than q are differentially localised 
+##' @md
+##' 
+##' @rdname bandle     
 prior_pred_dir <- function(object,
                            iter = 5000,
-                           dir_prior = NULL,
+                           dirPrior = NULL,
                            q = 15) {
     
     K <- length(getMarkerClasses(object))
-    if (is.null(dir_prior)) {
-        dir_prior <- diag(rep(1, K)) + matrix(0.05, nrow = K, ncol = K)
+    if (is.null(dirPrior)) {
+        dirPrior <- diag(rep(1, K)) + matrix(0.05, nrow = K, ncol = K)
     }
     
     priornotAlloc <- vector(length = iter)
     nkknown <- table(getMarkers(object, verbose = FALSE))[getMarkerClasses(object)]
     for (i in seq.int(iter)) {
         
-        concentration <- diag(nkknown) + dir_prior
+        concentration <- diag(nkknown) + dirPrior
         currentweights <- t(sampleDirichlet(K^2, c(concentration)))
         priornotAlloc[i] <- sum(currentweights[1, -c((K + 1) * seq.int(1:(K)) - K)])
     }
@@ -105,25 +162,46 @@ prior_pred_dir <- function(object,
                 tailnotAlloc = tailnotAlloc))
 }
 
-# prior predictive checks for Polya-Gamma
-
-
-prior_pred_pg <- function(object,
+##' @title A function to compute the prior predictive distribution of the 
+##' Polya-Gamma prior.
+##' 
+##' @param objectCond1 An instance of class `MSnSet`, usually the control dataset
+##' @param objectCond2 An instance of class `MSnSet`, usually the treatment dataset
+##' @param tau The `tau` parameter of the Polya-Gamma prior. Default is 0.2.
+##' @param lambda The `lambda` ridge parameter used for numerical stability. 
+##'  Default is 0.01
+##' @param mu_prior The mean of the Polya-Gamma prior. Default is NULL which generates
+##'  a default Polya-Gamma prior.  
+##' @param iter Number of sample to use from prior predictive distribution.
+##'  Default is 10000
+##' @param q The upper tail value. That is the prior probability of having more 
+##'  than q differential localisations. Default is 15. 
+##' @return A list contain the prior predictive distribution of
+##'   differential localisations, the mean number of differential localised proteins
+##'   and the probability than more than q are differentially localised 
+##' @md
+##' 
+##' @rdname bandle     
+prior_pred_pg <- function(objectCond1,
+                          objectCond2,
                           tau = 0.2,
                           lambda = 0.01,
                           mu_prior = NULL,
                           iter = 10000,
                           q = 15) {
     
-    # expressions from data and important summaries
-    mydata <- exprs(object[[1]])
+    stopifnot(class(objectCond1) == "MSnSet")
+    stopifnot(class(objectCond2) == "MSnSet")
+    
+    # Expressions from data and important summaries
+    mydata <- exprs(objectCond1)
     M <- colMeans(mydata)
     V <- cov(mydata)
-    nkknown <- table(getMarkers(object[[1]], verbose = FALSE))[getMarkerClasses(object[[1]])]
-    K <- length(getMarkerClasses(object[[1]]))
+    nkknown <- table(getMarkers(objectCond1, verbose = FALSE))[getMarkerClasses(objectCond1)]
+    K <- length(getMarkerClasses(objectCond1))
     
-    sigma1 <- covOrganelle(mydata = object[[1]])
-    sigma2 <- covOrganelle(mydata = object[[4]])
+    sigma1 <- covOrganelle(mydata = objectCond1)
+    sigma2 <- covOrganelle(mydata = objectCond2)
     w <- rep(1, K^2)
     
     n_vec <- c(diag(nkknown))
@@ -157,11 +235,11 @@ prior_pred_pg <- function(object,
     }
     
     # average number of differential localisations
-    meannotAlloc <- mean(priornotAllocpg) * nrow(unknownMSnSet(object[[1]]))
+    meannotAlloc <- mean(priornotAllocpg) * nrow(unknownMSnSet(objectCond1))
     varnotAlloc <- var(priornotAllocpg)
     
     # probability of having greater than 15 
-    tailnotAlloc <- sum((priornotAllocpg * nrow(unknownMSnSet(object[[1]]))) > q)/iter
+    tailnotAlloc <- sum((priornotAllocpg * nrow(unknownMSnSet(objectCond1))) > q)/iter
     
     
     return(list(priornotAllocpg = priornotAllocpg,
@@ -169,112 +247,3 @@ prior_pred_pg <- function(object,
                 varnotAlloc = varnotAlloc,
                 tailnotAlloc = tailnotAlloc))
 }
-
-
-mcmc_plot_probs <- function(param, fname, n = 1, bw = 0.05, scale = "width", trim = TRUE) {
-    Organelle <- Probability <- NULL
-    stopifnot(length(fname) == 1)
-    dfr <- as.data.frame(param[fname, , ])
-    colnames(dfr) <- dimnames(param)[[3]]
-    dfr_long <- data.frame(Organelle = rep(names(dfr), each = nrow(dfr)),
-                           Probability = unlist(dfr, use.names = FALSE),
-                           row.names = NULL,
-                           stringsAsFactors = FALSE)
-    gg2 <- ggplot(dfr_long,
-                  aes(Organelle, Probability,
-                      width = (Probability))) +
-        geom_violin(aes(fill = Organelle), scale = scale, bw = bw)
-    gg2 <- gg2 + theme_bw() +
-        scale_fill_manual(values = pRoloc::getStockcol()[seq_len(nrow(dfr))]) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1),
-              axis.title.x = element_blank())
-    gg2 <- gg2 +
-        ylab("Membership Probability") +
-        ggtitle(paste0("Distribution of Subcellular Membership for Protein ", fname ))
-    gg2 <- gg2 +
-        theme(legend.position = "none")
-    return(gg2)
-}
-
-
-require(akima)
-require(fields)
-
-
-spatial2D <- function(object,
-                      dims = c(1, 2),
-                      cov.function = wendland.cov,
-                      theta = 2,
-                      derivative = 2,
-                      k = 1,
-                      breaks = c(0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7),
-                      aspect = 0.5) {
-    
-    # generate pca plot and create data from with probabilties
-    .pca <- plot2D(object, dims = dims, plot = FALSE)
-    probs <- data.frame(x = .pca[, 1], y = .pca[, 2], mcmc.prob = t(allocproborg)[rownames(object),])
-    colnames(probs) <- c(c("x", "y"), getMarkerClasses(object))
-    eigs <- colnames(.pca)
-    
-    # put data in appropriate long format
-    probs.lst <- list()
-    for(j in getMarkerClasses(object)) {
-        probs.lst[[j]] <- probs[, c("x", "y", j)]
-        colnames(probs.lst[[j]]) <- c("x", "y", "probability")
-    }
-    probs.lst.df <- plyr::ldply(probs.lst, .fun = function(x) x, .id = "organelle")
-    
-    # Create storage
-    coords <- list()
-    locations <- list()
-    df <- list()
-    # Create appropriate spatial grid
-    for (j in getMarkerClasses(object)) {
-        idxOrg <- c(probs.lst.df$organelle == j)
-        coords[[j]] <- akima::interp(x = probs.lst.df$x[idxOrg],
-                                     y = probs.lst.df$y[idxOrg],
-                                     z = probs.lst.df$probability[idxOrg],
-                                     extrap=FALSE, linear = TRUE, duplicate = TRUE) # interpolate onto appropriate grid
-        coords[[j]]$z[is.na(coords[[j]]$z)] <- 0 # NaNs beyond data set to 0
-        locations[[j]] <- cbind(rep(coords[[j]]$x, 40), rep(coords[[j]]$y, each = 40)) # get grid
-        smoothedprobs <- fields::smooth.2d(coords[[j]]$z, x = locations[[j]],
-                                           cov.function = cov.function,
-                                           theta = theta,
-                                           derivative = derivative, k = k) # spatial smoothing of probabilities
-        # normalisation and formatting
-        zmat <- matrix(smoothedprobs$z, ncol = 1)
-        zmat <- zmat/max(zmat)
-        df[[j]] <- data.frame(x = rep(smoothedprobs$x, 64), y = rep(smoothedprobs$y, each = 64), z = zmat)
-    }
-    # format data
-    df.lst <- plyr::ldply(df, .fun = function(x) x, .id = "organelle") 
-    df.lst <- df.lst %>%
-        mutate(organelle = factor(organelle)) 
-    K <- length(getMarkerClasses(object))
-    cols <- getStockcol()[1:K] # get appropriate colours
-    
-    
-    gg <- ggplot(
-        data = df.lst,
-        aes(x = x, y = y, z = z, color = organelle)) +
-        coord_fixed() + 
-        geom_contour(breaks = breaks, size = 1.2, aes(alpha = stat(level))) + 
-        geom_point(alpha = 0) + 
-        xlab(paste0(eigs[1])) + 
-        ylab(paste0(eigs[2])) +
-        scale_alpha(guide = "none") + 
-        theme(legend.position = "right", 
-              text = element_text(size = 12)) +
-        scale_color_manual(values = cols) +
-        scale_fill_manual(values = cols) +
-        theme_minimal() + 
-        theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
-              aspect.ratio = aspect,
-              panel.border = element_rect(colour = "black", fill = NA, size = 1),
-              plot.title = element_text(hjust = 0.5, size = 20),
-              legend.text=element_text(size = 14)) +
-        ggtitle(label = "Spatial variation of localisation probabilities") 
-    gg
-    return(gg)
-}
-

@@ -20,9 +20,13 @@ Depends: R (>= 4.0),
     pRoloc,
     pRolocdata,
     lbfgs,
-    Biobase
+    Biobase,
+    ggplot2,
+    dplyr
 Imports: Rcpp (>= 1.0.4.6)
-Suggests: coda
+Suggests: coda,
+    akima,
+    fields
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)
