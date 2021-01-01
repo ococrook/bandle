@@ -1,14 +1,26 @@
-# Metroplis-Hastings for GP hyperparameters with normal prior
-
-
+##' Function to perform Metropolis-Hastings for GP hyperparameters with different priors
+##' 
+##' @title Perform metropolis update for GP hyperparameters
+##' @param inith initial hyperparamters
+##' @param X The data
+##' @param tau The indexing parameters
+##' @param nk Number of observations
+##' @param D number of samples 
+##' @param niter Number of MH iteractions
+##' @param hyperMean A vector indicating the log-normal means. Default is `c(0,0,0)`.
+##' @param hyperSd A vector indicating the log-normal standard deviations. Default is `c(1,1,1)`
+##' @return Returns new hyperparamters and the acceptance rate
+##' 
+##' @md
+##' @bandle-mh
 metropolisGP <- function(inith,
                          X,
                          tau,
                          nk,
                          D,
                          niter,
-                         hypMean = c(0,0,0),
-                         hypSd = c(1,1,1)
+                         hyperMean = c(0,0,0),
+                         hyperSd = c(1,1,1)
                          ){
   
   
@@ -38,8 +50,20 @@ metropolisGP <- function(inith,
   return(list(h = h, ar = ar))
   
 }
-
-
+##' @title Perform metropolis update for GP hyperparameters with matern covariance
+##' @param inith initial hyperparamters
+##' @param X The data
+##' @param tau The indexing parameters
+##' @param nk Number of observations
+##' @param D number of samples 
+##' @param niter Number of MH iteractions
+##' @param nu Smoothness of the matern covariance
+##' @param hyppar A vector indicating the penalised complexity prior hyperparameters.
+##'  Default is `c(1,1,1)`
+##' @param propsd The proposal standard deviation. Default is `c(0.3,0.1,0.1)`. Do not
+##'  change unless you know what you are doing.
+##' @md
+##' @bandle-mh
 metropolisGPmatern <- function(inith,
                                X,
                                tau,
@@ -94,7 +118,14 @@ metropolisGPmatern <- function(inith,
   return(list(h = h, ar = ar))
   
 }
-
+##' @title Type-2 Gumbel distribution
+##' @param x observation
+##' @param lambda scale parameter of the type-2 Gumbel distribution
+##' @param log `logical` indicating whether to return `log`. Default is `TRUE`
+##' @return Returns the likelihood of the type-2 GUmbel distribution
+##' @md
+##' 
+##' @rdname bandle-gp
 Gumbel <- function(x,
                    lambda,
                    log = TRUE){
@@ -107,8 +138,16 @@ Gumbel <- function(x,
   
   return(gumbel)
 }
-
-
+##' @title Bivariate penalized complexity prior for length-scale and amplitude
+##' @param rho length-scale parameter
+##' @param a amplitude
+##' @param lambda1 first parameter of distribution
+##' @param lamdba2 second parameter of distribution
+##' @param log `logical` indicating whether to return `log`. Default is `TRUE`
+##' @return Returns the likelihood of the bivariate penalised complexity prior
+##' @md
+##' 
+##' @rdname bandle-gp
 PCrhomvar <- function(rho,
                       a,
                       lambda1,

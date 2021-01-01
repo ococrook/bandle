@@ -134,8 +134,8 @@ diffLoc <- function(objectCond1,
         res <- lapply(object_cmb, function(x) fitGP(x, fcol = fcol))
     } else if ((maternCov == TRUE) & (PC = FALSE) & (is.null(gpParams))) {
         res <- lapply(object_cmb, function(x) fitGPmatern(x, fcol = fcol, nu = nu))
-    } else if ((maternCov ==TRUE) & (PC = TRUE) & (is.null(gpParams))) {
-        res <- lapply(object_cmb, function(x) fitGPmaternPC(x, fcol = fcol, nu = nu, hyppar = pc_prior))  
+    } else if ((maternCov == TRUE) & (PC = TRUE) & (is.null(gpParams))) {
+        res <- lapply(object_cmb, function(x) fitGPmaternPC(x, fcol = fcol, nu = nu, hyppar = pcPrior))  
     } else {
         res <- gpParams
     }
@@ -337,8 +337,8 @@ diffLoc <- function(objectCond1,
                                                                       tau = seq.int(D), nk = nk[[l]][j],
                                                                       D = D,
                                                                       niter = 1,
-                                                                      hypMean = hypMean,
-                                                                      hypSd = hypSd)$h[ ,2]
+                                                                      hyperMean = hyperMean,
+                                                                      hyperSd = hyperSd)$h[ ,2]
                             
                             
                         }
@@ -362,7 +362,7 @@ diffLoc <- function(objectCond1,
                         
                         hyperstoupdate <- c(exp(.hypers[[i]][j,1:2]), exp(2 * .hypers[[i]][j,3]))
                         
-                        .pc_prior <- pc_prior[j, ]
+                        .pc_prior <- pcPrior[j, ]
                         newhypers <- metropolisGPmatern(inith = hyperstoupdate,
                                                         X = t(Y),
                                                         tau = seq.int(D),
