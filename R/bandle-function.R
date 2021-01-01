@@ -15,7 +15,7 @@
 ##' replicate for the second condition, usually a treatment
 ##' @param fcol The feature meta-data containing marker definitions. Default is
 ##' `markers`
-##' @param hyperLearn. Algorithm to learn posterior hyperparameters of the Gaussian
+##' @param hyperLearn Algorithm to learn posterior hyperparameters of the Gaussian
 ##' processes. Default is `LBFGS` and `MH` for metropolis-hastings is also implemented. 
 ##' @param numIter The number of iterations of the MCMC
 ##'     algorithm. Default is 1000. Though usually much larger numbers are used
@@ -98,33 +98,33 @@ bandle <- function(objectCond1,
     
     
     ## chains run in parallel, repeating number of iterations
-    .res <- bplapply(rep(numIter, numChains),
-                     FUN = diffLoc,
-                     objectCond1 = objectCond1,
-                     objectCond2 = objectCond2,
-                     fcol = fcol,
-                     hyperLearn = hyperLearn,
-                     #numIter = numIter, #parrallelised 
-                     burnin = burnin,
-                     thin = thin,
-                     u = u,
-                     v = v,
-                     lambda = lambda,
-                     gpParams = gpParams,
-                     hyperIter = hyperIter,
-                     hyperMean = hyperMean,
-                     hyperSd = hyperSd,
-                     seed = seed,
-                     pg = pg,
-                     pgPrior = pgPrior,
-                     tau = tau,
-                     dirPrior = dirPrior,
-                     maternCov = maternCov,
-                     PC = PC,
-                     pcPrior = pcPrior,
-                     nu = nu,
-                     propSd = propSd,
-                     BPPARAM = BPPARAM)
+    .res <- BiocParallel::bplapply(rep(numIter, numChains),
+                                   FUN = diffLoc,
+                                   objectCond1 = objectCond1,
+                                   objectCond2 = objectCond2,
+                                   fcol = fcol,
+                                   hyperLearn = hyperLearn,
+                                   #numIter = numIter, #parrallelised 
+                                   burnin = burnin,
+                                   thin = thin,
+                                   u = u,
+                                   v = v,
+                                   lambda = lambda,
+                                   gpParams = gpParams,
+                                   hyperIter = hyperIter,
+                                   hyperMean = hyperMean,
+                                   hyperSd = hyperSd,
+                                   seed = seed,
+                                   pg = pg,
+                                   pgPrior = pgPrior,
+                                   tau = tau,
+                                   dirPrior = dirPrior,
+                                   maternCov = maternCov,
+                                   PC = PC,
+                                   pcPrior = pcPrior,
+                                   nu = nu,
+                                   propSd = propSd,
+                                   BPPARAM = BPPARAM)
     
     K <- length(getMarkerClasses(objectCond1[[1]], fcol = fcol))
     

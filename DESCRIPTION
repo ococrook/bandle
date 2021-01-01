@@ -4,10 +4,11 @@ Title: An R package to for the bayesian analysis of differential subcellular
     localisation experiments
 Version: 1.0
 Date: 2020-12-26
-Author@R: c(person("Crook", "Oliver M.",
+Author: c(person("Crook", "Oliver M.",
 		    email = "oliver.crook@stats.ox.ac.uk",
 		    comment = c(ORCID = "0000-0001-5669-8506"),
-		    role = c("aut", "cre")),
+		    role = c("aut", "cre")))
+Maintainer: Oliver Crook <oliver.crook@stats.ox.ac.uk>
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
     Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
@@ -15,15 +16,18 @@ Description: The Bandle package enables the analysis and visualisation of
     to analyse these data.
 License: Artistic-2.0
 Encoding: UTF-8
-Depends: R (>= 4.0), 
-    S4Vectors, 
+Depends: R (>= 4.0), S4Vectors 
+Imports: Rcpp (>= 1.0.4.6),
+    MSnbase,
     pRoloc,
     pRolocdata,
     lbfgs,
     Biobase,
     ggplot2,
-    dplyr
-Imports: Rcpp (>= 1.0.4.6)
+    dplyr,
+    plyr,
+    knitr,
+    methods
 Suggests: coda,
     akima,
     fields

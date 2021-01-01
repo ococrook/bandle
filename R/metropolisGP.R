@@ -12,7 +12,7 @@
 ##' @return Returns new hyperparamters and the acceptance rate
 ##' 
 ##' @md
-##' @bandle-mh
+##' @rdname bandle-mh
 metropolisGP <- function(inith,
                          X,
                          tau,
@@ -63,7 +63,7 @@ metropolisGP <- function(inith,
 ##' @param propsd The proposal standard deviation. Default is `c(0.3,0.1,0.1)`. Do not
 ##'  change unless you know what you are doing.
 ##' @md
-##' @bandle-mh
+##' @rdname bandle-mh
 metropolisGPmatern <- function(inith,
                                X,
                                tau,
@@ -97,11 +97,11 @@ metropolisGPmatern <- function(inith,
                 likelihoodGPmatern(X, tau, oldHypers, nk, D, materncov = TRUE, nu = nu)
     mhratioprior <- PCrhomvar(rho = proposedHypers[1], a = proposedHypers[2], lambda1 = hyppar[1],
                               lambda2 = hyppar[2], log = TRUE) + 
-                    Gumbel(1/proposedHypers[3], lambda = hyppar[3], log = TRUE) + sum(pnorm(oldHypers, mean = 0,
+                    Gumbel(1/proposedHypers[3], lambda = hyppar[3], log = TRUE) + sum(dnorm(oldHypers, mean = 0,
                                                                                       sd = propsd, log = TRUE)) - 
                     (PCrhomvar(rho = oldHypers[1], a = oldHypers[2], lambda1 = hyppar[1], 
                                lambda2 = hyppar[2], log = TRUE) + Gumbel(1/oldHypers[3], lambda = hyppar[3], log = TRUE) + 
-                       sum(pnorm(proposedHypers, mean = 0, sd = propsd, log = TRUE)))
+                       sum(dnorm(proposedHypers, mean = 0, sd = propsd, log = TRUE)))
     mhratio <- mhratiolike + mhratioprior
     
     if(mhratio > log(runif(1, 0, 1))){
@@ -142,7 +142,7 @@ Gumbel <- function(x,
 ##' @param rho length-scale parameter
 ##' @param a amplitude
 ##' @param lambda1 first parameter of distribution
-##' @param lamdba2 second parameter of distribution
+##' @param lambda2 second parameter of distribution
 ##' @param log `logical` indicating whether to return `log`. Default is `TRUE`
 ##' @return Returns the likelihood of the bivariate penalised complexity prior
 ##' @md

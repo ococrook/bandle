@@ -1,3 +1,9 @@
 useDynLib(bandle, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
+importFrom("graphics", "arrows", "matplot", "points")
+importFrom("methods", "new")
+importFrom("stats", "cov", "dnorm", "pnorm", "quantile", "rbeta",
+                "rgamma", "rnorm", "runif", "var")
+importFrom("utils", "setTxtProgressBar", "txtProgressBar")
+importFrom("S4Vectors", "DataFrame")

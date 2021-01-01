@@ -32,6 +32,8 @@
 ##' @slot chains `list()` containing the individual bandle Summaries for 
 ##' different conditions results in an `bandleSummaries` instance. Each element must be a
 ##'     valid `bandleSummary` instance.
+##' @md
+##' @rdname bandleParams    
 .bandleSummaries <- setClass("bandleSummaries",
                             slots = c(summaries = "list"),
                             validity = function(object) {
@@ -43,7 +45,6 @@
                                 if (is.null(msg)) TRUE
                                 else msg
                             })
-
 ##' The `bandleParams` infrastructure is used to store and process MCMC results for
 ##' bandle model from Crook et al 2021
 ##'
@@ -56,6 +57,7 @@
 ##' 
 ##' see the *bandle* vignette for examples
 ##' @title Infrastructure to to store and process MCMC results
+##' 
 ##' @slot method A `character()` storing the bandle method name
 ##' @slot priors A `list()` with the priors for the parameters
 ##' @slot seed An `integer()` with the random number generation seed.
@@ -63,8 +65,9 @@
 ##' available in the `bandleParams` instance.
 ##' @slot chains Object of class `bandleChains` containing the full MCMC results
 ##' in the `bandleParams` instance
+##' 
 ##' @md
-##' @rdname `bandleParams`
+##' @rdname bandleParams
 .bandleParams <- setClass("bandleParams",
                           slots = c(method = "character",
                                     priors = "list",
@@ -100,7 +103,7 @@ setMethod("show", "bandleParams",
 ##' @slot nuk `numeric(K)`
 ##' @slot sk `array(K, D, D)`
 ##' @md
-##' @noRd
+##' @rdname bandleParams
 .nicheParam <- setClass("nicheParam",
                             slots = c(dataset = "character",
                                       replicate = "integer",
@@ -132,7 +135,6 @@ setMethod("show", "nicheParam",
               cat(" Number of samples:", object@D, "\n")
               invisible(NULL)
           })
-
 ##' @slot params `list()` containing the individual `nicheParam` objects
 ##'     results in an `bandleParams` instance. Each element must be a
 ##'     valid `bandleParam` instance.
@@ -256,15 +258,28 @@ params <- function(object) {
 ##' @param i An `integer()`. Should be of length 1 for `[[`.
 ##' @param j Missing.
 ##' @param drop Missing.
+##' 
 ##' @md
 ##' @rdname bandleParams
 setMethod("[[", "bandleChains",
           function(x, i, j = "missing", drop = "missing") x@chains[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[[", "bandleParams",
           function(x, i, j = "missing", drop = "missing") params(x)[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[", "bandleChains",
           function(x, i, j = "missing", drop = "missing") {
@@ -273,7 +288,12 @@ setMethod("[", "bandleChains",
               x@chains <- x@chains[i]
               x
           })
-
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[", "bandleParams",
           function(x, i, j = "missing", drop = "missing") {
@@ -282,7 +302,7 @@ setMethod("[", "bandleParams",
               x@chains <- chains(x)[i]
               x
           })
-
+##' @param object of bandleChains
 ##' @rdname bandleParams
 setMethod("show", "bandleChains",
           function(object) {
@@ -290,7 +310,7 @@ setMethod("show", "bandleChains",
               cat(" Number of chains:", length(object), "\n")
               invisible(NULL)
           })
-
+##' @param  object of class bandleSummaries
 ##' @rdname bandleParams
 setMethod("show", "bandleSummaries",
           function(object) {
@@ -303,15 +323,28 @@ setMethod("show", "bandleSummaries",
 ##' @param i An `integer()`. Should be of length 1 for `[[`.
 ##' @param j Missing.
 ##' @param drop Missing.
+##' 
 ##' @md
 ##' @rdname bandleParams
 setMethod("[[", "bandleSummaries",
           function(x, i, j = "missing", drop = "missing") x@summaries[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[[", "bandleSummaries",
           function(x, i, j = "missing", drop = "missing") summaries(x)[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[", "bandleSummaries",
           function(x, i, j = "missing", drop = "missing") {
@@ -320,22 +353,32 @@ setMethod("[", "bandleSummaries",
               x@summaries <- x@summaries[i]
               x
           })
-
-
-
 ##' @param x Object to be subset.
 ##' @param i An `integer()`. Should be of length 1 for `[[`.
 ##' @param j Missing.
 ##' @param drop Missing.
+##' 
 ##' @md
 ##' @rdname bandleParams
 setMethod("[[", "nicheParams",
           function(x, i, j = "missing", drop = "missing") x@params[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[[", "nicheParams",
           function(x, i, j = "missing", drop = "missing") params(x)[[i]])
 
+##' @param x Object to be subset.
+##' @param i An `integer()`. Should be of length 1 for `[[`.
+##' @param j Missing.
+##' @param drop Missing.
+##' 
+##' @md
 ##' @rdname bandleParams
 setMethod("[", "nicheParams",
           function(x, i, j = "missing", drop = "missing") {
@@ -345,6 +388,8 @@ setMethod("[", "nicheParams",
               x
           })
 
+##' @param object object of class nicheParams.
+##' @md
 ##' @rdname bandleParams
 setMethod("show", "nicheParams",
           function(object) {

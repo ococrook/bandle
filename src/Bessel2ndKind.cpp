@@ -2,10 +2,6 @@
 #include <boost/math/special_functions/bessel.hpp>
 // [[Rcpp::depends(RcppArmadillo)]]
 // [[Rcpp::depends(BH)]]
-
-
-
-
 using namespace Rcpp;
 
 // [[Rcpp::export]]

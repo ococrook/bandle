@@ -25,7 +25,7 @@ diffLocalisationProb <- function(params) {
 ##' @param top The number of proteins for which to compute bootstrap distributions
 ##'  default is 20.
 ##' @param Bootsample Number of Bootstramp samples. Default is 5000
-##' @param Descreasing Starting at proteins most likely to be differentially localised.
+##' @param decreasing Starting at proteins most likely to be differentially localised.
 ##'  default is 5000.
 ##' @return  returns a matrix of size Bootsample * top containing bootstrap 
 ##' @md
@@ -200,8 +200,8 @@ prior_pred_pg <- function(objectCond1,
     nkknown <- table(getMarkers(objectCond1, verbose = FALSE))[getMarkerClasses(objectCond1)]
     K <- length(getMarkerClasses(objectCond1))
     
-    sigma1 <- covOrganelle(mydata = objectCond1)
-    sigma2 <- covOrganelle(mydata = objectCond2)
+    sigma1 <- covOrganelle(object = objectCond1)
+    sigma2 <- covOrganelle(object = objectCond2)
     w <- rep(1, K^2)
     
     n_vec <- c(diag(nkknown))

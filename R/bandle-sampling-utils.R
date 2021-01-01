@@ -35,7 +35,7 @@ proteinAllocation <- function(loglikelihoods,
 }
 
 ##' @title computer outlier allocations probabilties
-##' @param outlierlikelihoods the outlier log likelihoods 
+##' @param outlierlikelihood the outlier log likelihoods 
 ##' @param loglikelihoods the log likelihoods
 ##' @param epsilon the outlier component weight
 ##' @param alloctemp the current protein allocations
@@ -79,6 +79,7 @@ sampleOutlier <- function(allocoutlierprob){
 }
 ##' @title compute organelle covariances
 ##' @param object An instance of class `MSnSet`
+##' @param fcol feature column indicating marker data. Default is "markers"
 ##' @return returns covariance of organelles using marker proteins
 ##' @md
 ##' 
@@ -109,8 +110,8 @@ pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
     if (is.null(pgPrior)) {
         mu_prior <- rep(-7, K^2)
         mu_prior[c(K+1 * seq.int(1:K) - K)] <- mu_prior[c(K+1 * seq.int(1:K) - K)] + 1
-        sigma1 <- covOrganelle(mydata = object_cond1[[1]])
-        sigma2 <- covOrganelle(mydata = object_cond2[[1]])
+        sigma1 <- covOrganelle(object = object_cond1[[1]])
+        sigma2 <- covOrganelle(object = object_cond2[[1]])
     }
     pgPrior <- list(mu_prior = mu_prior, sigma1 =  sigma1, sigma2 = sigma2)
     return(pgPrior)

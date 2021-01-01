@@ -63,7 +63,7 @@ posteriorgradientGPmatern <- function(Xk, tau, h, nk, D, materncov, nu, hyppar){
 ##' @return return the gradient of the log prior, length-scale, aamplitude and
 ##'  noise
 ##' @md
-##' @rdname 
+##' @rdname bandle-gp
 gradientlogprior <- function(h, hyppar){
   
   gradrhoprior <- 3/2 - hyppar[1]*exp(- h[1]/2)/2 

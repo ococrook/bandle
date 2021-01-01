@@ -79,7 +79,7 @@ Gumbel <- function(x,
 ##' @param rho length-scale parameter
 ##' @param a amplitude
 ##' @param lambda1 first parameter of distribution
-##' @param lamdba2 second parameter of distribution
+##' @param lambda2 second parameter of distribution
 ##' @param log `logical` indicating whether to return `log`. Default is `TRUE`
 ##' @return Returns the likelihood of the bivariate penalised complexity prior
 ##' @md

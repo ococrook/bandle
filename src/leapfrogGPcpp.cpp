@@ -2,8 +2,9 @@
 # include "utils.h"
 // [[Rcpp::depends(RcppArmadillo)]]
 using namespace Rcpp;
-//' Computes gradients of hyperaparamters with respect to GP
-//' @params Y The data
+//' @title Computes gradients of hyperaparamters with respect to GP
+//' 
+//' @param Y The data
 //' @param drv matrix derivative
 //' @param nk number of observations
 //' @param D number of samples
@@ -35,8 +36,8 @@ arma::vec gradienthyp(arma::vec Y,
   
   return(gradienthyp); 
 }
-//' Computes gradients of  GP
-//' @params Xk The data
+//' @title Computes gradients of  GP
+//' @param Xk The data
 //' @param tau indexing term
 //' @param h vector of hyperparamters
 //' @param nk number of observations
