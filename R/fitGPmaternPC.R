@@ -12,7 +12,7 @@
 ##'  predictive overlayed with markers.
 ##' @md
 ##' 
-##' @rdname bandle-sim
+##' @rdname bandle-gpfit
 fitGPmaternPC <- function(object = object,
                           fcol = "markers",
                           materncov = TRUE,
