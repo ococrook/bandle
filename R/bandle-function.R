@@ -332,8 +332,8 @@ bandleProcess <- function(params) {
     bandle.allocationCond1 <- colnames(bandle.jointCond1)[apply(bandle.jointCond1, 1, which.max)]
     bandle.jointCond2 <- bandle.jointCond2/numChains
     bandle.outlierCond2 <- bandle.outlierCond2/numChains
-    bandle.probabilityCond1 <- apply(bandle.jointCond2, 1, max)
-    bandle.allocationCond1 <- colnames(bandle.jointCond2)[apply(bandle.jointCond2, 1, which.max)]
+    bandle.probabilityCond2 <- apply(bandle.jointCond2, 1, max)
+    bandle.allocationCond2 <- colnames(bandle.jointCond2)[apply(bandle.jointCond2, 1, which.max)]
     bandle.differential.localisation <- pooled.differential.localisation/numChains
     
     ## Calculate quantiles
@@ -351,9 +351,9 @@ bandleProcess <- function(params) {
                                                                 apply(bandle.jointCond1, 1, which.max), rep(1, N))]
     bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond1[cbind(1:N,
                                                                 apply(bandle.jointCond1, 1, which.max), rep(2, N))]
-    bandle.probability.lowerquantile.cond1 <- .bandle.quantilesCond2[cbind(1:N,
+    bandle.probability.lowerquantile.cond2 <- .bandle.quantilesCond2[cbind(1:N,
                                                                 apply(bandle.jointCond2, 1, which.max), rep(1, N))]
-    bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond2[cbind(1:N,
+    bandle.probability.upperquantile.cond2 <- .bandle.quantilesCond2[cbind(1:N,
                                                                 apply(bandle.jointCond2, 1, which.max), rep(2, N))]
     
     ## Compute Shannon Entropy
@@ -364,34 +364,44 @@ bandleProcess <- function(params) {
     bandle.mean.shannonCond2 <- rowMeans(bandle.shannonCond2)
     
     ## Name entries
-    names(bandle.mean.shannon) <- names(bandle.probability.lowerquantile) <-
-        names(bandle.probability.upperquantile) <- rownames(myChain@niche[[1]])
-    rownames(bandle.joint) <- names(bandle.probability) <-
-        names(bandle.allocation) <- rownames(myChain@niche[[1]])
-    colnames(bandle.joint) <- dimnames(myChain@nicheProb[[1]])[[3]]
+    names(bandle.mean.shannonCond1) <- names(bandle.probability.lowerquantile.cond1) <-
+        names(bandle.probability.upperquantile.cond1) <- names(bandle.mean.shannonCond2) <-
+        names(bandle.probability.lowerquantile.cond1) <-
+        names(bandle.probability.upperquantile.cond2) <- rownames(myChain@niche[[1]])
+    rownames(bandle.jointCond1) <- names(bandle.probabilityCond1) <-
+        names(bandle.allocationCond1) <- rownames(bandle.jointCond2) <- names(bandle.probabilityCond2) <-
+        names(bandle.allocationCond2) <- rownames(myChain@niche[[1]])
+    colnames(bandle.jointCond1) <- colnames(bandle.jointCond2) <- dimnames(myChain@nicheProb[[1]])[[3]]
     
-    ## Outlier colNames
-    colnames(bandle.outlier) <- c("bandle.probability.notOutlier",
-                                  "bandle.probability.Outlier")
-    
+    ## Outlier colNames # not use
+
     ## Compute convergence diagnostics
     weights <- vector("list", length = numChains)
     r_hat <- vector(mode = "list", length = K)
     
     for(j in seq_len(numChains)) {
         mc <- chains(params)[[j]]
-        weight[[j]] <- coda::mcmc(mc@weights)
+        weights[[j]] <- coda::mcmc(mc@weights)
     }
     
     ## Summary of posterior estimates
-    bandle.summary <- DataFrame(bandle.allocation,
-                                bandle.probability,
-                                bandle.outlier,
-                                bandle.probability.lowerquantile,
-                                bandle.probability.upperquantile,
-                                bandle.mean.shannon,
-                                bandle.differential.localisation)
+    bandle.summary1 <- DataFrame(bandle.allocationCond1,
+                                 bandle.probabilityCond1,
+                                 bandle.outlierCond1,
+                                 bandle.probability.lowerquantile.cond1,
+                                 bandle.probability.upperquantile.cond1,
+                                 bandle.mean.shannonCond1,
+                                 bandle.differential.localisation)
     
+    bandle.summary2 <- DataFrame(bandle.allocationCond2,
+                                 bandle.probabilityCond2,
+                                 bandle.outlierCond2,
+                                 bandle.probability.lowerquantile.cond2,
+                                 bandle.probability.upperquantile.cond2,
+                                 bandle.mean.shannonCond2,
+                                 bandle.differential.localisation)
+    
+    .diagnostics <- matrix(NA, 1, 1)
     ## Compute convergence diagnostics
     if(numChains > 1){
         weights <- coda::as.mcmc.list(weight)
@@ -402,9 +412,12 @@ bandleProcess <- function(params) {
     }
 
     ## Constructor for summary
-    params@summary <- .bandleSummary(posteriorEstimates = bandle.summary,
-                                   diagnostics = .diagnostics,
-                                   bandle.joint = bandle.joint)
+    params@summary@summaries[[1]] <- .bandleSummary(posteriorEstimates = bandle.summary1,
+                                                    diagnostics = .diagnostics,
+                                                    bandle.joint = bandle.jointCond1)
+    params@summary@summaries[[2]] <- .bandleSummary(posteriorEstimates = bandle.summary2,
+                                                    diagnostics = .diagnostics,
+                                                    bandle.joint = bandle.jointCond2)
     
     return(params)
 }
