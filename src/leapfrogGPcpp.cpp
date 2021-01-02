@@ -11,7 +11,6 @@ using namespace Rcpp;
 //' @param Z internal matrix required for computations
 //' @param A internal matrix required for computations
 //' @param sigmak standard deviation parameter
-
 arma::vec gradienthyp(arma::vec Y,
                       arma::mat drv,
                       double nk,
@@ -42,7 +41,6 @@ arma::vec gradienthyp(arma::vec Y,
 //' @param h vector of hyperparamters
 //' @param nk number of observations
 //' @param D number of samples
-
 // [[Rcpp::export]]
 arma::vec gradientGPcpp(arma::mat Xk,
                         arma::vec tau,
@@ -113,6 +111,8 @@ arma::vec gradientGPcpp(arma::mat Xk,
   return(grad);
 }
 
+//' @description Leapfrog routine
+//' 
 // [[Rcpp::export]]
 List LeapfrogGPcpp(arma::mat Xk,
                         arma::vec tau,

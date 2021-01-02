@@ -204,6 +204,40 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// sampleGPmeancpp
+arma::vec sampleGPmeancpp(arma::mat Xk, arma::vec tau, arma::vec h, int nk, int D);
+RcppExport SEXP _bandle_sampleGPmeancpp(SEXP XkSEXP, SEXP tauSEXP, SEXP hSEXP, SEXP nkSEXP, SEXP DSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Xk(XkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type h(hSEXP);
+    Rcpp::traits::input_parameter< int >::type nk(nkSEXP);
+    Rcpp::traits::input_parameter< int >::type D(DSEXP);
+    rcpp_result_gen = Rcpp::wrap(sampleGPmeancpp(Xk, tau, h, nk, D));
+    return rcpp_result_gen;
+END_RCPP
+}
+// normalisedData
+arma::mat normalisedData(arma::mat& Xknown, arma::vec& BX, arma::mat& Xunknown, arma::vec& BXun, arma::vec& hypers, arma::vec& nk, arma::vec& tau, int D, int j);
+RcppExport SEXP _bandle_normalisedData(SEXP XknownSEXP, SEXP BXSEXP, SEXP XunknownSEXP, SEXP BXunSEXP, SEXP hypersSEXP, SEXP nkSEXP, SEXP tauSEXP, SEXP DSEXP, SEXP jSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat& >::type Xknown(XknownSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type BX(BXSEXP);
+    Rcpp::traits::input_parameter< arma::mat& >::type Xunknown(XunknownSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type BXun(BXunSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type hypers(hypersSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type nk(nkSEXP);
+    Rcpp::traits::input_parameter< arma::vec& >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type D(DSEXP);
+    Rcpp::traits::input_parameter< int >::type j(jSEXP);
+    rcpp_result_gen = Rcpp::wrap(normalisedData(Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, j));
+    return rcpp_result_gen;
+END_RCPP
+}
 // normalisedDatamatern
 arma::mat normalisedDatamatern(arma::mat& Xknown, arma::vec& BX, arma::mat& Xunknown, arma::vec& BXun, arma::vec& hypers, arma::vec& nk, arma::vec& tau, int D, int j, double nu);
 RcppExport SEXP _bandle_normalisedDatamatern(SEXP XknownSEXP, SEXP BXSEXP, SEXP XunknownSEXP, SEXP BXunSEXP, SEXP hypersSEXP, SEXP nkSEXP, SEXP tauSEXP, SEXP DSEXP, SEXP jSEXP, SEXP nuSEXP) {
@@ -314,6 +348,25 @@ BEGIN_RCPP
     return rcpp_result_gen;
 END_RCPP
 }
+// centeredData
+List centeredData(arma::mat Xknown, arma::vec BX, arma::mat Xunknown, arma::vec BXun, arma::mat hypers, arma::vec nk, arma::vec tau, int D, int K);
+RcppExport SEXP _bandle_centeredData(SEXP XknownSEXP, SEXP BXSEXP, SEXP XunknownSEXP, SEXP BXunSEXP, SEXP hypersSEXP, SEXP nkSEXP, SEXP tauSEXP, SEXP DSEXP, SEXP KSEXP) {
+BEGIN_RCPP
+    Rcpp::RObject rcpp_result_gen;
+    Rcpp::RNGScope rcpp_rngScope_gen;
+    Rcpp::traits::input_parameter< arma::mat >::type Xknown(XknownSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type BX(BXSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type Xunknown(XunknownSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type BXun(BXunSEXP);
+    Rcpp::traits::input_parameter< arma::mat >::type hypers(hypersSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type nk(nkSEXP);
+    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< int >::type D(DSEXP);
+    Rcpp::traits::input_parameter< int >::type K(KSEXP);
+    rcpp_result_gen = Rcpp::wrap(centeredData(Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, K));
+    return rcpp_result_gen;
+END_RCPP
+}
 // mahaInt
 arma::vec mahaInt(arma::mat& X, arma::vec& mu, arma::mat& sigma, const bool isChol);
 RcppExport SEXP _bandle_mahaInt(SEXP XSEXP, SEXP muSEXP, SEXP sigmaSEXP, SEXP isCholSEXP) {
@@ -420,6 +473,8 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bandle_LeapfrogGPcppPC", (DL_FUNC) &_bandle_LeapfrogGPcppPC, 11},
     {"_bandle_sampleGPmeanmaterncpp", (DL_FUNC) &_bandle_sampleGPmeanmaterncpp, 6},
     {"_bandle_makeComponent", (DL_FUNC) &_bandle_makeComponent, 5},
+    {"_bandle_sampleGPmeancpp", (DL_FUNC) &_bandle_sampleGPmeancpp, 5},
+    {"_bandle_normalisedData", (DL_FUNC) &_bandle_normalisedData, 9},
     {"_bandle_normalisedDatamatern", (DL_FUNC) &_bandle_normalisedDatamatern, 10},
     {"_bandle_centeredDatamatern", (DL_FUNC) &_bandle_centeredDatamatern, 10},
     {"_bandle_componentloglike", (DL_FUNC) &_bandle_componentloglike, 2},
@@ -428,6 +483,7 @@ static const R_CallMethodDef CallEntries[] = {
     {"_bandle_sampleDirichlet", (DL_FUNC) &_bandle_sampleDirichlet, 2},
     {"_bandle_sampleOutliercpp", (DL_FUNC) &_bandle_sampleOutliercpp, 1},
     {"_bandle_sampleAlloccpp", (DL_FUNC) &_bandle_sampleAlloccpp, 1},
+    {"_bandle_centeredData", (DL_FUNC) &_bandle_centeredData, 9},
     {"_bandle_mahaInt", (DL_FUNC) &_bandle_mahaInt, 4},
     {"_bandle_dmvtInt", (DL_FUNC) &_bandle_dmvtInt, 5},
     {"_bandle_dmvtCpp", (DL_FUNC) &_bandle_dmvtCpp, 6},

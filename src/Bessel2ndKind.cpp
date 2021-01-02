@@ -476,6 +476,96 @@ arma::mat makeComponent(arma::mat &X,
   
   return(component);
 }
+// [[Rcpp::export]]
+arma::vec sampleGPmeancpp(arma::mat Xk,
+                          arma::vec tau,
+                          arma::vec h,
+                          int nk,
+                          int D
+){
+  double sigmak; sigmak = exp(2 * h(2));
+  double a; a = exp(2 * h(1));
+  double l; l = exp(h(0));
+  arma::mat Z(D,D);
+  arma::mat S(D,D); S = arma::zeros(D,D);
+  arma::mat A(D,D);
+  arma::mat R(D,D);
+  arma::mat J = arma::ones(nk, nk);
+  arma::mat invC(D * nk , D * nk);
+  arma::mat priorCor(D, D * nk);
+  arma::mat postV(D, D);
+  arma::mat cholV(D, D);
+  arma::vec v;
+  arma::vec postM;
+  arma::vec GPmean;
+  arma::vec eigval;
+  arma::mat eigvec;
+  arma::mat eye = arma::eye(D, D);
+  arma::vec Y(D);
+  List trenchres = List::create(Rcpp::Named("logdet"),
+                                Rcpp::Named("z"),
+                                Rcpp::Named("v"));
+  
+  S = S.each_col() + tau;
+  A = a * exp(- pow(S - S.t(), 2)/l);
+  R = arma::eye(D, D) + (nk * A)/sigmak;
+  
+  trenchres = trenchDetcpp(R.row(0).t());
+  v = as<arma::vec>(trenchres["v"]);
+  
+  Z = trenchInvcpp(v);
+  //invC = (arma::eye(D * nk , D * nk) / sigmak)  - arma::kron(J, eye - Z)/(sigmak * nk);
+  //priorCor = kron(arma::ones(1, nk), A);
+  //postM = priorCor * (invC * Xk);
+  
+  Y = sum(Xk, 1);
+  postM =  ((eye - Z) * Y) / nk ;
+  
+  //postV = A - (nk * (A * A)/sigmak) + nk * (A * (eye - Z) * A)/(sigmak);
+  //postV = A - (nk * A * Z * A)/(sigmak)
+  postV = (eye - Z)  * sigmak/nk;
+  eig_sym(eigval, eigvec, postV);
+  
+  for(int i = 0; i < D; i++){
+    if(eigval[i] < 0 ){
+      eigval[i] = 10e-6;
+    }
+  }
+  //cholV = arma::chol(postV);
+  GPmean = postM + (eigvec * (eye.each_col() % sqrt(eigval))) * as<arma::vec>(rnorm(D));
+  
+  return(GPmean);
+  
+}
+// [[Rcpp::export]]
+arma::mat normalisedData(arma::mat &Xknown,
+                         arma::vec &BX,
+                         arma::mat &Xunknown,
+                         arma::vec &BXun,
+                         arma::vec &hypers,
+                         arma::vec &nk,
+                         arma::vec &tau,
+                         int D,
+                         int j){
+  arma::mat Xk;
+  arma::vec sampleGPMean;
+  //arma::mat outbefore;
+  int n = Xunknown.n_rows;
+  arma::mat out(n, D);
+  
+  
+  
+  Xk = makeComponent(Xknown, BX, Xunknown, BXun, j);
+  sampleGPMean = sampleGPmeancpp(Xk.t(), tau, hypers, nk(j-1), D); //need to correct still
+  for (int d = 0; d < D; d++) {
+    for (int i = 0; i < n; i++) {
+      out(i, d) = Xunknown(i, d) - sampleGPMean(d);
+    }
+  }
+  //outbefore = Xunknown.each_row() - sampleGPMean.t();
+  
+  return(out);
+}
 
 // [[Rcpp::export]]
 arma::mat normalisedDatamatern(arma::mat &Xknown,
@@ -658,4 +748,32 @@ arma::vec sampleAlloccpp(arma::mat allocprob) {
   }
   
   return(alloc);
+}
+
+// [[Rcpp::export]]
+List centeredData(arma::mat Xknown,
+                  arma::vec BX,
+                  arma::mat Xunknown,
+                  arma::vec BXun,
+                  arma::mat hypers,
+                  arma::vec nk,
+                  arma::vec tau,
+                  int D,
+                  int K){
+  int j;
+  List centereddata(K);
+  arma::vec currenthyper(3);
+  
+  for(j = 0; j < K; j++){
+    currenthyper = hypers.row(j).t();
+    centereddata[j] = normalisedData(Xknown,
+                                     BX,
+                                     Xunknown, 
+                                     BXun,
+                                     currenthyper, 
+                                     nk, tau, D = D, j + 1).t();
+  }
+  
+  
+  return(centereddata);
 }

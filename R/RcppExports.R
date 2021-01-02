@@ -53,6 +53,14 @@ makeComponent <- function(X, BX, Y, BY, j) {
     .Call(`_bandle_makeComponent`, X, BX, Y, BY, j)
 }
 
+sampleGPmeancpp <- function(Xk, tau, h, nk, D) {
+    .Call(`_bandle_sampleGPmeancpp`, Xk, tau, h, nk, D)
+}
+
+normalisedData <- function(Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, j) {
+    .Call(`_bandle_normalisedData`, Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, j)
+}
+
 normalisedDatamatern <- function(Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, j, nu) {
     .Call(`_bandle_normalisedDatamatern`, Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, j, nu)
 }
@@ -83,6 +91,10 @@ sampleOutliercpp <- function(allocoutlierprob) {
 
 sampleAlloccpp <- function(allocprob) {
     .Call(`_bandle_sampleAlloccpp`, allocprob)
+}
+
+centeredData <- function(Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, K) {
+    .Call(`_bandle_centeredData`, Xknown, BX, Xunknown, BXun, hypers, nk, tau, D, K)
 }
 
 #'  Copyright (C) 2014 Matteo Fasiolo  matteo.fasiolo@gmail.com
@@ -130,12 +142,12 @@ NULL
 #' @param h vector of hyperparamters
 #' @param nk number of observations
 #' @param D number of samples
-NULL
-
 gradientGPcpp <- function(Xk, tau, h, nk, D) {
     .Call(`_bandle_gradientGPcpp`, Xk, tau, h, nk, D)
 }
 
+#' @description Leapfrog routine
+#' 
 LeapfrogGPcpp <- function(Xk, tau, p, x, m, nk, D, L, delta) {
     .Call(`_bandle_LeapfrogGPcpp`, Xk, tau, p, x, m, nk, D, L, delta)
 }

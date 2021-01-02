@@ -27,7 +27,8 @@ Imports: Rcpp (>= 1.0.4.6),
     dplyr,
     plyr,
     knitr,
-    methods
+    methods,
+    BiocParallel
 Suggests: coda,
     akima,
     fields

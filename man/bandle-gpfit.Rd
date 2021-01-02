@@ -3,6 +3,7 @@
 \name{fitGP}
 \alias{fitGP}
 \alias{fitGPmaternPC}
+\alias{fitGPmatern}
 \title{fit a Gaussian process to spatial proteomics data}
 \usage{
 fitGP(object = object, fcol = "markers")
@@ -14,6 +15,8 @@ fitGPmaternPC(
   nu = 2,
   hyppar = c(1, 50, 50)
 )
+
+fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
 }
 \arguments{
 \item{object}{A instance of class \code{MSnSet}}
@@ -34,10 +37,16 @@ effect, plot the markers with overlayed Gaussian processes.
 returns a list of posterior predictive means and standard deviations.
 As well as MAP hyperparamters for the GP. Side effect will plot the posterior
 predictive overlayed with markers.
+
+returns a list of posterior predictive means and standard deviations.
+As well as maximum marginal likelihood for the GP. Side effect will plot the posterior
+predictive overlayed with markers.
 }
 \description{
 Helper function to fit GPs with squared exponential convariances,
 maximum marginal likelihood
+
+Function to fit matern GPs to data, side effect will plot posterior predictives
 
 Function to fit matern GPs to data, side effect will plot posterior predictives
 }

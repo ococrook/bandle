@@ -301,16 +301,14 @@ bandleProcess <- function(params) {
     for (j in seq_len(numChains)) {
         
         mc <- chains(params)[[j]]
-        meanComponentProb[[j]] <- t(apply(mc@ComponentProb[, , ], 1, colMeans))
-        meanOutlierProb[[j]] <- t(apply(mc@OutlierProb[, , ], 1, colMeans))
+        meanComponentProb[[j]] <- t(apply(mc@nicheProb[, , ], 1, colMeans))
         bandle.joint <- bandle.joint + meanComponentProb[[j]]
-        bandle.outlier <- bandle.outlier + meanOutlierProb[[j]]
+        bandle.outlier <- bandle.outlier
         ## Pool chains
-        pooled.Component[, n * (j - 1) + seq.int(n)] <- mc@Component
-        pooled.ComponentProb[, n * (j - 1) + seq.int(n), ] <- mc@ComponentProb
-        pooled.Outlier[, n * (j - 1)+ seq.int(n)] <- mc@Outlier
-        pooled.OutlierProb[, n * (j - 1) + seq.int(n), ] <- mc@OutlierProb
-        pooled.differential.localisation[, n * (j - 1) + seq.int(n)] <- 1 - probsameorganelle(params)
+        pooled.Component[, n * (j - 1) + seq.int(n)] <- mc@niche
+        pooled.ComponentProb[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb
+        pooled.Outlier[, n * (j - 1)+ seq.int(n)] <- mc@outlier
+        pooled.differential.localisation[, n * (j - 1) + seq.int(n)] <- diffLocalisationProb(params = params)
         
     }
     ## take means across chains
@@ -341,10 +339,10 @@ bandleProcess <- function(params) {
     
     ## Name entries
     names(bandle.mean.shannon) <- names(bandle.probability.lowerquantile) <-
-        names(bandle.probability.upperquantile) <- rownames(myChain@Component)
+        names(bandle.probability.upperquantile) <- rownames(myChain@niche[[1]])
     rownames(bandle.joint) <- names(bandle.probability) <-
-        names(bandle.allocation) <- rownames(myChain@Component)
-    colnames(bandle.joint) <- rownames(myChain@ComponentParam@mk)
+        names(bandle.allocation) <- rownames(myChain@niche[[1]])
+    colnames(bandle.joint) <- dimnames(myChain@nicheProb[[1]])[[3]]
     
     ## Outlier colNames
     colnames(bandle.outlier) <- c("bandle.probability.notOutlier",
