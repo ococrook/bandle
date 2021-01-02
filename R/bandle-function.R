@@ -278,6 +278,8 @@ stopifnot(featureNames(unknownMSnSet(object, fcol = fcol))
 ##' @rdname bandle
 bandleProcess <- function(params) {
     
+    stopifnot(class(params) == "bandleParams")
+    
     ## get require slots
     myChain <- chains(params)[[1]]
     numChains <- length(chains(params))
@@ -286,56 +288,80 @@ bandleProcess <- function(params) {
     n <- myChain@n
     
     ## storage
-    meanComponentProb = vector("list", length = numChains)
+    meanComponentProbCond1 = vector("list", length = numChains)
+    meanComponentProbCond2 = vector("list", length = numChains)
     meanOutlierProb = vector("list", length = numChains)
-    bandle.joint <- matrix(0, nrow = N, ncol = K)
-    bandle.outlier <- matrix(0, nrow = N, ncol = 2)
-    .bandle.quantiles <- array(0, c(N, K, 2))
-    pooled.Component <- matrix(0, nrow = N, ncol = n * numChains)
-    pooled.ComponentProb <- array(0, c(N, n * numChains, K ))
-    pooled.Outlier <- matrix(0, nrow = N, ncol = n * numChains)
-    pooled.OutlierProb <- array(0, c(N, n * numChains, 2 ))
-    pooled.differential.localisation <- matrix(0, nrow = N, ncol = n * numChains)
+    bandle.jointCond1 <- matrix(0, nrow = N, ncol = K)
+    bandle.jointCond2 <- matrix(0, nrow = N, ncol = K)
+    bandle.outlierCond1 <- matrix(0, nrow = N, ncol = 1)
+    bandle.outlierCond2 <- matrix(0, nrow = N, ncol = 1)
+    .bandle.quantilesCond1 <- array(0, c(N, K, 2))
+    .bandle.quantilesCond2 <- array(0, c(N, K, 2))
+    pooled.ComponentCond1 <- matrix(0, nrow = N, ncol = n * numChains)
+    pooled.ComponentProbCond1 <- array(0, c(N, n * numChains, K ))
+    pooled.OutlierCond1 <- matrix(0, nrow = N, ncol = n * numChains)    
+    pooled.ComponentCond2 <- matrix(0, nrow = N, ncol = n * numChains)
+    pooled.ComponentProbCond2 <- array(0, c(N, n * numChains, K ))
+    pooled.OutlierCond2 <- matrix(0, nrow = N, ncol = n * numChains)
+    pooled.differential.localisation <- matrix(0, nrow = N, ncol = numChains)
     
     # Calculate basic quantities
     for (j in seq_len(numChains)) {
         
         mc <- chains(params)[[j]]
-        meanComponentProb[[j]] <- t(apply(mc@nicheProb[, , ], 1, colMeans))
-        bandle.joint <- bandle.joint + meanComponentProb[[j]]
-        bandle.outlier <- bandle.outlier
+        meanComponentProbCond1[[j]] <- t(apply(mc@nicheProb[[1]][, , ], 1, colMeans))
+        meanComponentProbCond2[[j]] <- t(apply(mc@nicheProb[[2]][, , ], 1, colMeans))
+        bandle.jointCond1 <- bandle.jointCond1 + meanComponentProbCond1[[j]]
+        bandle.jointCond2 <- bandle.jointCond2 + meanComponentProbCond2[[j]]
+        bandle.outlierCond1 <- bandle.outlierCond1 + 1 - rowMeans(mc@outlier[[1]])
+        bandle.outlierCond2 <- bandle.outlierCond1 + 1 - rowMeans(mc@outlier[[2]])
         ## Pool chains
-        pooled.Component[, n * (j - 1) + seq.int(n)] <- mc@niche
-        pooled.ComponentProb[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb
-        pooled.Outlier[, n * (j - 1)+ seq.int(n)] <- mc@outlier
-        pooled.differential.localisation[, n * (j - 1) + seq.int(n)] <- diffLocalisationProb(params = params)
+        pooled.ComponentCond1[, n * (j - 1) + seq.int(n)] <- mc@niche[[1]]
+        pooled.ComponentProbCond1[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb[[1]]
+        pooled.OutlierCond1[, n * (j - 1)+ seq.int(n)] <- mc@outlier[[1]]
+        pooled.ComponentCond2[, n * (j - 1) + seq.int(n)] <- mc@niche[[2]]
+        pooled.ComponentProbCond2[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb[[2]]
+        pooled.OutlierCond2[, n * (j - 1)+ seq.int(n)] <- mc@outlier[[2]]
+        pooled.differential.localisation[, j] <- diffLocalisationProb(params = params)
         
     }
     ## take means across chains
-    bandle.joint <- bandle.joint/numChains
-    bandle.outlier <- bandle.outlier/numChains
-    bandle.probability <- apply(bandle.joint, 1, max)
-    bandle.allocation <- colnames(bandle.joint)[apply(bandle.joint, 1, which.max)]
+    bandle.jointCond1 <- bandle.jointCond1/numChains
+    bandle.outlierCond1 <- bandle.outlierCond1/numChains
+    bandle.probabilityCond1 <- apply(bandle.jointCond1, 1, max)
+    bandle.allocationCond1 <- colnames(bandle.jointCond1)[apply(bandle.jointCond1, 1, which.max)]
+    bandle.jointCond2 <- bandle.jointCond2/numChains
+    bandle.outlierCond2 <- bandle.outlierCond2/numChains
+    bandle.probabilityCond1 <- apply(bandle.jointCond2, 1, max)
+    bandle.allocationCond1 <- colnames(bandle.jointCond2)[apply(bandle.jointCond2, 1, which.max)]
     bandle.differential.localisation <- pooled.differential.localisation/numChains
     
     ## Calculate quantiles
     for (i in seq_len(N)) {
         for (j in seq_len(K)) {
-            .bandle.quantiles[i, j, ] <- quantile(pooled.ComponentProb[i, , j],
-                                                  probs = c(0.025, 0.975))
+            .bandle.quantilesCond1[i, j, ] <- quantile(pooled.ComponentProbCond1[i, , j],
+                                                    probs = c(0.025, 0.975))
+            .bandle.quantilesCond2[i, j, ] <- quantile(pooled.ComponentProbCond2[i, , j],
+                                                       probs = c(0.025, 0.975))
         }
     }
     
     ## Store quantiles
-    bandle.probability.lowerquantile <- .bandle.quantiles[cbind(1:N,
-                                                                apply(bandle.joint, 1, which.max), rep(1, N))]
-    bandle.probability.upperquantile <- .bandle.quantiles[cbind(1:N,
-                                                                apply(bandle.joint, 1, which.max), rep(2, N))]
+    bandle.probability.lowerquantile.cond1 <- .bandle.quantilesCond1[cbind(1:N,
+                                                                apply(bandle.jointCond1, 1, which.max), rep(1, N))]
+    bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond1[cbind(1:N,
+                                                                apply(bandle.jointCond1, 1, which.max), rep(2, N))]
+    bandle.probability.lowerquantile.cond1 <- .bandle.quantilesCond2[cbind(1:N,
+                                                                apply(bandle.jointCond2, 1, which.max), rep(1, N))]
+    bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond2[cbind(1:N,
+                                                                apply(bandle.jointCond2, 1, which.max), rep(2, N))]
     
     ## Compute Shannon Entropy
-    bandle.shannon <- -apply(pooled.ComponentProb * log(pooled.ComponentProb), c(1,2), sum)
-    bandle.shannon[is.na(bandle.shannon)] <- 0
-    bandle.mean.shannon <- rowMeans(bandle.shannon)
+    bandle.shannonCond1 <- -apply(pooled.ComponentProbCond1 * log(pooled.ComponentProbCond1), c(1,2), sum)
+    bandle.shannonCond2 <- -apply(pooled.ComponentProbCond2 * log(pooled.ComponentProbCond2), c(1,2), sum)
+    bandle.shannonCond1[is.na(bandle.shannonCond1)] <- 0
+    bandle.mean.shannonCond1 <- rowMeans(bandle.shannonCond1)
+    bandle.mean.shannonCond2 <- rowMeans(bandle.shannonCond2)
     
     ## Name entries
     names(bandle.mean.shannon) <- names(bandle.probability.lowerquantile) <-
