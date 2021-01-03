@@ -1,0 +1,158 @@
+---
+title: "Analysing differential localisation experiments with BANDLE"
+author:
+- name: Oliver M. Crook
+package: bandle
+abstract: >
+  This vignette describes how to analysis a mass-spectrometry based 
+  differential localisation experiments using BANDLE. Data should be
+  stored as lists of `MSnSet`. There is also features for quality control and
+  visualisation of results
+output:
+  BiocStyle::html_document:
+    toc_float: true
+vignette: >
+  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE}
+  %\VignetteEngine{knitr::rmarkdown}
+  %%\VignetteKeywords{Mass Spectrometry, MS, MSMS, Proteomics, Metabolomics, Infrastructure, Quantitative}
+  %\VignetteEncoding{UTF-8}
+---
+
+```{r style, echo = FALSE, results = 'asis'}
+BiocStyle::markdown()
+```
+
+```{r env, message = FALSE, warning = FALSE, echo = FALSE}
+library("bandle")
+library("ggplot2")
+library("pRoloc")
+library("pRolocdata")
+library("MSnbase")
+
+setStockcol(paste0(getStockcol(),"90")) # see throught colours
+```
+
+# A well-defined differential localisation experiment
+
+We are going to generate a differential localisation experiment. They key 
+elements are replicates, and a perturbation of interest. There is code within
+the `bandle` package to simulate an example experiment. First we will use 
+the `pRolocdata` package to obtain a spatial proteomics dataset. This will be
+the basis of our simulation which will use boostrapping to generate new datasets.
+
+```{r,}
+data("tan2009r1")
+```
+
+```{r exampledata,}
+plot2D(tan2009r1, main = "example spatial proteomics datasets", grid = FALSE)
+addLegend(tan2009r1, where = "topleft", cex = 0.7)
+```
+The following code chuck simulates a differential localisation experiment.
+It will generate `numRep/2` of each a control and treatment condition. We
+will also simulate relocalisations for `numDyn` proteins.
+```{r simulatedataset,}
+
+tansim <- sim_dynamic(object = tan2009r1,
+                      numRep = 6,
+                      numDyn = 20)
+
+```
+
+```{r visualisationdata, out = FALSE, message = FALSE, print = FALSE, echo=FALSE}
+par(mfrow = c(3,2))
+out <- lapply(tansim$lopitrep, function(z) plot2D(z, grid = FALSE))
+```
+For understanding, exploring and visualizing individual spatial proteomics
+experiments, see vignettes in `pRoloc` and `MSnbase` package.  
+
+```{r,}
+tansim$lopitrep[[1]]
+```
+The main function of the bandle package is `bandle`, this uses a complex
+model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is used to 
+sample the posterior distribution of parameters and latent variables.
+From which statistics of interest can be computed. Here we only run a few iteration
+for brevity but typically one need to run thousands of iterations to ensure
+convergence, as well as multiple parallel chains.
+
+First, we need to fit non-parametric regression functions to the markers profiles,
+upon which we place our analysis. This uses Gaussian processes. The fitting uses
+some default penalised complexity priors, which work well. However, these
+can be altered, which is demonstrated in the next code chunk
+
+
+```{r,}
+par(mfrow = c(3,4))
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+```
+To prior need to form a `K*3` matrix, which give the prior for the length-scale
+amplitude and standard deviation parameters. Increasing these values, increases
+the shrinkage. For more details see the bandle paper.
+
+```{r,}
+K <- length(getMarkerClasses(tansim$lopitrep[[1]]))
+pc_prior <- matrix(NA, ncol = 3, K)
+pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250), each = K), ncol = 3)
+```
+
+
+```{r,}
+par(mfrow = c(3,4))
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x, hyppar = pc_prior))
+```
+The next step is to set up the matrix dirichlet prior on the mixing weights. These
+weights are defined across datasets so these are slightly different to mixture
+weights in usual mixture models. The $(i,j)$ entry is the prior probability
+that a protein localises to organelle $i$ in the control and $j$ in the treatment.
+This mean that off-diagonal terms have a different interpretation to diagonal terms.
+Since we expect relocalisation to be rare off-diagonal terms should be small.
+The following functions help set up the priors and how to interpret them. The
+parameter `q` allow us to check the prior probability that more than `q`
+differential localisation are expected.
+
+```{r,}
+dirPrior = diag(rep(1, K)) + matrix(0.001, nrow = K, ncol = K)
+predDirPrior <- prior_pred_dir(object = tansim$lopitrep[[1]],
+                               dirPrior = dirPrior,
+                               q = 15)
+```
+
+The mean number of relocalisation is small:
+```{r,}
+predDirPrior$meannotAlloc
+```
+
+The prior probability than more than `q` differential localisation are
+expected is small
+```{r,}
+predDirPrior$tailnotAlloc
+```
+
+The full prior predictive can be visualised as histogram. The prior probability
+that proteins are allocated to different components between datasets concentrates
+around 0.
+
+```{r,}
+hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
+```
+We are now ready to run the main bandle function. Remember to carefully
+select the dataset and replicates that define the control and treatment. 
+Furthermore, iteration are typically $1000$s, a few a run here for the convenience
+of the vignette.
+```{r,}
+control <- tansim$lopitrep[1:3]
+treatment <- tansim$lopitrep[4:6]
+bandleres <- bandle(objectCond1 = control,
+                    objectCond2 = treatment,
+                    numIter = 20,
+                    burnin = 5, 
+                    thin = 1,
+                    gpParams = gpParam, 
+                    numChains = 1, 
+                    dirPrior = dirPrior)
+
+```
+
+
+
