@@ -145,14 +145,65 @@ control <- tansim$lopitrep[1:3]
 treatment <- tansim$lopitrep[4:6]
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
-                    numIter = 20,
-                    burnin = 5, 
+                    numIter = 20, # usually 10,000
+                    burnin = 5,
                     thin = 1,
-                    gpParams = gpParam, 
-                    numChains = 1, 
+                    gpParams = gpParams,
+                    pcPrior = pc_prior,
+                    numChains = 1, # usually >=4
                     dirPrior = dirPrior)
 
 ```
+The bandle function generates an object of class `bandleParams`. The `show`
+method indicates the number of parallel chains that were run
+```{r,}
+bandleres
+```
 
+Currently, the summary slots of the `bandleres` object are empty. The `summaries`
+object accesses them.
+```{r,}
+summaries(bandleres)
+```
+These can be populated as follows
+```{r,}
+bandleres <- bandleProcess(bandleres)
+```
+
+These slot have now been populated
+
+```{r,}
+summary(summaries(bandleres))
+```
+The `posteriorEstimates` slot give posterior quantities of interest for different
+proteins. The object is of length 2, 1 for control and 1 for treatment.
+```{r,}
+length(summaries(bandleres))
+```
+One quantity of interest is the protein allocations, which we can plot in a barplot
+```{r,}
+pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
+
+barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2)
+
+```
+The differential localization probability is also stored here, which gives
+the proteins that are most likely to differentially localised. The rank plot
+is a good visualisation. Indicating that most proteins are not differentially 
+localised and there are a few confident differentially localised protiens.
+
+```{r,}
+plot(pe1$bandle.differential.localisation[order(pe1$bandle.differential.localisation, decreasing = TRUE)],
+     col = getStockcol()[3], pch = 19, ylab = "Probability", xlab = "Rank", main = "Differential localisation rank plot")
+```
+We can examine the top `n` proteins (here 20) and produce boostrap estimates 
+of the uncertainty (note here the uncertainty is likely to be underestimated
+as we did not produce many mcmc samples). These can be visualised in as ranked
+boxplots
+
+```{r,}
+bt <- bootstrapdiffLocprob(params = bandleres, top = 20)
+boxplot(t(bt), col = getStockcol()[5], las = 2, ylab = "probability", ylim = c(0, 1))
+```
 
 

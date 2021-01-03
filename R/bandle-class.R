@@ -229,7 +229,7 @@ setMethod("length", "bandleParams",
 
 ##' @rdname bandleParams
 setMethod("length", "bandleSummaries",
-          function(x) length(summaries(x@summary)))
+          function(x) length(summaries(x)))
 
 ##' @rdname bandleParams
 setMethod("length", "nicheParams",
