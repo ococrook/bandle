@@ -15,5 +15,7 @@ resdynpg <- bandle(objectCond1 = c(tan2009rep[1:3]),
                    burnin = 10,
                     pg = FALSE,
                    hyperLearn = "LBFGS", maternCov = TRUE, nu = 2, pcPrior = pc_prior, numChains = 1)
-
-bandleProcess(resdynpg)
+tmp <- bandleProcess(resdynpg)
+out <- bandlePredict(objectCond1 = objectCond1,
+                     objectCond2 = objectCond2,
+                     params = tmp)

@@ -188,81 +188,79 @@ bandle <- function(objectCond1,
 ##'     `bandle.differential.localisation`
 ##' @md
 ##' @rdname bandle
-
-
 bandlePredict <- function(objectCond1,
                           objectCond2,
                           params){
 
-    stopifnot(inherits(bandle, "bandleParams"))
-## Checks for object and bandleParams match
-stopifnot(featureNames(unknownMSnSet(object, fcol = fcol))
-          == rownames(params@summaries@posteriorEstimates))
-    stopifnot(lapply(objectCond1, function(zz) inherits(zz, "MSnset")))
-    stopifnot(lapply(objectCond2, function(zz) inherits(zz, "MSnset")))
+    stopifnot(inherits(params, "bandleParams"))
+    ## Checks for object and bandleParams match
+    stopifnot(featureNames(unknownMSnSet(objectCond1[[1]], fcol = fcol))
+          == rownames(params@summary@summaries[[1]]@posteriorEstimates))
+    stopifnot(unlist(lapply(objectCond1, function(zz) inherits(zz, "MSnSet"))))
+    stopifnot(unlist(lapply(objectCond2, function(zz) inherits(zz, "MSnSet"))))
 
     for (j in c(1, 2)){
     
-    object <-  c(objectCond1, objectCond2)[j]
-
-    ## Create marker set and size
-    markerSet <- markerMSnSet(object, fcol = fcol)
-    markers <- getMarkerClasses(object, fcol = fcol)
-    M <- nrow(markerSet)
-    K <- chains(params)[[1]]@K
-
-
-    ## Get Summary object from bandleParams maybe better to check
-    ## columns exist/pass which objects we need
-    .bandle.allocation <- c(as.character(summaries(params)[[j]]@posteriorEstimates[,"bandle.allocation"]),
-                          as.character(fData(markerSet)[, fcol]))
-    .bandle.probability <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability"],
-                           rep(1, M)) ## set all probabilities of markers to 1.
-    .bandle.probability.lowerquantile <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability.lowerquantile"],
-                                         rep(1, M)) ## set all probabilities of markers to 1.
-    .bandle.probability.upperquantile <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability.upperquantile"],
-                                         rep(1, M)) ## set all probabilities of markers to 1.
-    .bandle.mean.shannon <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.mean.shannon"],
-                            rep(0, M)) ## set all probabilities of markers to 0
-    .bandle.differential.localisation <- c(summaries(params)[[j]]@posteriorEstimates[, "bandle.differential.localisation"],
-                                           rep(0, M)) ## set differential localisation of markers to 0
+        object <-  c(objectCond1, objectCond2)[j][[1]]
     
-    ## Create data frame to store new summaries
-    .bandle.summary <- DataFrame(bandle.allocation = .bandle.allocation ,
-                                bandle.probability = .bandle.probability,
-                                bandle.probability.lowerquantile = .bandle.probability.lowerquantile,
-                                bandle.probability.upperquantile = .bandle.probability.upperquantile,
-                                bandle.mean.shannon = .bandle.mean.shannon,
-                                bandle.differential.localisation = .bandle.differential.localisation)
-    ## add outlier information
-    .bandle.summary$bandle.outlier <- c(params@summary@posteriorEstimates[, "bandle.probability.Outlier"],
-          rep(0, M)) ## set all probabilities of markers to 0
+        ## Create marker set and size
+        markerSet <- markerMSnSet(object, fcol = fcol)
+        markers <- getMarkerClasses(object, fcol = fcol)
+        M <- nrow(markerSet)
+        K <- chains(params)[[1]]@K
     
     
-    ## Check number of rows match and add feature names
-    stopifnot(nrow(.bandle.summary) == nrow(object))
-    rownames(.bandle.summary) <- c(rownames(params@summary@posteriorEstimates),
-                                 rownames(markerSet))
-    
-    ## Append data to fData of MSnSet
-    fData(object) <- cbind(fData(object), .bandle.summary[rownames(fData(object)),])
-    
-    ## create allocation matrix for markers
-    .probmat <- matrix(0, nrow = nrow(markerSet), ncol = K)
-    .class <- fData(markerSet)[, fcol]
-    for (j in seq_len(nrow(markerSet))) {
-    ## give markers prob 1
-        .probmat[j, as.numeric(factor(.class), seq(1, length(unique(.class))))[j]] <- 1
-    }
-    colnames(.probmat) <- markers
-    rownames(.probmat) <- rownames(markerSet)
-    .joint <- rbind(params@summary@bandle.joint, .probmat)
-    fData(object)$bandle.joint <- .joint[rownames(fData(object)), ]
+        ## Get Summary object from bandleParams maybe better to check
+        ## columns exist/pass which objects we need
+        .bandle.allocation <- c(as.character(summaries(params)[[j]]@posteriorEstimates[,"bandle.allocation"]),
+                              as.character(fData(markerSet)[, fcol]))
+        .bandle.probability <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability"],
+                               rep(1, M)) ## set all probabilities of markers to 1.
+        .bandle.probability.lowerquantile <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability.lowerquantile"],
+                                             rep(1, M)) ## set all probabilities of markers to 1.
+        .bandle.probability.upperquantile <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.probability.upperquantile"],
+                                             rep(1, M)) ## set all probabilities of markers to 1.
+        .bandle.mean.shannon <- c(summaries(params)[[j]]@posteriorEstimates[,"bandle.mean.shannon"],
+                                rep(0, M)) ## set all probabilities of markers to 0
+        .bandle.differential.localisation <- c(summaries(params)[[j]]@posteriorEstimates[, "bandle.differential.localisation"],
+                                               rep(0, M)) ## set differential localisation of markers to 0
+        
+        ## Create data frame to store new summaries
+        .bandle.summary <- DataFrame(bandle.allocation = .bandle.allocation ,
+                                    bandle.probability = .bandle.probability,
+                                    bandle.probability.lowerquantile = .bandle.probability.lowerquantile,
+                                    bandle.probability.upperquantile = .bandle.probability.upperquantile,
+                                    bandle.mean.shannon = .bandle.mean.shannon,
+                                    bandle.differential.localisation = .bandle.differential.localisation)
+        ## add outlier information
+        .bandle.summary$bandle.outlier <- c(summaries(params)[[j]]@posteriorEstimates[, "bandle.outlier"],
+              rep(0, M)) ## set all probabilities of markers to 0
+        
+        
+        ## Check number of rows match and add feature names
+        stopifnot(nrow(.bandle.summary) == nrow(object))
+        rownames(.bandle.summary) <- c(rownames(summaries(params)[[j]]@posteriorEstimates),
+                                     rownames(markerSet))
+        
+        ## Append data to fData of MSnSet
+        fData(object) <- cbind(fData(object), .bandle.summary[rownames(fData(object)),])
+        
+        ## create allocation matrix for markers
+        .probmat <- matrix(0, nrow = nrow(markerSet), ncol = K)
+        .class <- fData(markerSet)[, fcol]
+        for (k in seq_len(nrow(markerSet))) {
+        ## give markers prob 1
+            .probmat[k, as.numeric(factor(.class), seq(1, length(unique(.class))))[k]] <- 1
+        }
+        colnames(.probmat) <- markers
+        rownames(.probmat) <- rownames(markerSet)
+        .joint <- rbind(summaries(params)[[j]]@bandle.joint, .probmat)
+        fData(object)$bandle.joint <- .joint[rownames(fData(object)), ]
     
         if(j == 1){
-            objectCond1 <- object
+            objectCond1[[1]] <- object
         } else {
-            objectCond2 <- object
+            objectCond2[[1]] <- object
         }
     }
     
@@ -385,21 +383,31 @@ bandleProcess <- function(params) {
     }
     
     ## Summary of posterior estimates
-    bandle.summary1 <- DataFrame(bandle.allocationCond1,
-                                 bandle.probabilityCond1,
-                                 bandle.outlierCond1,
-                                 bandle.probability.lowerquantile.cond1,
-                                 bandle.probability.upperquantile.cond1,
-                                 bandle.mean.shannonCond1,
-                                 bandle.differential.localisation)
+    bandle.summary1 <- DataFrame(bandle.allocation = bandle.allocationCond1,
+                                 bandle.probability = bandle.probabilityCond1,
+                                 bandle.outlier = bandle.outlierCond1,
+                                 bandle.probability.lowerquantile = bandle.probability.lowerquantile.cond1,
+                                 bandle.probability.upperquantile = bandle.probability.upperquantile.cond1,
+                                 bandle.mean.shannon = bandle.mean.shannonCond1,
+                                 bandle.differential.localisation = bandle.differential.localisation)
     
-    bandle.summary2 <- DataFrame(bandle.allocationCond2,
-                                 bandle.probabilityCond2,
-                                 bandle.outlierCond2,
-                                 bandle.probability.lowerquantile.cond2,
-                                 bandle.probability.upperquantile.cond2,
-                                 bandle.mean.shannonCond2,
-                                 bandle.differential.localisation)
+    colnames(bandle.summary1) <- c("bandle.allocation", "bandle.probability",
+                                   "bandle.outlier","bandle.probability.lowerquantile", "bandle.probability.upperquantile",
+                                   "bandle.mean.shannon", "bandle.differential.localisation")
+    
+    
+    
+    bandle.summary2 <- DataFrame(bandle.allocation = bandle.allocationCond2,
+                                 bandle.probability = bandle.probabilityCond2,
+                                 bandle.outlier = bandle.outlierCond2,
+                                 bandle.probability.lowerquantile = bandle.probability.lowerquantile.cond2,
+                                 bandle.probability.upperquantile = bandle.probability.upperquantile.cond2,
+                                 bandle.mean.shannon = bandle.mean.shannonCond2,
+                                 bandle.differential.localisation = bandle.differential.localisation)
+    
+    colnames(bandle.summary2) <- c("bandle.allocation", "bandle.probability",
+                                   "bandle.outlier","bandle.probability.lowerquantile", "bandle.probability.upperquantile",
+                                   "bandle.mean.shannon", "bandle.differential.localisation")
     
     .diagnostics <- matrix(NA, 1, 1)
     ## Compute convergence diagnostics
