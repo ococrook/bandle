@@ -28,7 +28,8 @@ Imports: Rcpp (>= 1.0.4.6),
     plyr,
     knitr,
     methods,
-    BiocParallel
+    BiocParallel,
+    robustbase
 Suggests: coda,
     akima,
     fields
