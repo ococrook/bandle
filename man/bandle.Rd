@@ -44,7 +44,7 @@ bandle(
   BPPARAM = BiocParallel::bpparam()
 )
 
-bandlePredict(objectCond1, objectCond2, params)
+bandlePredict(objectCond1, objectCond2, params, fcol = "markers")
 
 bandleProcess(params)
 

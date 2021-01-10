@@ -20,3 +20,4 @@ importFrom("ggplot2", "ggplot", "aes", "geom_violin",
            "stat", "geom_point", "scale_alpha", "scale_color_manual",
            "theme_minimal", "element_rect", "xlab")
 importFrom("dplyr", "%>%", "mutate")
+importFrom("stats", "cor", "p.adjust", "pchisq", "sd")

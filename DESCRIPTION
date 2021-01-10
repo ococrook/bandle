@@ -29,10 +29,13 @@ Imports: Rcpp (>= 1.0.4.6),
     knitr,
     methods,
     BiocParallel,
-    robustbase
+    robustbase,
+    BiocStyle
 Suggests: coda,
     akima,
-    fields
+    fields,
+    pheatmap,
+    viridis
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)

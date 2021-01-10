@@ -34,8 +34,8 @@ metropolisGP <- function(inith,
    proposedHypers <- h[, i] + xi #random walk proposal
    #compute metropolis ratio, likelihoodGPcpp return negative logliklihood
    mhratio <- -likelihoodGPcpp(X, tau, proposedHypers, nk, D) + likelihoodGPcpp(X, tau, oldHypers, nk, D) + 
-     sum(dnorm(proposedHypers, mean = hypMean, sd = hypSd, log = TRUE)) - sum(dnorm(oldHypers, mean = hypMean,
-                                                                                    sd = hypSd, log = TRUE))
+     sum(dnorm(proposedHypers, mean = hyperMean, sd = hyperSd, log = TRUE)) - sum(dnorm(oldHypers, mean = hyperMean,
+                                                                                    sd = hyperSd, log = TRUE))
   
    if(mhratio > log(runif(1, 0, 1))){
     h[, i + 1] <- proposedHypers
@@ -60,7 +60,7 @@ metropolisGP <- function(inith,
 ##' @param nu Smoothness of the matern covariance
 ##' @param hyppar A vector indicating the penalised complexity prior hyperparameters.
 ##'  Default is `c(1,1,1)`
-##' @param propsd The proposal standard deviation. Default is `c(0.3,0.1,0.1)`. Do not
+##' @param propSd The proposal standard deviation. Default is `c(0.3,0.1,0.1)`. Do not
 ##'  change unless you know what you are doing.
 ##' @md
 ##' @rdname bandle-mh
@@ -72,7 +72,7 @@ metropolisGPmatern <- function(inith,
                                niter,
                                nu = 2,
                                hyppar = c(1, 1, 1),
-                               propsd = c(0.3,0.1,0.1)
+                               propSd = c(0.3,0.1,0.1)
 ){
   
   
@@ -80,11 +80,11 @@ metropolisGPmatern <- function(inith,
   h[, 1] <- inith
   ar <- 0 
 
-  propsd <- propsd
+  propSd <- propSd
   for(i in seq.int(niter)){
     # repeat proposal so proposals are positive, (truncated sampler)
     repeat {
-    xi <- rnorm(length(inith), mean = 0, sd = propsd) # sample random walk steps
+    xi <- rnorm(length(inith), mean = 0, sd = propSd) # sample random walk steps
     
     oldHypers <- h[, i]
     proposedHypers <- h[, i] + xi #random walk proposal
@@ -98,10 +98,10 @@ metropolisGPmatern <- function(inith,
     mhratioprior <- PCrhomvar(rho = proposedHypers[1], a = proposedHypers[2], lambda1 = hyppar[1],
                               lambda2 = hyppar[2], log = TRUE) + 
                     Gumbel(1/proposedHypers[3], lambda = hyppar[3], log = TRUE) + sum(dnorm(oldHypers, mean = 0,
-                                                                                      sd = propsd, log = TRUE)) - 
+                                                                                      sd = propSd, log = TRUE)) - 
                     (PCrhomvar(rho = oldHypers[1], a = oldHypers[2], lambda1 = hyppar[1], 
                                lambda2 = hyppar[2], log = TRUE) + Gumbel(1/oldHypers[3], lambda = hyppar[3], log = TRUE) + 
-                       sum(dnorm(proposedHypers, mean = 0, sd = propsd, log = TRUE)))
+                       sum(dnorm(proposedHypers, mean = 0, sd = propSd, log = TRUE)))
     mhratio <- mhratiolike + mhratioprior
     
     if(mhratio > log(runif(1, 0, 1))){

@@ -25,7 +25,7 @@ metropolisGPmatern(
   niter,
   nu = 2,
   hyppar = c(1, 1, 1),
-  propsd = c(0.3, 0.1, 0.1)
+  propSd = c(0.3, 0.1, 0.1)
 )
 }
 \arguments{
@@ -50,7 +50,7 @@ metropolisGPmatern(
 \item{hyppar}{A vector indicating the penalised complexity prior hyperparameters.
 Default is \code{c(1,1,1)}}
 
-\item{propsd}{The proposal standard deviation. Default is \code{c(0.3,0.1,0.1)}. Do not
+\item{propSd}{The proposal standard deviation. Default is \code{c(0.3,0.1,0.1)}. Do not
 change unless you know what you are doing.}
 }
 \value{

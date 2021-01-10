@@ -21,7 +21,7 @@ spatial2D(
   params,
   fcol = "markers",
   dims = c(1, 2),
-  cov.function = wendland.cov,
+  cov.function = NULL,
   theta = 2,
   derivative = 2,
   k = 1,

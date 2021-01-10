@@ -371,7 +371,7 @@ diffLoc <- function(objectCond1,
                                                         niter = 1,
                                                         nu = nu,
                                                         hyppar = .pc_prior,
-                                                        propsd = propsd)$h[ ,2]
+                                                        propSd = propSd)$h[ ,2]
                         
                         componenthypers[[i]][[j]] <- c(log(newhypers[1:2]), log(newhypers[3])/2)
                     }

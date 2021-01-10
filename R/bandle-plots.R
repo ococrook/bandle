@@ -26,6 +26,7 @@ mcmc_plot_probs <- function(params,
     
     stopifnot(class(params) == "bandleParams")
     stopifnot(class(fname) == "character")
+    Organelle <- Probability <- NULL
     
     ch <- chains(params)[[n]]
     dfr <- as.data.frame(ch@nicheProb[[cond]][fname, , ])
@@ -72,7 +73,7 @@ spatial2D <- function(object,
                       params, 
                       fcol = "markers",
                       dims = c(1, 2),
-                      cov.function = wendland.cov,
+                      cov.function = NULL,
                       theta = 2,
                       derivative = 2,
                       k = 1,
@@ -83,6 +84,11 @@ spatial2D <- function(object,
     
     stopifnot(class(object) == "MSnSet")
     stopifnot(class(params) == "bandleParams")
+    organelle <- x <- y <- z <- level <- NULL
+    
+    if (is.null(cov.function)){
+        cov.function <- fields::wendland.cov
+    }
     
     ## Compute mean probabilities 
     ch <- chains(params)[[n]]
