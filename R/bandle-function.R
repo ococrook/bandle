@@ -381,7 +381,7 @@ bandleProcess <- function(params) {
     
     for(j in seq_len(numChains)) {
         mc <- chains(params)[[j]]
-        weights[[j]] <- coda::mcmcUpgrade(coda::mcmc(mc@weights))
+        weights[[j]] <- coda::mcmc(mc@weights[1,,])
     }
     
     ## Summary of posterior estimates
