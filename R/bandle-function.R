@@ -321,9 +321,6 @@ bandleProcess <- function(params) {
         pooled.OutlierCond1[, n * (j - 1)+ seq.int(n)] <- mc@outlier[[1]]
         pooled.ComponentCond2[, n * (j - 1) + seq.int(n)] <- mc@niche[[2]]
         pooled.ComponentProbCond2[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb[[2]]
-        pooled.OutlierCond2[, n * (j - 1)+ seq.int(n)] <- mc@outlier[[2]]
-        pooled.differential.localisation[, j] <- diffLocalisationProb(params = params)
-        
     }
     ## take means across chains
     bandle.jointCond1 <- bandle.jointCond1/numChains
@@ -334,7 +331,7 @@ bandleProcess <- function(params) {
     bandle.outlierCond2 <- bandle.outlierCond2/numChains
     bandle.probabilityCond2 <- apply(bandle.jointCond2, 1, max)
     bandle.allocationCond2 <- colnames(bandle.jointCond2)[apply(bandle.jointCond2, 1, which.max)]
-    bandle.differential.localisation <- pooled.differential.localisation/numChains
+    bandle.differential.localisation <- diffLocalisationProb(params = params)
     
     ## Calculate quantiles
     for (i in seq_len(N)) {
