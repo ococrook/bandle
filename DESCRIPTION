@@ -31,7 +31,7 @@ Imports: Rcpp (>= 1.0.4.6),
     BiocParallel,
     robustbase,
     BiocStyle
-Suggests: coda,
+Suggests: coda(>= 0.19-4),
     akima,
     fields,
     pheatmap,
