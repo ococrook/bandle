@@ -16,7 +16,7 @@ R-package for analysis differential localisation experiments, include storage, c
 Users will require a working version of R, currently at least version >4. It is recommend to use RStudio. The package can then be installed using the `devtools` package. The package should take a few minutes to install on a regular desktop or laptop. The package will need to be loaded using `library(bandle)`
 
 ```{r,}
-devtools::install_github(ococrook/bandle)
+devtools::install_github("ococrook/bandle")
 ```
 
 # Examples
