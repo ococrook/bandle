@@ -314,7 +314,7 @@ bandleProcess <- function(params) {
         bandle.jointCond1 <- bandle.jointCond1 + meanComponentProbCond1[[j]]
         bandle.jointCond2 <- bandle.jointCond2 + meanComponentProbCond2[[j]]
         bandle.outlierCond1 <- bandle.outlierCond1 + 1 - rowMeans(mc@outlier[[1]])
-        bandle.outlierCond2 <- bandle.outlierCond1 + 1 - rowMeans(mc@outlier[[2]])
+        bandle.outlierCond2 <- bandle.outlierCond2 + 1 - rowMeans(mc@outlier[[2]])
         ## Pool chains
         pooled.ComponentCond1[, n * (j - 1) + seq.int(n)] <- mc@niche[[1]]
         pooled.ComponentProbCond1[, n * (j - 1) + seq.int(n), ] <- mc@nicheProb[[1]]
