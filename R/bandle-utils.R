@@ -26,7 +26,7 @@ diffLocalisationProb <- function(params) {
 ##'  default is 20.
 ##' @param Bootsample Number of Bootstramp samples. Default is 5000
 ##' @param decreasing Starting at proteins most likely to be differentially localised.
-##'  default is 5000.
+##' 
 ##' @return  returns a matrix of size Bootsample * top containing bootstrap 
 ##' @md
 ##' 
@@ -51,7 +51,41 @@ bootstrapdiffLocprob <- function(params,
     
     return(res)
 }
-
+##' @title Obtain uncertainty estimates on differential localisation directly from binomial distributions,
+##' using the Jeffies interval
+##' @params params An instance of `bandleParams`
+##' @params top The number of proteins for which to sample from the binomial distribution
+##' @params nsample how many samples to return from the binomial distribution
+##' @params decreasing Starting at protein most likely to be differentially localization
+##' 
+##' @return returns a list containing empirical binomial samples
+##' @md
+##' 
+##' @rdname bandle
+binomialDiffLocProb <- function(params,
+                                top = 20,
+                                nsample = 5000,
+                                decreasing = TRUE){
+    
+    # Must be a valid bandleParams object
+    stopifnot(class(params) == "bandleParams")
+    
+    res <- matrix(NA, ncol = nsample, nrow = top)
+    probs <- diffLocalisationProb(params = params)
+    
+    prnames <- names(probs[order(probs, decreasing = decreasing)][seq.int(top)])
+    rownames(res) <- prnames
+    
+    diff <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]] - params@chains@chains[[1]]@niche[[2]]) != 0)
+    nT <- ncol(params@chains@chains[[1]]@niche[[1]])
+    
+    #Jeffrey's samples
+    res <- t(1 - sapply(diff[seq.int(top)], function(x) rbeta(n = nsample, shape1 = x + 1/2, shape2 = nT - x + 1/2)))
+    
+    rownames(res) <- prnames
+    
+    return(res)
+}
 ##' @title Computes Organelle means and variances using markers
 ##' @param object a instance of class `MSnset`
 ##' @param fcol a feature column indicating which feature define the markers
