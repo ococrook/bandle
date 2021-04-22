@@ -35,12 +35,13 @@ mcmc_plot_probs <- function(params,
                            row.names = NULL,
                            stringsAsFactors = FALSE)
     gg2 <- ggplot(dfr_long,
-                  aes(Organelle, Probability,
-                      width = (Probability))) +
+                  aes(Organelle, Probability),
+                      width = Probability) +
         geom_violin(aes(fill = Organelle), scale = scale, bw = bw)
     gg2 <- gg2 + theme_bw() +
         scale_fill_manual(values = pRoloc::getStockcol()[seq_len(nrow(dfr))]) +
-        theme(axis.text.x = element_text(angle = 90, hjust = 1),
+        theme(text = element_text(size=15),
+              axis.text.x = element_text(angle = 45, hjust = 1),
               axis.title.x = element_blank())
     gg2 <- gg2 +
         ylab("Membership Probability") +

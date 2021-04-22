@@ -8,6 +8,7 @@
 \alias{diffLoc}
 \alias{diffLocalisationProb}
 \alias{bootstrapdiffLocprob}
+\alias{binomialDiffLocProb}
 \alias{meanOrganelle}
 \alias{kldirpg}
 \alias{kldir}
@@ -78,6 +79,8 @@ diffLoc(
 diffLocalisationProb(params)
 
 bootstrapdiffLocprob(params, top = 20, Bootsample = 5000, decreasing = TRUE)
+
+binomialDiffLocProb(params, top = 20, nsample = 5000, decreasing = TRUE)
 
 meanOrganelle(object, fcol = "markers")
 
@@ -171,15 +174,15 @@ Defaults to 4.}
 \item{BPPARAM}{BiocParallel parameter. Defaults to machine default backend
 using bpparam()}
 
-\item{params}{An instance of class \code{bandleParams}}
+\item{params}{An instance of \code{bandleParams}}
 
-\item{top}{The number of proteins for which to compute bootstrap distributions
-default is 20.}
+\item{top}{The number of proteins for which to sample from the binomial distribution}
 
 \item{Bootsample}{Number of Bootstramp samples. Default is 5000}
 
-\item{decreasing}{Starting at proteins most likely to be differentially localised.
-default is 5000.}
+\item{decreasing}{Starting at protein most likely to be differentially localization}
+
+\item{nsample}{how many samples to return from the binomial distribution}
 
 \item{object}{An instance of class \code{MSnSet}}
 
@@ -227,6 +230,8 @@ indicating the differential localization probability is also added as
 returns a named vector of differential localisation probabilities
 
 returns a matrix of size Bootsample * top containing bootstrap
+
+returns a list containing empirical binomial samples
 
 returns a list of means and variances for each
 

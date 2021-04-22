@@ -111,6 +111,7 @@ arma::vec gradientGPcpp(arma::mat Xk,
   return(grad);
 }
 
+//' @title leapfrog method
 //' @description Leapfrog routine
 //' 
 // [[Rcpp::export]]

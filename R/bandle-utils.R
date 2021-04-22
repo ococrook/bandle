@@ -52,11 +52,11 @@ bootstrapdiffLocprob <- function(params,
     return(res)
 }
 ##' @title Obtain uncertainty estimates on differential localisation directly from binomial distributions,
-##' using the Jeffies interval
-##' @params params An instance of `bandleParams`
-##' @params top The number of proteins for which to sample from the binomial distribution
-##' @params nsample how many samples to return from the binomial distribution
-##' @params decreasing Starting at protein most likely to be differentially localization
+##' using the Jeffries interval
+##' @param params An instance of `bandleParams`
+##' @param top The number of proteins for which to sample from the binomial distribution
+##' @param nsample how many samples to return from the binomial distribution
+##' @param decreasing Starting at protein most likely to be differentially localization
 ##' 
 ##' @return returns a list containing empirical binomial samples
 ##' @md

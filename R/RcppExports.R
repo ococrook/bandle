@@ -146,6 +146,7 @@ gradientGPcpp <- function(Xk, tau, h, nk, D) {
     .Call(`_bandle_gradientGPcpp`, Xk, tau, h, nk, D)
 }
 
+#' @title leapfrog method
 #' @description Leapfrog routine
 #' 
 LeapfrogGPcpp <- function(Xk, tau, p, x, m, nk, D, L, delta) {
