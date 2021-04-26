@@ -87,6 +87,8 @@ diffLoc <- function(objectCond1,
                     nu = 2,
                     propSd = c(0.3, 0.1, 0.05)){
     
+    suppressMessages(require(Biobase))
+    
     # Setting seed manually
     if (is.null(seed)) {
         seed <- sample(.Machine$integer.max, 1)
@@ -114,14 +116,17 @@ diffLoc <- function(objectCond1,
     numCond <- 2
     numRepl <- length(objectCond1)
     
+
     # expressions from data and important summaries
-    exprs_cmb <- lapply(object_cmb, exprs)
+    exprs_cmb <- lapply(object_cmb, Biobase::exprs)
     M <- lapply(exprs_cmb, colMeans)
     V <- lapply(exprs_cmb, function(x) lambda * diag(diag(cov(x))) + diag(rep(10^{-6}, ncol(x))))
+    
     
     # Getting data dimensions
     D <- ncol(object_cmb[[1]])
     K <- length(getMarkerClasses(object_cmb[[1]]))
+    
     
     # construct empirical Bayes Polya-Gamma prior
     if (is.null(pgPrior)) {
@@ -142,13 +147,15 @@ diffLoc <- function(objectCond1,
     
     # separate data into known and unknown
     unknown_cmb <- lapply(object_cmb, unknownMSnSet)
-    exprsUnknown_cmb <- lapply(unknown_cmb, exprs)
-    exprsKnown <- lapply(object_cmb, function(x) exprs(markerMSnSet(x, fcol = fcol)))
+    exprsUnknown_cmb <- lapply(unknown_cmb, Biobase::exprs)
+    exprsKnown <- lapply(object_cmb, function(x) Biobase::exprs(markerMSnSet(x, fcol = fcol)))
+    
     
     # separate conditions allocations
     allocKnown <- lapply(object_cmb[c(1, numRepl + 1)], function(x) seq.int(K)[fData(markerMSnSet(x, fcol = fcol))[, fcol]])
     numProtein <- lapply(unknown_cmb[c(1, numRepl + 1)], nrow)
     
+
     # Some storage
     alloc <- lapply(numProtein, function(x) matrix(0, nrow = x, ncol = numRetained))
     allocOut <- lapply(numProtein, function(x) matrix(0, nrow = x, ncol = numRetained))
@@ -158,14 +165,17 @@ diffLoc <- function(objectCond1,
     allocprob <- lapply(numProtein, function(x) array(0, c(x, numRetained, K)))
     loglikelihoods <- lapply(rep(numProtein, numRepl), function(x) matrix(0, nrow = x, ncol = K))
     
+    
     #random allocation of unknown Proteins, allocations are condition specific
+    print("here")  
     alloctemp <- lapply(numProtein, function(x) sample.int(n = K, size = x, replace = TRUE))
     for (i in seq.int(numCond)) {
-        
-        object_cmb[[i]] <- knnClassification(object_cmb[[i]], k = 10)
+        print("here3")
+        object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10)
+        print("here4")
         alloc[[i]][, 1] <- fData(object_cmb[[i]][rownames(unknown_cmb[[i]])])$knn
     }
-    
+    print("here2")
     # number of proteins allocated to each component
     nkknown <- lapply(object_cmb[c(1, numRepl + 1)], function(x)
         table(getMarkers(x, verbose = FALSE))[getMarkerClasses(x)])
@@ -195,7 +205,8 @@ diffLoc <- function(objectCond1,
     ._t <- 0
     
     for(t in 2:numIter){
-        
+    
+          
         # Between data allocation tally
         nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
                                              factor(alloctemp[[2]], levels = 1:K))

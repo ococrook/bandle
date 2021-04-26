@@ -90,13 +90,6 @@ bandle <- function(objectCond1,
                    numChains = 4L,
                    BPPARAM = BiocParallel::bpparam()){
     
-    if (is.null(seed))
-        seed <- sample(.Machine$integer.max, 1)
-    .seed <- as.integer(seed)
-    set.seed(.seed)
-    
-    
-    
     ## chains run in parallel, repeating number of iterations
     .res <- BiocParallel::bplapply(rep(numIter, numChains),
                                    FUN = diffLoc,
@@ -156,7 +149,7 @@ bandle <- function(objectCond1,
                                         pcPrior = pcPrior,
                                         hyperMean = hyperMean,
                                         hyperSd = hyperSd), 
-                          seed = .seed, 
+                          seed = as.integer(seed), 
                           summary = .bandleSummaries(
                                         summaries = list(.bandleSummary(),
                                                          .bandleSummary())),

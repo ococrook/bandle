@@ -44,7 +44,8 @@ reprodScore <- function(x, y, method = c("pearson")) {
 ##' @rdname method-mr
 mrMethod <- function(objectCond1,
                      objectCond2,
-                     plot = TRUE) {
+                     plot = TRUE,
+                     method = "2017") {
     
     stopifnot(class(objectCond1[[1]]) == "MSnSet")
     stopifnot(class(objectCond2[[1]]) == "MSnSet")
@@ -71,8 +72,11 @@ mrMethod <- function(objectCond1,
     
     # Adjust for multiple testing of the cubed pValue (not recommended but
     # is part of the mr method)
+    if (method == "2017") {
     summarisedPvalue <- p.adjust(summarisedPvalue^3, method = "BH")
-    
+    } else if (method == "2016") {
+    summarisedPvalue <- p.adjust(summarisedPvalue, method = "BH")    
+    }
     # add Names
     names(summarisedPvalue) <- rownames(objectCond1[[1]])
     

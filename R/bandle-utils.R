@@ -80,7 +80,7 @@ binomialDiffLocProb <- function(params,
     nT <- ncol(params@chains@chains[[1]]@niche[[1]])
     
     #Jeffrey's samples
-    res <- t(1 - sapply(diff[seq.int(top)], function(x) rbeta(n = nsample, shape1 = x + 1/2, shape2 = nT - x + 1/2)))
+    res <- t(sapply(diff[prnames], function(x) rbeta(n = nsample, shape1 = x + 1/2, shape2 = nT - x + 1/2)))
     
     rownames(res) <- prnames
     
@@ -100,8 +100,8 @@ meanOrganelle <- function(object, fcol = "markers"){
     M <- V <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
     rownames(M) <- rownames(V) <-  getMarkerClasses(object, fcol = fcol)
     for (j in getMarkerClasses(object, fcol = fcol)) {
-        M[j, ] <- colMeans(exprs(object)[fData(object)[, fcol] == j,])
-        V[j, ] <- apply(exprs(object)[fData(object)[, fcol] == j,], 2, var)
+        M[j, ] <- colMeans(Biobase::exprs(object)[fData(object)[, fcol] == j,])
+        V[j, ] <- apply(Biobase::exprs(object)[fData(object)[, fcol] == j,], 2, var)
     }
     
     return(list(M = M, V = V))
@@ -228,7 +228,7 @@ prior_pred_pg <- function(objectCond1,
     stopifnot(class(objectCond2) == "MSnSet")
     
     # Expressions from data and important summaries
-    mydata <- exprs(objectCond1)
+    mydata <- Biobase::exprs(objectCond1)
     M <- colMeans(mydata)
     V <- cov(mydata)
     nkknown <- table(getMarkers(objectCond1, verbose = FALSE))[getMarkerClasses(objectCond1)]

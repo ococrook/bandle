@@ -1,6 +1,9 @@
 useDynLib(bandle, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
 exportPattern("^[[:alpha:]]+")
+import(Biobase)
+import(MSnbase)
+import(pRoloc)
 importFrom("graphics", "arrows", "matplot", "points")
 importFrom("methods", "new")
 importFrom("stats", "cov", "dnorm", "pnorm", "quantile", "rbeta",
@@ -10,7 +13,7 @@ importFrom("S4Vectors", "DataFrame")
 importFrom("pRoloc", "getMarkerClasses", "unknownMSnSet",
            "markerMSnSet", "knnClassification", "getMarkers",
            "getStockcol", "plot2D")
-importFrom("MSnbase", "normalise", "combine")
+importFrom("MSnbase", "normalise", "combine","exprs")
 importFrom("Biobase", "featureNames","fData",
            "fData<-", "exprs", "exprs<-")
 importFrom("lbfgs", "lbfgs")

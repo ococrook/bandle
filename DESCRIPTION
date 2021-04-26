@@ -16,13 +16,10 @@ Description: The Bandle package enables the analysis and visualisation of
     to analyse these data.
 License: Artistic-2.0
 Encoding: UTF-8
-Depends: R (>= 4.0), S4Vectors 
+Depends: R (>= 4.0), S4Vectors, Biobase, MSnbase, pRoloc
 Imports: Rcpp (>= 1.0.4.6),
-    MSnbase,
-    pRoloc,
     pRolocdata,
     lbfgs,
-    Biobase,
     ggplot2,
     dplyr,
     plyr,

@@ -89,7 +89,7 @@ covOrganelle <- function(object, fcol = "markers"){
     M <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
     rownames(M) <- getMarkerClasses(object, fcol = fcol)
     for (j in getMarkerClasses(object, fcol = fcol)) {
-        M[j, ] <- colMeans(exprs(object)[fData(object)[, fcol] == j, ])
+        M[j, ] <- colMeans(Biobase::exprs(object)[fData(object)[, fcol] == j, ])
     }
     sigma <- cov(t(M))
     
