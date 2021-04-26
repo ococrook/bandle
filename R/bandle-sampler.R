@@ -167,15 +167,11 @@ diffLoc <- function(objectCond1,
     
     
     #random allocation of unknown Proteins, allocations are condition specific
-    print("here")  
     alloctemp <- lapply(numProtein, function(x) sample.int(n = K, size = x, replace = TRUE))
     for (i in seq.int(numCond)) {
-        print("here3")
         object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10)
-        print("here4")
         alloc[[i]][, 1] <- fData(object_cmb[[i]][rownames(unknown_cmb[[i]])])$knn
     }
-    print("here2")
     # number of proteins allocated to each component
     nkknown <- lapply(object_cmb[c(1, numRepl + 1)], function(x)
         table(getMarkers(x, verbose = FALSE))[getMarkerClasses(x)])
