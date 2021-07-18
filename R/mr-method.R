@@ -12,7 +12,7 @@ robustMahalanobis <- function(delta) {
     
     sqMan <- matrix(NA, nrow = nrow(delta), ncol = 1)
     for (i in seq.int(nrow(sqMan))) {
-        sqMan[i] <- (delta[i,] - colMeans(delta)) %*% solve(rCov$cov) %*% (delta[i,] - colMeans(delta))
+        sqMan[i] <- (delta[i,] - colMeans(delta)) %*% chol2inv(chol(rCov$cov + 10^{-8})) %*% (delta[i,] - colMeans(delta))
     }
     
     return(sqMan)
@@ -98,7 +98,7 @@ mrMethod <- function(objectCond1,
     }
     
     ## Compute ROC, with normalized scores
-    MRscore <- ((Rscore - mean(Rscore))/sd(Rscore)) * ((Mscore - mean(Mscore[!is.infinite(Mscore)]))/sd(Mscore[!is.infinite(Mscore)]))
+    MRscore <- ((Rscore - mean(Rscore[!is.infinite(Rscore)]))/sd(Rscore[!is.infinite(Rscore)])) * ((Mscore - mean(Mscore[!is.infinite(Mscore)]))/sd(Mscore[!is.infinite(Mscore)]))
     names(MRscore) <- rownames(objectCond1[[1]])
     MRscore[is.infinite(MRscore)] <- max(MRscore[!is.infinite(MRscore)])
     
