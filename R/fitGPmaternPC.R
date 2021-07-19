@@ -73,9 +73,13 @@ fitGPmaternPC <- function(object = object,
   # plotting routines
   for(j in seq.int(K)){
     Orgdata <- t(exprs(object[fData(object)$markers == getMarkerClasses(object, fcol = fcol)[j],idx]))
-    matplot(Orgdata, col = getStockcol()[j],pch = 19, type = "b", lty = 1, lwd = 1.5,
+    matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19, type = "b", lty = 1, lwd = 1.5,
             main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-            xlab = "Fraction", ylab = "", cex.main = 2, ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05))
+            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
+            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), cex.axis = 1.5, cex.main = 1.5, 
+            xaxt = "n", axes = FALSE)
+    axis(2)
+    axis(1, at = idx, labels = idx)
     
     nk <- table(fData(object)$markers)[getMarkerClasses(object, fcol = fcol)][j]
     S <- matrix(rep(1:length(tau), length(tau)), nrow = length(tau))
@@ -179,11 +183,13 @@ fitGPmatern <- function(object = object,
   # plotting
   for(j in seq.int(K)){
     Orgdata <- t(exprs(object[fData(object)$markers == getMarkerClasses(object)[j],idx]))
-    matplot(Orgdata, col = getStockcol()[j],
-            pch = 19, type = "b", lty = 1, lwd = 1.5,
+    matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19, type = "b", lty = 1, lwd = 1.5,
             main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-            xlab = "Fraction", ylab = "", cex.main = 2,
-            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05))
+            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
+            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), cex.axis = 1.5, cex.main = 1.5, 
+            xaxt = "n", axes = FALSE)
+    axis(2)
+    axis(1, at = idx, labels = idx)
     
     # require statistics
     nk <- table(fData(object)$markers)[getMarkerClasses(object)][j]

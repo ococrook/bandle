@@ -64,8 +64,9 @@ fitGP <- function(object = object,
     Orgdata <- t(exprs(object[fData(object)$markers == getMarkerClasses(object)[j],idx]))
      matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19, type = "b", lty = 1, lwd = 1.5,
              main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-            xlab = "Fraction", ylab = "", cex.main = 2, ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), cex.axis = 1.5, cex.main = 1.5, 
-            xaxt = "n", aces = FALSE)
+            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
+            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), cex.axis = 1.5, cex.main = 1.5, 
+            xaxt = "n", axes = FALSE)
      axis(2)
      axis(1, at = idx, labels = idx)
     
