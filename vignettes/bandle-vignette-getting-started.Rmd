@@ -61,7 +61,7 @@ will also simulate relocalisations for `numDyn` proteins.
 set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1,
                       numRep = 6,
-                      numDyn = 20)
+                      numDyn = 100)
 
 ```
 
@@ -180,31 +180,36 @@ bandleres
 # The summary slot
 
 Currently, the summary slots of the `bandleres` object are empty. The `summaries`
-object accesses them.
+function accesses them.
 ```{r,}
 summaries(bandleres)
 ```
+
 These can be populated as follows
 ```{r,}
 bandleres <- bandleProcess(bandleres)
 ```
 
 These slot have now been populated
-
 ```{r,}
 summary(summaries(bandleres))
 ```
+
 The `posteriorEstimates` slot gives posterior quantities of interest for different
 proteins. The object is of length 2, 1 for control and 1 for treatment.
 ```{r,}
 length(summaries(bandleres))
 ```
+
 One quantity of interest is the protein allocations, which we can plot in a barplot
 ```{r,}
+par(mfrow = c(1, 2))
+
 pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
+barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: control")
 
-barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2)
-
+pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
+barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment")
 ```
 
 # Differential localisation and rank plots
@@ -218,17 +223,18 @@ localised and there are a few confident differentially localised protiens.
 plot(pe1$bandle.differential.localisation[order(pe1$bandle.differential.localisation, decreasing = TRUE)],
      col = getStockcol()[3], pch = 19, ylab = "Probability", xlab = "Rank", main = "Differential localisation rank plot")
 ```
-We can examine the top `n` proteins (here 20) and produce bootstrap estimates 
+We can examine the top `n` proteins (here 100) and produce bootstrap estimates 
 of the uncertainty (note here the uncertainty is likely to be underestimated
 as we did not produce many mcmc samples). These can be visualised as ranked
 boxplots
 
 ```{r,}
-bt <- bootstrapdiffLocprob(params = bandleres, top = 20)
+set.seed(1)
+bt <- bootstrapdiffLocprob(params = bandleres, top = 100)
 boxplot(t(bt), col = getStockcol()[5],
         las = 2, ylab = "probability", ylim = c(0, 1))
 ```
-Let see how many proteins in the top 20 match those we had simulated relocalisations
+Let see how many proteins in the top 100 match those we had simulated relocalisations
 for. 
 ```{r,}
 sum(tansim$perm1_names %in% rownames(bt))
