@@ -232,7 +232,8 @@ boxplots
 set.seed(1)
 bt <- bootstrapdiffLocprob(params = bandleres, top = 100)
 boxplot(t(bt), col = getStockcol()[5],
-        las = 2, ylab = "probability", ylim = c(0, 1))
+        las = 2, ylab = "Probability", ylim = c(0, 1),
+        main = "Differential localisation probability plot (top 100 proteins)")
 ```
 Let see how many proteins in the top 100 match those we had simulated relocalisations
 for. 
