@@ -32,7 +32,8 @@ Suggests: coda(>= 0.19-4),
     akima,
     fields,
     pheatmap,
-    viridis
+    viridis,
+    rmarkdown
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)
