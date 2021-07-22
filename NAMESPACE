@@ -21,6 +21,10 @@ importFrom("ggplot2", "ggplot", "aes", "geom_violin",
            "theme_bw", "scale_fill_manual", "theme", "element_text",
            "element_blank", "ylab", "ggtitle", "coord_fixed", "geom_contour",
            "stat", "geom_point", "scale_alpha", "scale_color_manual",
-           "theme_minimal", "element_rect", "xlab")
-importFrom("dplyr", "%>%", "mutate")
+           "theme_minimal", "element_rect", "xlab", "scale_x_discrete",
+	   "scale_y_continuous", "geom_label", "geom_text", "after_stat")
+importFrom("dplyr", "%>%", "mutate", "group_by", "summarise", "row_number")
 importFrom("stats", "cor", "p.adjust", "pchisq", "sd")
+importFrom("ggalluvial", "geom_flow", "geom_stratum", "GeomAlluvium", "StatStratum")
+importFrom("ggrepel", "geom_text_repel", "geom_label_repel")
+importFrom("tidyr", "pivot_longer")

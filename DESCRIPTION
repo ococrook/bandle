@@ -27,7 +27,10 @@ Imports: Rcpp (>= 1.0.4.6),
     methods,
     BiocParallel,
     robustbase,
-    BiocStyle
+    BiocStyle,
+    ggalluvial,
+    ggrepel,
+    tidyr
 Suggests: coda(>= 0.19-4),
     akima,
     fields,

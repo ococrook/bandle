@@ -181,9 +181,9 @@ spatial2D <- function(object,
 # ##' @title Generate a circos/chord plot for visualising changes in localisation
 # ##' between two conditions/datasets
 # ##' @param params An instance of class `bandleParams` or `MSnSetList` 
-# ##' @param fcol A `character` of length 2 specifying the feature column names 
-# ##' for condition 1 and condition 2, that define the allocation/subcellular class labels.
-# ##' Only to specified if input `params` is a `MSnSetList`.
+# ##' @param fcol To be specified if input is a `MSnSetList`. `fcol` must be a 
+# ##' `character` of length 2 specifying the feature column names for the first and second
+# ##' `MSnSet` that contain the allocated class labels (see example below).
 # ##' @param all
 # ##' @param cols
 # ##' @param ...
@@ -282,9 +282,6 @@ spatial2D <- function(object,
 ##' @title Generate an alluvial/sankey riverplot for visualising changes in localisation
 ##' between two conditions
 ##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
-##' @param fcol To be specified if input is a `MSnSetList`. `fcol` must be a 
-##' `character` of length 2 specifying the feature column names for the first and second
-##' `MSnSet` that contain the allocated class labels (see example below).
 ##' @param all A logical specifying whether to count all proteins or only show those that
 ##' have changed in location between conditions. Default is `FALSE`.
 ##' @param cols A list of colours to define the classes in the data
@@ -300,7 +297,7 @@ riverplot <- function(params,
                       cols, 
                       labels = "adj"
                       ) {
-    
+
     stopifnot(inherits(params, "bandleParams") | inherits(params, "MSnSetList"))
     
     # get results from params
@@ -389,7 +386,7 @@ riverplot <- function(params,
                    x = as.numeric(factor(Condition)) + .075 * ifelse(Condition == "Condition1", -1, 1),
                    color = after_stat(stratum)
                ),
-               stat = "stratum", fontface = "bold", size = 3
+               stat = "stratum", fontface = "bold", size = 4
            )
     }
     if (labels == "repel") {
