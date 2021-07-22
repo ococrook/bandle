@@ -288,7 +288,7 @@ spatial2D <- function(object,
 ##' @param all A logical specifying whether to count all proteins or only show those that
 ##' have changed in location between conditions. Default is `FALSE`.
 ##' @param cols A list of colours to define the classes in the data
-##' @param labels A logical whether to plot strata/class labels, default is `TRUE`
+##' @param labels Choice of "adj", "repel" or "none". Default is "adj".
 ##' @return A `ggplot` object
 ##' @md
 ##' 
@@ -298,7 +298,8 @@ spatial2D <- function(object,
 riverplot <- function(params, 
                       all = FALSE, 
                       cols, 
-                      labels = TRUE) {
+                      labels = "adj"
+                      ) {
     
     stopifnot(inherits(params, "bandleParams") | inherits(params, "MSnSetList"))
     
@@ -344,7 +345,6 @@ riverplot <- function(params,
     levs2 <- levels(df$Condition2)
     # levs1 <- levs1[table(df$Condition1)!=0]
     # levs2 <- levs2[table(df$Condition2)!=0]
-    
     res1 <- unique(df$Condition1)
     res2 <- unique(df$Condition2)
     cond1_cols <- grid.col[levs1[levs1 %in% res1]]
@@ -352,26 +352,55 @@ riverplot <- function(params,
     columnCols <- c(cond1_cols, cond2_cols)
     stratCols <- c(rev(cond1_cols), rev(cond2_cols))
     
-    ## plot alluvial/river schematic
-    q <- ggplot(df,
-                aes(y = value, axis1 = Condition1, axis2 = Condition2)) +
-        geom_alluvium(aes(fill = Condition1), width = 0) +
+    # convert to long format
+    df_expanded <- df[rep(row.names(df), df$value), ]
+    df_expanded <- df_expanded %>%
+        mutate(id = row_number()) %>%
+        pivot_longer(-c(value, id), names_to = "Condition", values_to = "label")
+    
+    # plot alluvial diagram
+    q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
+        geom_flow(width = 0) +
         scale_fill_manual(values = columnCols) +
-        geom_stratum(width = 1/8, fill = paste0(stratCols), color = "white") +
-        scale_x_discrete(limits = c("Condition1", "Condition2"), 
-                         expand = c(.09, .09)) +
+        scale_color_manual(values = stratCols) +
+        geom_stratum(width = 1/8, color = "white") +
+        scale_x_discrete(
+            expand = c(.25, .25)
+        ) +
         scale_y_continuous(breaks = NULL) +
         theme_minimal() +
-        theme(axis.ticks.y = element_blank(),
-              axis.text.y = element_blank(),
-              panel.grid.major.y = element_blank(),
-              panel.grid.major.x = element_blank()) +
+        theme(
+            axis.ticks.y = element_blank(),
+            axis.text.y = element_blank(),
+            axis.text.x = element_text(size=12),
+            panel.grid.major.y = element_blank(),
+            panel.grid.major.x = element_blank(),
+            axis.title.x=element_blank()
+        ) +
         theme(legend.position = "none") +
         ylab(NULL)
-    if (labels) {
+    
+    if (labels == "adj") {
+       q <- q +
+           geom_text(
+               aes(
+                   label = after_stat(stratum),
+                   hjust = ifelse(Condition == "Condition1", 1, 0),
+                   x = as.numeric(factor(Condition)) + .075 * ifelse(Condition == "Condition1", -1, 1),
+                   color = after_stat(stratum)
+               ),
+               stat = "stratum", fontface = "bold", size = 3
+           )
+    }
+    if (labels == "repel") {
         q <- q +
-            geom_label(stat = "stratum", aes(label = after_stat(stratum)),
-                       color = stratCols, fontface = "bold", size = 3)    
-    } 
+            ggrepel::geom_text_repel(
+                aes(label = ifelse(after_stat(x) == 1, as.character(after_stat(stratum)), "")),
+                stat = "stratum", size = 4, direction = "y", nudge_x = -.6) +
+            ggrepel::geom_text_repel(
+                aes(label = ifelse(after_stat(x)  == 2, as.character(after_stat(stratum)), "")),
+                stat = "stratum", size = 4, direction = "y", nudge_x = .6)
+    }
     q
+    
 }
