@@ -177,3 +177,201 @@ spatial2D <- function(object,
     gg
     return(gg)
 }
+
+# ##' @title Generate a circos/chord plot for visualising changes in localisation
+# ##' between two conditions/datasets
+# ##' @param params An instance of class `bandleParams` or `MSnSetList` 
+# ##' @param fcol A `character` of length 2 specifying the feature column names 
+# ##' for condition 1 and condition 2, that define the allocation/subcellular class labels.
+# ##' Only to specified if input `params` is a `MSnSetList`.
+# ##' @param all
+# ##' @param cols
+# ##' @param ...
+# ##' @return A `ggplot` object
+# ##' @md
+# ##' 
+# ##' @rdname bandle-plots
+# 
+# chordplot <- function(params, 
+#                        all = FALSE, 
+#                        cols, 
+#                        labels = TRUE, 
+#                        ...) {
+#     
+#     stopifnot(inherits(params, "bandleParams"))
+#     
+#     # get results from params
+#     res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
+#     res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
+#     
+#     # get all possible allocation classes
+#     cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
+#     cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+#     fct.lev <- union(cl1, cl2)
+#     res1_lev <- factor(res1, fct.lev)
+#     res2_lev <- factor(res2, fct.lev)
+#     
+#     # create data frame of translocations
+#     dat <- data.frame(x = res1_lev, y = res2_lev)
+#     dat$z <- 1
+#     datdf <- dat %>% group_by(x, y, .drop = FALSE) %>% 
+#         dplyr:::summarise(count=sum(z), .groups = "keep")
+#     if (!all) {
+#         torm <- which(datdf$x == datdf$y)
+#         datdf <- datdf[-torm, ]
+#     }
+#     df <- as.data.frame(datdf)
+#     
+#     # add colour scheme if not provided
+#     if (missing(cols)) {
+#         grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
+#         if (length(fct.lev) > length(getStockcol()))
+#             grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
+#     } else {
+#         if (length(fct.lev) > length(cols))
+#             stop(message("Not enough colours specified for subcellular classes"))
+#         grid.col <- cols
+#     }
+#     
+#     # create circos
+#     par(mar = c(1,1,1,1)*12, cex = 0.6, xpd=NA)
+#     circos.par(gap.degree = 4)
+#     chordDiagram(df, annotationTrack = "grid", 
+#                  preAllocateTracks = 1, 
+#                  grid.col = grid.col,
+#                  directional = 1, 
+#                  direction.type = c("diffHeight", "arrows"), 
+#                  link.arr.type = "big.arrow", ...)
+#     
+#     # annotate tracking regions and customise
+#     if (labels) {
+#         circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+#             xlim = get.cell.meta.data("xlim")
+#             ylim = get.cell.meta.data("ylim")
+#             sector.name = get.cell.meta.data("sector.index")
+#             circos.text(mean(xlim), 
+#                         ylim[1] + .1, 
+#                         sector.name, 
+#                         facing = "clockwise",
+#                         niceFacing = TRUE, 
+#                         adj = c(-0.5, 0.1),
+#                         cex = 1,
+#                         col=grid.col[sector.name],
+#                         font = 2)
+#             circos.axis(h = "top",
+#                         labels.cex = .6,
+#                         major.tick.length = 1,
+#                         sector.index = sector.name,
+#                         track.index = 2)
+#         }, bg.border = NA)
+#     } else {
+#         circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+#             xlim = get.cell.meta.data("xlim")
+#             ylim = get.cell.meta.data("ylim")
+#             sector.name = get.cell.meta.data("sector.index")
+#             circos.axis(h = "top",
+#                         labels.cex = .6,
+#                         major.tick.length = 1,
+#                         sector.index = sector.name,
+#                         track.index = 2)
+#         }, bg.border = NA)
+#     }
+#     circos.clear()
+# }
+
+##' @title Generate an alluvial/sankey riverplot for visualising changes in localisation
+##' between two conditions
+##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
+##' @param fcol To be specified if input is a `MSnSetList`. `fcol` must be a 
+##' `character` of length 2 specifying the feature column names for the first and second
+##' `MSnSet` that contain the allocated class labels (see example below).
+##' @param all A logical specifying whether to count all proteins or only show those that
+##' have changed in location between conditions. Default is `FALSE`.
+##' @param cols A list of colours to define the classes in the data
+##' @param labels A logical whether to plot strata/class labels, default is `TRUE`
+##' @return A `ggplot` object
+##' @md
+##' 
+##' @rdname bandle-plots
+##' @author Lisa M Breckels
+
+riverplot <- function(params, 
+                      all = FALSE, 
+                      cols, 
+                      labels = TRUE) {
+    
+    stopifnot(inherits(params, "bandleParams") | inherits(params, "MSnSetList"))
+    
+    # get results from params
+    res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
+    res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
+    
+    # get all possible allocation classes
+    cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
+    cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+    fct.lev <- union(cl1, cl2)
+    res1_lev <- factor(res1, fct.lev)
+    res2_lev <- factor(res2, fct.lev)
+    
+    # create data frame of translocations
+    dat <- data.frame(x = res1_lev, y = res2_lev)
+    dat$z <- 1
+    datdf <- dat %>% group_by(x, y, .drop = FALSE) %>% 
+        dplyr:::summarise(count=sum(z), .groups = "keep")
+    if (!all) {
+        torm <- which(datdf$x == datdf$y)
+        datdf <- datdf[-torm, ]
+    }
+    df <- as.data.frame(datdf)
+    torm <- which(df$count == 0)
+    df <- df[-torm, ]
+    
+    # add colour scheme if not provided
+    if (missing(cols)) {
+        grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
+        if (length(fct.lev) > length(getStockcol()))
+            grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
+    } else {
+        if (length(fct.lev) > length(cols))
+            stop(message("Not enough colours specified for subcellular classes"))
+        grid.col <- cols
+    }
+    
+    # set colours for alluvial plot (this is a little tricky as a specific 
+    # ordering is required for ggalluvial)
+    names(df) <- c("Condition1", "Condition2", "value")
+    levs1 <- levels(df$Condition1) 
+    levs2 <- levels(df$Condition2)
+    # levs1 <- levs1[table(df$Condition1)!=0]
+    # levs2 <- levs2[table(df$Condition2)!=0]
+    
+    res1 <- unique(df$Condition1)
+    res2 <- unique(df$Condition2)
+    cond1_cols <- grid.col[levs1[levs1 %in% res1]]
+    cond2_cols <- grid.col[levs2[levs2 %in% res2]]
+    columnCols <- c(cond1_cols, cond2_cols)
+    stratCols <- c(rev(cond1_cols), rev(cond2_cols))
+    
+    ## plot alluvial/river schematic
+    q <- ggplot(df,
+                aes(y = value, axis1 = Condition1, axis2 = Condition2)) +
+        geom_alluvium(aes(fill = Condition1), width = 0) +
+        scale_fill_manual(values = columnCols) +
+        geom_stratum(width = 1/8, fill = paste0(stratCols), color = "white") +
+        scale_x_discrete(limits = c("Condition1", "Condition2"), 
+                         expand = c(.09, .09)) +
+        scale_y_continuous(breaks = NULL) +
+        theme_minimal() +
+        theme(axis.ticks.y = element_blank(),
+              axis.text.y = element_blank(),
+              panel.grid.major.y = element_blank(),
+              panel.grid.major.x = element_blank()) +
+        theme(legend.position = "none") +
+        ylab(NULL)
+    if (labels) {
+        q <- q +
+            geom_label(stat = "stratum", aes(label = after_stat(stratum)),
+                       color = stratCols, fontface = "bold", size = 3)    
+    } 
+    q
+}

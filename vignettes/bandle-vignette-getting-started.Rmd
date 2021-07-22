@@ -212,7 +212,7 @@ pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
 barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment")
 ```
 
-# Differential localisation and rank plots
+# Differential localisation probability
 
 The differential localization probability is also stored here, which gives
 the proteins that are most likely to differentially localised. The rank plot
@@ -220,8 +220,10 @@ is a good visualisation. Indicating that most proteins are not differentially
 localised and there are a few confident differentially localised protiens.
 
 ```{r,}
-plot(pe1$bandle.differential.localisation[order(pe1$bandle.differential.localisation, decreasing = TRUE)],
-     col = getStockcol()[3], pch = 19, ylab = "Probability", xlab = "Rank", main = "Differential localisation rank plot")
+diffloc_probs <- pe1$bandle.differential.localisation
+plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
+     col = getStockcol()[3], pch = 19, ylab = "Probability", 
+     xlab = "Rank", main = "Differential localisation rank plot")
 ```
 We can examine the top `n` proteins (here 100) and produce bootstrap estimates 
 of the uncertainty (note here the uncertainty is likely to be underestimated
@@ -242,12 +244,31 @@ sum(tansim$perm1_names %in% rownames(bt))
 sum(!(tansim$perm1_names %in% rownames(bt)))
 ```
 
-# Localisation probabilities 
+# Visualising relocalisation
+
+We can visualise the changes in localisation between conditions on an alluvial 
+(river) plot using the `riverplot` function
+```{r, warning=FALSE, message=FALSE}
+riverplot(bandleres)
+```
+
+
+# Allocation probabilities 
 
 The allocation probabilities are stored in the `tagm.joint` slot. These could
 be visualised in a heatmap
 ```{r,}
-pheatmap(summaries(bandleres)[[1]]@bandle.joint, cluster_cols = FALSE, color = viridis(n = 25))
-
+bjoint_control <- summaries(bandleres)[[1]]@bandle.joint
+pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
+```
+```{r,}
+bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint
+pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
+# Session information
+
+All software and respective versions used to produce this document are listed below.
+```{r,}
+sessionInfo()
+```
