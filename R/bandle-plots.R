@@ -178,106 +178,111 @@ spatial2D <- function(object,
     return(gg)
 }
 
-# ##' @title Generate a circos/chord plot for visualising changes in localisation
-# ##' between two conditions/datasets
-# ##' @param params An instance of class `bandleParams` or `MSnSetList` 
-# ##' @param fcol To be specified if input is a `MSnSetList`. `fcol` must be a 
-# ##' `character` of length 2 specifying the feature column names for the first and second
-# ##' `MSnSet` that contain the allocated class labels (see example below).
-# ##' @param all
-# ##' @param cols
-# ##' @param ...
-# ##' @return A `ggplot` object
-# ##' @md
-# ##' 
-# ##' @rdname bandle-plots
-# 
-# chordplot <- function(params, 
-#                        all = FALSE, 
-#                        cols, 
-#                        labels = TRUE, 
-#                        ...) {
-#     
-#     stopifnot(inherits(params, "bandleParams"))
-#     
-#     # get results from params
-#     res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
-#     res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
-#     
-#     # get all possible allocation classes
-#     cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
-#     cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
-#     fct.lev <- union(cl1, cl2)
-#     res1_lev <- factor(res1, fct.lev)
-#     res2_lev <- factor(res2, fct.lev)
-#     
-#     # create data frame of translocations
-#     dat <- data.frame(x = res1_lev, y = res2_lev)
-#     dat$z <- 1
-#     datdf <- dat %>% group_by(x, y, .drop = FALSE) %>% 
-#         dplyr:::summarise(count=sum(z), .groups = "keep")
-#     if (!all) {
-#         torm <- which(datdf$x == datdf$y)
-#         datdf <- datdf[-torm, ]
-#     }
-#     df <- as.data.frame(datdf)
-#     
-#     # add colour scheme if not provided
-#     if (missing(cols)) {
-#         grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
-#         if (length(fct.lev) > length(getStockcol()))
-#             grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
-#     } else {
-#         if (length(fct.lev) > length(cols))
-#             stop(message("Not enough colours specified for subcellular classes"))
-#         grid.col <- cols
-#     }
-#     
-#     # create circos
-#     par(mar = c(1,1,1,1)*12, cex = 0.6, xpd=NA)
-#     circos.par(gap.degree = 4)
-#     chordDiagram(df, annotationTrack = "grid", 
-#                  preAllocateTracks = 1, 
-#                  grid.col = grid.col,
-#                  directional = 1, 
-#                  direction.type = c("diffHeight", "arrows"), 
-#                  link.arr.type = "big.arrow", ...)
-#     
-#     # annotate tracking regions and customise
-#     if (labels) {
-#         circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
-#             xlim = get.cell.meta.data("xlim")
-#             ylim = get.cell.meta.data("ylim")
-#             sector.name = get.cell.meta.data("sector.index")
-#             circos.text(mean(xlim), 
-#                         ylim[1] + .1, 
-#                         sector.name, 
-#                         facing = "clockwise",
-#                         niceFacing = TRUE, 
-#                         adj = c(-0.5, 0.1),
-#                         cex = 1,
-#                         col=grid.col[sector.name],
-#                         font = 2)
-#             circos.axis(h = "top",
-#                         labels.cex = .6,
-#                         major.tick.length = 1,
-#                         sector.index = sector.name,
-#                         track.index = 2)
-#         }, bg.border = NA)
-#     } else {
-#         circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
-#             xlim = get.cell.meta.data("xlim")
-#             ylim = get.cell.meta.data("ylim")
-#             sector.name = get.cell.meta.data("sector.index")
-#             circos.axis(h = "top",
-#                         labels.cex = .6,
-#                         major.tick.length = 1,
-#                         sector.index = sector.name,
-#                         track.index = 2)
-#         }, bg.border = NA)
-#     }
-#     circos.clear()
-# }
+##' @title Generate a circos/chord plot for visualising changes in localisation
+##' between two conditions/datasets
+##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
+##' @param all A logical specifying whether to count all proteins or only show those that
+##' have changed in location between conditions. Default is `FALSE`.
+##' @param cols A list of colours to define the classes in the data
+##' @param labels Logical indicating whether to display labels for the chord segments. 
+##' Default is `FALSE`.
+##' @param spacer A `numeric`. Default is 8. Controls the white space around the circos 
+##' plotting region. 
+##' @param cex.text Text size. Default is 1.
+##' @param ... Additional arguments passed to the `chordDiagram` function.
+##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
+##' between conditions.
+##'
+##' @rdname bandle-plots
+
+chordplot <- function(params,
+                      all = FALSE,
+                      cols,
+                      labels = TRUE,
+                      spacer = 8,
+                      cex.text = 1, 
+                      ...) {
+
+    stopifnot(inherits(params, "bandleParams"))
+
+    # get results from params
+    res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
+    res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
+
+    # get all possible allocation classes
+    cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
+    cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+    fct.lev <- union(cl1, cl2)
+    res1_lev <- factor(res1, fct.lev)
+    res2_lev <- factor(res2, fct.lev)
+
+    # create data frame of translocations
+    dat <- data.frame(x = res1_lev, y = res2_lev)
+    dat$z <- 1
+    datdf <- dat %>% group_by(x, y, .drop = FALSE) %>%
+        dplyr:::summarise(count=sum(z), .groups = "keep")
+    if (!all) {
+        torm <- which(datdf$x == datdf$y)
+        datdf <- datdf[-torm, ]
+    }
+    df <- as.data.frame(datdf)
+
+    # add colour scheme if not provided
+    if (missing(cols)) {
+        grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
+        if (length(fct.lev) > length(getStockcol()))
+            grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
+    } else {
+        if (length(fct.lev) > length(cols))
+            stop(message("Not enough colours specified for subcellular classes"))
+        grid.col <- cols
+    }
+
+    # create circos
+    par(mar = c(1,1,1,1)*spacer, cex = 1, xpd=NA)
+    circos.par(gap.degree = 4)
+    chordDiagram(df, annotationTrack = "grid",
+                 preAllocateTracks = 1,
+                 grid.col = grid.col,
+                 directional = 1,
+                 direction.type = c("diffHeight", "arrows"),
+                 link.arr.type = "big.arrow", ...)
+
+    # annotate tracking regions and customise
+    if (labels) {
+        circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+            xlim = get.cell.meta.data("xlim")
+            ylim = get.cell.meta.data("ylim")
+            sector.name = get.cell.meta.data("sector.index")
+            circos.text(mean(xlim),
+                        y = ylim[1] + mm_y(12),
+                        sector.name,
+                        facing = "clockwise",
+                        niceFacing = TRUE,
+                        adj = c(0, 0),
+                        cex = cex.text,
+                        col=grid.col[sector.name],
+                        font = 2)
+            circos.axis(h = "top",
+                        labels.cex = .6,
+                        major.tick.length = 1,
+                        sector.index = sector.name,
+                        track.index = 2)
+        }, bg.border = NA)
+    } else {
+        circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+            xlim = get.cell.meta.data("xlim")
+            ylim = get.cell.meta.data("ylim")
+            sector.name = get.cell.meta.data("sector.index")
+            circos.axis(h = "top",
+                        labels.cex = .6,
+                        major.tick.length = 1,
+                        sector.index = sector.name,
+                        track.index = 2)
+        }, bg.border = NA)
+    }
+    circos.clear()
+}
 
 ##' @title Generate an alluvial/sankey riverplot for visualising changes in localisation
 ##' between two conditions
