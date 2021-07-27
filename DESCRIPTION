@@ -30,7 +30,8 @@ Imports: Rcpp (>= 1.0.4.6),
     BiocStyle,
     ggalluvial,
     ggrepel,
-    tidyr
+    tidyr,
+    circlize
 Suggests: coda(>= 0.19-4),
     akima,
     fields,
