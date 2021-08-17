@@ -156,7 +156,7 @@ We are now ready to run the main bandle function. Remember to carefully
 select the datasets and replicates that define the control and treatment. 
 Furthermore, iterations are typically $1000$s, a few are run here for the 
 convenience of the vignette.
-```{r,}
+```{r, message=FALSE}
 control <- tansim$lopitrep[1:3]
 treatment <- tansim$lopitrep[4:6]
 bandleres <- bandle(objectCond1 = control,
@@ -244,18 +244,24 @@ sum(tansim$perm1_names %in% rownames(bt))
 sum(!(tansim$perm1_names %in% rownames(bt)))
 ```
 
-# Visualising relocalisation
+# Visualising translocations
 
-We can visualise the changes in localisation between conditions on an alluvial 
-(river) plot using the `riverplot` function
-```{r, warning=FALSE, message=FALSE}
-plotTranslocations(bandleres, type = "alluvial")
+We can visualise the changes in localisation between conditions on an alluvial plot using the `plotTranslocations` function
+```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
+plotTranslocations(bandleres)
 ```
 
-Or alternatively, a `chordplot` 
-```{r, warning=FALSE, message=FALSE}
+Or alternatively, on a chord (circos) diagram
+
+```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
+
 plotTranslocations(bandleres, type = "chord")
 ```
+
+<!-- Lastly, we can also pass the argument `table = TRUE` to the `plotTranslocations` function to display a summary table of the number of proteins that have changed in location between conditions  -->
+<!-- ```{r summarytable, warning=FALSE, message=FALSE} -->
+<!-- (sum.res <- plotTranslocations(bandleres, table = TRUE)) -->
+<!-- ``` -->
 
 # Allocation probabilities 
 
