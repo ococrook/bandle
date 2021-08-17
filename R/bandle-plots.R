@@ -151,7 +151,7 @@ spatial2D <- function(object,
     df.lst <- df.lst %>%
         mutate(organelle = factor(organelle)) 
     K <- length(getMarkerClasses(object))
-    cols <- getStockcol()[1:K] # get appropriate colours
+    col <- getStockcol()[1:K] # get appropriate colours
     
     
     gg <- ggplot(
@@ -165,8 +165,8 @@ spatial2D <- function(object,
         scale_alpha(guide = "none") + 
         theme(legend.position = "right", 
               text = element_text(size = 12)) +
-        scale_color_manual(values = cols) +
-        scale_fill_manual(values = cols) +
+        scale_color_manual(values = col) +
+        scale_fill_manual(values = col) +
         theme_minimal() + 
         theme(panel.grid.major = element_blank(), panel.grid.minor = element_blank(),
               aspect.ratio = aspect,
@@ -187,14 +187,14 @@ spatial2D <- function(object,
 ##' \code{"alluvial"} (default) or \code{"chord"}.
 ##' @param all A logical specifying whether to count all proteins or only show those that
 ##' have changed in location between conditions. Default is `FALSE`.
-##' @param cols A list of colours to define the classes in the data
+##' @param col A list of colours to define the classes in the data
 ##' @param labels Logical indicating whether to display class/organelle labels for the 
 ##' chord segments or alluvial stratum. Default is \code{TRUE}.
-##' @param labels.style If \code{type} is \code{"alluvial"}. Label style can be specified as
+##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be specified as
 ##' one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
 ##' @param spacer A `numeric`. Default is 4. Controls the white space around the circos 
 ##' plotting region. 
-##' @param cex.text Text size. Default is 1.
+##' @param cex Text size. Default is 1.
 ##' @param ... Additional arguments passed to the `chordDiagram` function.
 ##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
 ##' between conditions.
@@ -203,11 +203,11 @@ spatial2D <- function(object,
 plotTranslocations <- function(params,
                                type = "alluvial",
                                all = FALSE,
+                               col,
                                labels = TRUE,
-                               labels.style = "adj", 
-                               spacer = 4,
-                               cex.text = 1,
-                               cols,
+                               labels.par = "adj", 
+                               cex = 1,
+                               spacer = 4
                                ...) {
                       
 
@@ -215,7 +215,7 @@ plotTranslocations <- function(params,
     
     # check method is one of chord or alluvial
     type <- match.arg(type, c("alluvial", "chord"))
-    labels.style <- match.arg(labels.style, c("adj", "repel"))
+    labels.par <- match.arg(labels.par, c("adj", "repel"))
     
     # get results from params
     res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
@@ -240,15 +240,15 @@ plotTranslocations <- function(params,
     df <- as.data.frame(datdf)
     
     # add colour scheme if not provided
-    if (missing(cols)) {
+    if (missing(col)) {
         setStockcol(NULL)
-        grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
+        grid.col <- segcol <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
         if (length(fct.lev) > length(getStockcol()))
-            grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
+            grid.col <- segcol <- setNames(rainbow(length(fct.lev)), fct.lev)
     } else {
-        if (length(fct.lev) > length(cols))
+        if (length(fct.lev) > length(col))
             stop(message("Not enough colours specified for subcellular classes"))
-        grid.col <- cols
+        grid.col <- col
     }
     
     # ------------chord/circos plot
@@ -279,7 +279,7 @@ plotTranslocations <- function(params,
                             facing = "clockwise",
                             niceFacing = TRUE, 
                             adj = c(0, 0.5),
-                            cex = cex.text,
+                            cex = cex,
                             col=grid.col[sector.name],
                             font = 2)
                 circos.axis(h = "bottom",
@@ -292,7 +292,7 @@ plotTranslocations <- function(params,
                 #             facing = "clockwise",
                 #             niceFacing = TRUE,
                 #             adj = c(0, 0),
-                #             cex = cex.text,
+                #             cex = cex,
                 #             col=grid.col[sector.name],
                 #             font = 2)
                 # circos.axis(h = "top",
@@ -332,10 +332,10 @@ plotTranslocations <- function(params,
         # levs2 <- levs2[table(df$Condition2)!=0]
         res1 <- unique(df$Condition1)
         res2 <- unique(df$Condition2)
-        cond1_cols <- grid.col[levs1[levs1 %in% res1]]
-        cond2_cols <- grid.col[levs2[levs2 %in% res2]]
-        columnCols <- c(cond1_cols, cond2_cols)
-        stratCols <- c(rev(cond1_cols), rev(cond2_cols))
+        cond1_col <- grid.col[levs1[levs1 %in% res1]]
+        cond2_col <- grid.col[levs2[levs2 %in% res2]]
+        columncol <- c(cond1_col, cond2_col)
+        stratcol <- c(rev(cond1_col), rev(cond2_col))
         
         # convert to long format
         df_expanded <- df[rep(row.names(df), df$value), ]
@@ -346,8 +346,8 @@ plotTranslocations <- function(params,
         # plot alluvial diagram
         q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
             geom_flow(width = 0) +
-            scale_fill_manual(values = columnCols) +
-            scale_color_manual(values = stratCols) +
+            scale_fill_manual(values = columncol) +
+            scale_color_manual(values = stratcol) +
             geom_stratum(width = 1/8, color = "white") +
             scale_x_discrete(
                 expand = c(.25, .25)
@@ -367,7 +367,7 @@ plotTranslocations <- function(params,
         
         # add labels to alluvial stratum
         if (labels == "TRUE") {
-            if (labels.style == "adj") {
+            if (labels.par == "adj") {
                 q <- q +
                     geom_text(
                         aes(
@@ -379,7 +379,7 @@ plotTranslocations <- function(params,
                         stat = "stratum", fontface = "bold", size = 4
                     )
             }
-            if (labels.style == "repel") {
+            if (labels.par == "repel") {
                 q <- q +
                     ggrepel::geom_text_repel(
                         aes(label = ifelse(after_stat(x) == 1, as.character(after_stat(stratum)), "")),
@@ -388,7 +388,7 @@ plotTranslocations <- function(params,
                         aes(label = ifelse(after_stat(x)  == 2, as.character(after_stat(stratum)), "")),
                         stat = "stratum", size = 4, direction = "y", nudge_x = .6)
             }
-            labels.style <- match.arg(labels.style, c("repel", "adj"))
+            labels.par <- match.arg(labels.par, c("repel", "adj"))
         } 
         q
     }
