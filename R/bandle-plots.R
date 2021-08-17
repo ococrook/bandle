@@ -182,12 +182,18 @@ spatial2D <- function(object,
 ##' to show changes in location between two conditions or datasets.
 ##' @title Generates a chord diagram or alluvial plot for visualising changes in localisation
 ##' between two conditions/datasets
-##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
+##' @param params An instance of class \code{bandleParams} or an instance of class 
+##' \code{MSnSetList} of length 2. 
 ##' @param type A \code{character} specifying the type of visualisation to plot. One of
 ##' \code{"alluvial"} (default) or \code{"chord"}.
 ##' @param all A logical specifying whether to count all proteins or only show those that
 ##' have changed in location between conditions. Default is `FALSE`.
-##' @param col A list of colours to define the classes in the data
+##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then \code{fcol} must
+##' be defined. This is a \code{character} vector of length 2 to set different labels for 
+##' each dataset. If only one label is specified, and the \code{character} is of length 1
+##' then this single label will be used to identify the annotation column in both datasets.
+##' @param col A list of colours to define the classes in the data. If not defined then
+##' the default \code{pRoloc} colours in \code{getStockCol()} are used.
 ##' @param labels Logical indicating whether to display class/organelle labels for the 
 ##' chord segments or alluvial stratum. Default is \code{TRUE}.
 ##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be specified as
@@ -197,33 +203,55 @@ spatial2D <- function(object,
 ##' @param cex Text size. Default is 1.
 ##' @param ... Additional arguments passed to the `chordDiagram` function.
 ##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
-##' between conditions.
+##' between conditions. If \code{type = "alluvial"} ouput is a \code{ggplot} object. 
 ##' @rdname bandle-plots
 
 plotTranslocations <- function(params,
                                type = "alluvial",
                                all = FALSE,
+                               fcol,
                                col,
                                labels = TRUE,
                                labels.par = "adj", 
                                cex = 1,
                                spacer = 4
                                ...) {
-                      
-
-    stopifnot(inherits(params, "bandleParams"))
     
+    stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
+
     # check method is one of chord or alluvial
     type <- match.arg(type, c("alluvial", "chord"))
     labels.par <- match.arg(labels.par, c("adj", "repel"))
     
     # get results from params
-    res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
-    res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
-    
-    # get all possible allocation classes
-    cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
-    cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+    if (inherits(params, "bandleParams")) {
+        res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
+        res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
+        cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
+        cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+    }
+    if (inherits(params, "list")) {
+        stopifnot(unlist(lapply(params, function(z) inherits(z, "MSnSet"))))
+        params <- commonFeatureNames(params) ## keep only intersection between datasets
+        params <- list(params2[[1]], params2[[2]])
+        if (missing(fcol)) stop(paste("Missing fcol, please specify feature columns"))
+        if (length(fcol) == 1) {
+            fcol <- rep(fcol, 2)
+            message(paste0(c("------------------------------------------------",
+                             "\nIf length(fcol) == 1 it is assumed that the",
+                             "\nsame fcol is to be used for both datasets",
+                             "\nsetting fcol = c(", fcol[1], ",", fcol[2],")",
+                             "\n----------------------------------------------")))
+        }
+        for (i in seq(fcol)) {
+            if (!is.null(fcol[i]) && !fcol[i] %in% fvarLabels(params[[i]]))
+                stop("No fcol found in MSnSet, please specify a valid fcol ", immediate. = TRUE)
+        }
+        res1 <- fData(params[[1]])[, fcol[1]]
+        res2 <- fData(params[[2]])[, fcol[2]]
+        cl1 <- names(table(res1))
+        cl2 <- names(table(res2))
+    }
     fct.lev <- union(cl1, cl2)
     res1_lev <- factor(res1, fct.lev)
     res2_lev <- factor(res2, fct.lev)
@@ -286,20 +314,6 @@ plotTranslocations <- function(params,
                             labels.cex = .6,
                             sector.index = sector.name
                 )
-                # circos.text(mean(xlim),
-                #             y = ylim[1] + mm_y(12),
-                #             sector.name,
-                #             facing = "clockwise",
-                #             niceFacing = TRUE,
-                #             adj = c(0, 0),
-                #             cex = cex,
-                #             col=grid.col[sector.name],
-                #             font = 2)
-                # circos.axis(h = "top",
-                #             labels.cex = .6,
-                #             major.tick.length = 1,
-                #             sector.index = sector.name,
-                #             track.index = 2)
             }, bg.border = NA)
         } else {
             circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
