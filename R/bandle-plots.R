@@ -201,7 +201,9 @@ spatial2D <- function(object,
 ##' @param spacer A `numeric`. Default is 4. Controls the white space around the circos 
 ##' plotting region. 
 ##' @param cex Text size. Default is 1.
-##' @param ... Additional arguments passed to the `chordDiagram` function.
+##' @param table Print a summary table of translocations between subcellular classes.
+##' @param ... Additional arguments passed to the `chordDiagram` function. Default is
+##' \code{FALSE}.
 ##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
 ##' between conditions. If \code{type = "alluvial"} ouput is a \code{ggplot} object. 
 ##' @rdname bandle-plots
@@ -214,7 +216,8 @@ plotTranslocations <- function(params,
                                labels = TRUE,
                                labels.par = "adj", 
                                cex = 1,
-                               spacer = 4
+                               spacer = 4,
+                               table = FALSE,
                                ...) {
     
     stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
@@ -356,6 +359,12 @@ plotTranslocations <- function(params,
         df_expanded <- df_expanded %>%
             mutate(id = row_number()) %>%
             pivot_longer(-c(value, id), names_to = "Condition", values_to = "label")
+        
+        # return table
+        if (table == TRUE) {
+            return(df = df)
+            stop("Returning translocation data.frame")
+        }
         
         # plot alluvial diagram
         q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
