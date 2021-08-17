@@ -16,12 +16,12 @@ R-package for analysis differential localisation experiments, include storage, c
 Users will require a working version of R, currently at least version >4. It is recommend to use RStudio. The package can then be installed using the `devtools` package. The package should take a few minutes to install on a regular desktop or laptop. The package will need to be loaded using `library(bandle)`
 
 ```{r,}
-devtools::install_github("ococrook/bandle")
+devtools::install_github("ococrook/bandle", build_vignettes = TRUE, dependencies = TRUE)
 ```
 
 # Examples
 
-A simple demo is given in the vigenettes folder with clear demonstrations of the input and output. A small dataset can take around an hour to run; for large dataset we recommend a a compute server. The longest the analysis has taken has been a couple of hours on a single compute node. The demo take a few minutes to run.
+A simple demo is given in the vigenettes folder with clear demonstrations of the input and output. A small dataset can take around an hour to run; for large dataset we recommend a compute server. The longest the analysis has taken has been a couple of hours on a single compute node. The demo take a few minutes to run.
 
 # Documentation
 
