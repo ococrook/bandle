@@ -178,44 +178,56 @@ spatial2D <- function(object,
     return(gg)
 }
 
-##' @title Generate a circos/chord plot for visualising changes in localisation
+##' Produces a chord diagram (circos plot) or an alluvial plot (also known as a Sankey diagram)
+##' to show changes in location between two conditions or datasets.
+##' @title Generates a chord diagram or alluvial plot for visualising changes in localisation
 ##' between two conditions/datasets
 ##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
+##' @param type A \code{character} specifying the type of visualisation to plot. One of
+##' \code{"alluvial"} (default) or \code{"chord"}.
 ##' @param all A logical specifying whether to count all proteins or only show those that
 ##' have changed in location between conditions. Default is `FALSE`.
 ##' @param cols A list of colours to define the classes in the data
-##' @param labels Logical indicating whether to display labels for the chord segments. 
-##' Default is `FALSE`.
-##' @param spacer A `numeric`. Default is 8. Controls the white space around the circos 
+##' @param labels Logical indicating whether to display class/organelle labels for the 
+##' chord segments or alluvial stratum. Default is \code{TRUE}.
+##' @param labels.style If \code{type} is \code{"alluvial"}. Label style can be specified as
+##' one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
+##' @param spacer A `numeric`. Default is 4. Controls the white space around the circos 
 ##' plotting region. 
 ##' @param cex.text Text size. Default is 1.
 ##' @param ... Additional arguments passed to the `chordDiagram` function.
 ##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
 ##' between conditions.
-##'
 ##' @rdname bandle-plots
 
-chordplot <- function(params,
-                      all = FALSE,
-                      cols,
-                      labels = TRUE,
-                      spacer = 8,
-                      cex.text = 1, 
-                      ...) {
+plotTranslocations <- function(params,
+                               type = "alluvial",
+                               all = FALSE,
+                               labels = TRUE,
+                               labels.style = "adj", 
+                               spacer = 4,
+                               cex.text = 1,
+                               cols,
+                               ...) {
+                      
 
     stopifnot(inherits(params, "bandleParams"))
-
+    
+    # check method is one of chord or alluvial
+    type <- match.arg(type, c("alluvial", "chord"))
+    labels.style <- match.arg(labels.style, c("adj", "repel"))
+    
     # get results from params
     res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
     res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
-
+    
     # get all possible allocation classes
     cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
     cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
     fct.lev <- union(cl1, cl2)
     res1_lev <- factor(res1, fct.lev)
     res2_lev <- factor(res2, fct.lev)
-
+ 
     # create data frame of translocations
     dat <- data.frame(x = res1_lev, y = res2_lev)
     dat$z <- 1
@@ -226,111 +238,10 @@ chordplot <- function(params,
         datdf <- datdf[-torm, ]
     }
     df <- as.data.frame(datdf)
-
-    # add colour scheme if not provided
-    if (missing(cols)) {
-        grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
-        if (length(fct.lev) > length(getStockcol()))
-            grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
-    } else {
-        if (length(fct.lev) > length(cols))
-            stop(message("Not enough colours specified for subcellular classes"))
-        grid.col <- cols
-    }
-
-    # create circos
-    par(mar = c(1,1,1,1)*spacer, cex = 1, xpd=NA)
-    circos.par(gap.degree = 4)
-    chordDiagram(df, annotationTrack = "grid",
-                 preAllocateTracks = 1,
-                 grid.col = grid.col,
-                 directional = 1,
-                 direction.type = c("diffHeight", "arrows"),
-                 link.arr.type = "big.arrow", ...)
-
-    # annotate tracking regions and customise
-    if (labels) {
-        circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
-            xlim = get.cell.meta.data("xlim")
-            ylim = get.cell.meta.data("ylim")
-            sector.name = get.cell.meta.data("sector.index")
-            circos.text(mean(xlim),
-                        y = ylim[1] + mm_y(12),
-                        sector.name,
-                        facing = "clockwise",
-                        niceFacing = TRUE,
-                        adj = c(0, 0),
-                        cex = cex.text,
-                        col=grid.col[sector.name],
-                        font = 2)
-            circos.axis(h = "top",
-                        labels.cex = .6,
-                        major.tick.length = 1,
-                        sector.index = sector.name,
-                        track.index = 2)
-        }, bg.border = NA)
-    } else {
-        circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
-            xlim = get.cell.meta.data("xlim")
-            ylim = get.cell.meta.data("ylim")
-            sector.name = get.cell.meta.data("sector.index")
-            circos.axis(h = "top",
-                        labels.cex = .6,
-                        major.tick.length = 1,
-                        sector.index = sector.name,
-                        track.index = 2)
-        }, bg.border = NA)
-    }
-    circos.clear()
-}
-
-##' @title Generate an alluvial/sankey riverplot for visualising changes in localisation
-##' between two conditions
-##' @param params An instance of class `bandleParams` or a `MSnSetList` of length 2.
-##' @param all A logical specifying whether to count all proteins or only show those that
-##' have changed in location between conditions. Default is `FALSE`.
-##' @param cols A list of colours to define the classes in the data
-##' @param labels Choice of "adj", "repel" or "none". Default is "adj".
-##' @return A `ggplot` object
-##' @md
-##' 
-##' @rdname bandle-plots
-##' @author Lisa M Breckels
-
-riverplot <- function(params, 
-                      all = FALSE, 
-                      cols, 
-                      labels = "adj"
-                      ) {
-
-    stopifnot(inherits(params, "bandleParams") | inherits(params, "MSnSetList"))
-    
-    # get results from params
-    res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
-    res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
-    
-    # get all possible allocation classes
-    cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
-    cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
-    fct.lev <- union(cl1, cl2)
-    res1_lev <- factor(res1, fct.lev)
-    res2_lev <- factor(res2, fct.lev)
-    
-    # create data frame of translocations
-    dat <- data.frame(x = res1_lev, y = res2_lev)
-    dat$z <- 1
-    datdf <- dat %>% group_by(x, y, .drop = FALSE) %>% 
-        dplyr:::summarise(count=sum(z), .groups = "keep")
-    if (!all) {
-        torm <- which(datdf$x == datdf$y)
-        datdf <- datdf[-torm, ]
-    }
-    df <- as.data.frame(datdf)
-    torm <- which(df$count == 0)
-    df <- df[-torm, ]
     
     # add colour scheme if not provided
     if (missing(cols)) {
+        setStockcol(NULL)
         grid.col <- segcols <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
         if (length(fct.lev) > length(getStockcol()))
             grid.col <- segcols <- setNames(rainbow(length(fct.lev)), fct.lev)
@@ -340,69 +251,146 @@ riverplot <- function(params,
         grid.col <- cols
     }
     
-    # set colours for alluvial plot (this is a little tricky as a specific 
-    # ordering is required for ggalluvial)
-    names(df) <- c("Condition1", "Condition2", "value")
-    levs1 <- levels(df$Condition1) 
-    levs2 <- levels(df$Condition2)
-    # levs1 <- levs1[table(df$Condition1)!=0]
-    # levs2 <- levs2[table(df$Condition2)!=0]
-    res1 <- unique(df$Condition1)
-    res2 <- unique(df$Condition2)
-    cond1_cols <- grid.col[levs1[levs1 %in% res1]]
-    cond2_cols <- grid.col[levs2[levs2 %in% res2]]
-    columnCols <- c(cond1_cols, cond2_cols)
-    stratCols <- c(rev(cond1_cols), rev(cond2_cols))
-    
-    # convert to long format
-    df_expanded <- df[rep(row.names(df), df$value), ]
-    df_expanded <- df_expanded %>%
-        mutate(id = row_number()) %>%
-        pivot_longer(-c(value, id), names_to = "Condition", values_to = "label")
-    
-    # plot alluvial diagram
-    q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
-        geom_flow(width = 0) +
-        scale_fill_manual(values = columnCols) +
-        scale_color_manual(values = stratCols) +
-        geom_stratum(width = 1/8, color = "white") +
-        scale_x_discrete(
-            expand = c(.25, .25)
-        ) +
-        scale_y_continuous(breaks = NULL) +
-        theme_minimal() +
-        theme(
-            axis.ticks.y = element_blank(),
-            axis.text.y = element_blank(),
-            axis.text.x = element_text(size=12),
-            panel.grid.major.y = element_blank(),
-            panel.grid.major.x = element_blank(),
-            axis.title.x=element_blank()
-        ) +
-        theme(legend.position = "none") +
-        ylab(NULL)
-    
-    if (labels == "adj") {
-       q <- q +
-           geom_text(
-               aes(
-                   label = after_stat(stratum),
-                   hjust = ifelse(Condition == "Condition1", 1, 0),
-                   x = as.numeric(factor(Condition)) + .075 * ifelse(Condition == "Condition1", -1, 1),
-                   color = after_stat(stratum)
-               ),
-               stat = "stratum", fontface = "bold", size = 4
-           )
+    # ------------chord/circos plot
+    if (type == "chord") {
+        # clear any previous plot
+        dev.off()
+        circos.clear()
+
+        # create circos
+        par(mar = c(1,1,1,1)*spacer, cex = 1, xpd = NA)
+        circos.par(gap.degree = 4)
+        chordDiagram(df, annotationTrack = "grid",
+                     preAllocateTracks = 1,
+                     grid.col = grid.col,
+                     directional = 1,
+                     direction.type = c("diffHeight", "arrows"),
+                     link.arr.type = "big.arrow", ...)
+        
+        # annotate tracking regions and customise
+        if (labels) {
+            circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+                xlim = get.cell.meta.data("xlim")
+                ylim = get.cell.meta.data("ylim")
+                sector.name = get.cell.meta.data("sector.index")
+                circos.text(CELL_META$xcenter, 
+                            ylim[1] + cm_h(2), 
+                            sector.name, 
+                            facing = "clockwise",
+                            niceFacing = TRUE, 
+                            adj = c(0, 0.5),
+                            cex = cex.text,
+                            col=grid.col[sector.name],
+                            font = 2)
+                circos.axis(h = "bottom",
+                            labels.cex = .6,
+                            sector.index = sector.name
+                )
+                # circos.text(mean(xlim),
+                #             y = ylim[1] + mm_y(12),
+                #             sector.name,
+                #             facing = "clockwise",
+                #             niceFacing = TRUE,
+                #             adj = c(0, 0),
+                #             cex = cex.text,
+                #             col=grid.col[sector.name],
+                #             font = 2)
+                # circos.axis(h = "top",
+                #             labels.cex = .6,
+                #             major.tick.length = 1,
+                #             sector.index = sector.name,
+                #             track.index = 2)
+            }, bg.border = NA)
+        } else {
+            circos.trackPlotRegion(track.index = 1, panel.fun = function(x, y) {
+                xlim = get.cell.meta.data("xlim")
+                ylim = get.cell.meta.data("ylim")
+                sector.name = get.cell.meta.data("sector.index")
+                circos.axis(h = "top",
+                            labels.cex = .6,
+                            major.tick.length = 1,
+                            sector.index = sector.name,
+                            track.index = 2)
+            }, bg.border = NA)
+        }
+        circos.clear()
     }
-    if (labels == "repel") {
-        q <- q +
-            ggrepel::geom_text_repel(
-                aes(label = ifelse(after_stat(x) == 1, as.character(after_stat(stratum)), "")),
-                stat = "stratum", size = 4, direction = "y", nudge_x = -.6) +
-            ggrepel::geom_text_repel(
-                aes(label = ifelse(after_stat(x)  == 2, as.character(after_stat(stratum)), "")),
-                stat = "stratum", size = 4, direction = "y", nudge_x = .6)
+    
+    # -----------alluvial plot
+    if (type == "alluvial") {
+        
+        # remove zero counts
+        torm <- which(df$count == 0)
+        df <- df[-torm, ]
+
+        # set colours for alluvial plot (this is a little tricky as a specific 
+        # ordering is required for ggalluvial)
+        names(df) <- c("Condition1", "Condition2", "value")
+        levs1 <- levels(df$Condition1) 
+        levs2 <- levels(df$Condition2)
+        # levs1 <- levs1[table(df$Condition1)!=0]
+        # levs2 <- levs2[table(df$Condition2)!=0]
+        res1 <- unique(df$Condition1)
+        res2 <- unique(df$Condition2)
+        cond1_cols <- grid.col[levs1[levs1 %in% res1]]
+        cond2_cols <- grid.col[levs2[levs2 %in% res2]]
+        columnCols <- c(cond1_cols, cond2_cols)
+        stratCols <- c(rev(cond1_cols), rev(cond2_cols))
+        
+        # convert to long format
+        df_expanded <- df[rep(row.names(df), df$value), ]
+        df_expanded <- df_expanded %>%
+            mutate(id = row_number()) %>%
+            pivot_longer(-c(value, id), names_to = "Condition", values_to = "label")
+        
+        # plot alluvial diagram
+        q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
+            geom_flow(width = 0) +
+            scale_fill_manual(values = columnCols) +
+            scale_color_manual(values = stratCols) +
+            geom_stratum(width = 1/8, color = "white") +
+            scale_x_discrete(
+                expand = c(.25, .25)
+            ) +
+            scale_y_continuous(breaks = NULL) +
+            theme_minimal() +
+            theme(
+                axis.ticks.y = element_blank(),
+                axis.text.y = element_blank(),
+                axis.text.x = element_text(size=12),
+                panel.grid.major.y = element_blank(),
+                panel.grid.major.x = element_blank(),
+                axis.title.x=element_blank()
+            ) +
+            theme(legend.position = "none") +
+            ylab(NULL)
+        
+        # add labels to alluvial stratum
+        if (labels == "TRUE") {
+            if (labels.style == "adj") {
+                q <- q +
+                    geom_text(
+                        aes(
+                            label = after_stat(stratum),
+                            hjust = ifelse(Condition == "Condition1", 1, 0),
+                            x = as.numeric(factor(Condition)) + .075 * ifelse(Condition == "Condition1", -1, 1),
+                            color = after_stat(stratum)
+                        ),
+                        stat = "stratum", fontface = "bold", size = 4
+                    )
+            }
+            if (labels.style == "repel") {
+                q <- q +
+                    ggrepel::geom_text_repel(
+                        aes(label = ifelse(after_stat(x) == 1, as.character(after_stat(stratum)), "")),
+                        stat = "stratum", size = 4, direction = "y", nudge_x = -.6) +
+                    ggrepel::geom_text_repel(
+                        aes(label = ifelse(after_stat(x)  == 2, as.character(after_stat(stratum)), "")),
+                        stat = "stratum", size = 4, direction = "y", nudge_x = .6)
+            }
+            labels.style <- match.arg(labels.style, c("repel", "adj"))
+        } 
+        q
     }
-    q
     
 }

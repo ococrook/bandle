@@ -249,9 +249,13 @@ sum(!(tansim$perm1_names %in% rownames(bt)))
 We can visualise the changes in localisation between conditions on an alluvial 
 (river) plot using the `riverplot` function
 ```{r, warning=FALSE, message=FALSE}
-riverplot(bandleres)
+plotTranslocations(bandleres, type = "alluvial")
 ```
 
+Or alternatively, a `chordplot` 
+```{r, warning=FALSE, message=FALSE}
+plotTranslocations(bandleres, type = "chord")
+```
 
 # Allocation probabilities 
 

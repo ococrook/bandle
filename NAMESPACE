@@ -25,7 +25,10 @@ importFrom("ggplot2", "ggplot", "aes", "geom_violin",
 	   "scale_y_continuous", "geom_label", "geom_text", "after_stat")
 importFrom("dplyr", "%>%", "mutate", "group_by", "summarise", "row_number")
 importFrom("stats", "cor", "p.adjust", "pchisq", "sd")
-importFrom("ggalluvial", "geom_flow", "geom_stratum", "GeomAlluvium", "StatStratum")
+importFrom("ggalluvial", "geom_flow", "geom_stratum", "GeomAlluvium", 
+           "StatStratum")
 importFrom("ggrepel", "geom_text_repel", "geom_label_repel")
 importFrom("tidyr", "pivot_longer")
-importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "circos.text", "circos.axis")
+importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
+           "get.cell.meta.data", "circos.text", "circos.axis", "circos.par", 
+           "circos.clear",  "cm_h")
