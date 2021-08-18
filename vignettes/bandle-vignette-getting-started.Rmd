@@ -45,6 +45,7 @@ the `pRolocdata` package to obtain a spatial proteomics dataset. This will be
 the basis of our simulation which will use boostrapping to generate new datasets.
 
 ```{r,}
+library("pRolocdata")
 data("tan2009r1")
 ```
 
@@ -57,10 +58,10 @@ The following code chuck simulates a differential localisation experiment.
 It will generate `numRep/2` of each a control and treatment condition. We
 will also simulate relocalisations for `numDyn` proteins.
 ```{r simulatedataset,}
-
+set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1,
                       numRep = 6,
-                      numDyn = 20)
+                      numDyn = 100)
 
 ```
 
@@ -69,7 +70,7 @@ par(mfrow = c(3,2))
 out <- lapply(tansim$lopitrep, function(z) plot2D(z, grid = FALSE))
 ```
 For understanding, exploring and visualizing individual spatial proteomics
-experiments, see vignettes in `pRoloc` and `MSnbase` packages.  
+experiments, see the vignettes in `pRoloc` and `MSnbase` packages.  
 
 ```{r,}
 tansim$lopitrep[[1]]
@@ -79,8 +80,8 @@ tansim$lopitrep[[1]]
 The main function of the bandle package is `bandle`, this uses a complex
 model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is used to 
 sample the posterior distribution of parameters and latent variables.
-From which statistics of interest can be computed. Here we only run a few iteration
-for brevity but typically one need to run thousands of iterations to ensure
+From which statistics of interest can be computed. Here we only run a few iterations
+for brevity but typically one needs to run thousands of iterations to ensure
 convergence, as well as multiple parallel chains.
 
 First, we need to fit non-parametric regression functions to the markers profiles,
@@ -93,7 +94,7 @@ can be altered, which is demonstrated in the next code chunk
 par(mfrow = c(3,4))
 gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
 ```
-The prior needs to form a `K*3` matrix, which give the prior for the length-scale
+The prior needs to form a `K*3` matrix, which gives the prior the length-scale
 amplitude and standard deviation parameters. Increasing these values, increases
 the shrinkage. For more details see the bandle paper.
 
@@ -121,7 +122,7 @@ This mean that off-diagonal terms have a different interpretation to diagonal te
 Since we expect relocalisation to be rare, off-diagonal terms should be small.
 The following functions help set up the priors and how to interpret them. The
 parameter `q` allow us to check the prior probability that more than `q`
-differential localisation are expected.
+differential localisations are expected.
 
 ```{r,}
 dirPrior = diag(rep(1, K)) + matrix(0.001, nrow = K, ncol = K)
@@ -135,7 +136,7 @@ The mean number of relocalisation is small:
 predDirPrior$meannotAlloc
 ```
 
-The prior probability than more than `q` differential localisation are
+The prior probability that more than `q` differential localisations are
 expected is small
 ```{r,}
 predDirPrior$tailnotAlloc
@@ -153,9 +154,9 @@ hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
 
 We are now ready to run the main bandle function. Remember to carefully
 select the datasets and replicates that define the control and treatment. 
-Furthermore, iterations are typically $1000$s, a few a run here for the convenience
-of the vignette.
-```{r,}
+Furthermore, iterations are typically $1000$s, a few are run here for the 
+convenience of the vignette.
+```{r, message=FALSE}
 control <- tansim$lopitrep[1:3]
 treatment <- tansim$lopitrep[4:6]
 bandleres <- bandle(objectCond1 = control,
@@ -179,34 +180,39 @@ bandleres
 # The summary slot
 
 Currently, the summary slots of the `bandleres` object are empty. The `summaries`
-object accesses them.
+function accesses them.
 ```{r,}
 summaries(bandleres)
 ```
+
 These can be populated as follows
 ```{r,}
 bandleres <- bandleProcess(bandleres)
 ```
 
 These slot have now been populated
-
 ```{r,}
 summary(summaries(bandleres))
 ```
-The `posteriorEstimates` slot give posterior quantities of interest for different
+
+The `posteriorEstimates` slot gives posterior quantities of interest for different
 proteins. The object is of length 2, 1 for control and 1 for treatment.
 ```{r,}
 length(summaries(bandleres))
 ```
+
 One quantity of interest is the protein allocations, which we can plot in a barplot
 ```{r,}
+par(mfrow = c(1, 2))
+
 pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
+barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: control")
 
-barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2)
-
+pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
+barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment")
 ```
 
-# Differential localisation and rank plots
+# Differential localisation probability
 
 The differential localization probability is also stored here, which gives
 the proteins that are most likely to differentially localised. The rank plot
@@ -214,32 +220,65 @@ is a good visualisation. Indicating that most proteins are not differentially
 localised and there are a few confident differentially localised protiens.
 
 ```{r,}
-plot(pe1$bandle.differential.localisation[order(pe1$bandle.differential.localisation, decreasing = TRUE)],
-     col = getStockcol()[3], pch = 19, ylab = "Probability", xlab = "Rank", main = "Differential localisation rank plot")
+diffloc_probs <- pe1$bandle.differential.localisation
+plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
+     col = getStockcol()[3], pch = 19, ylab = "Probability", 
+     xlab = "Rank", main = "Differential localisation rank plot")
 ```
-We can examine the top `n` proteins (here 20) and produce bootstrap estimates 
+We can examine the top `n` proteins (here 100) and produce bootstrap estimates 
 of the uncertainty (note here the uncertainty is likely to be underestimated
 as we did not produce many mcmc samples). These can be visualised as ranked
 boxplots
 
 ```{r,}
-bt <- bootstrapdiffLocprob(params = bandleres, top = 20)
+set.seed(1)
+bt <- bootstrapdiffLocprob(params = bandleres, top = 100)
 boxplot(t(bt), col = getStockcol()[5],
-        las = 2, ylab = "probability", ylim = c(0, 1))
+        las = 2, ylab = "Probability", ylim = c(0, 1),
+        main = "Differential localisation probability plot (top 100 proteins)")
 ```
-Let see how many proteins in the top 20 match those we had simulated relocalisations
+Let see how many proteins in the top 100 match those we had simulated relocalisations
 for. 
 ```{r,}
 sum(tansim$perm1_names %in% rownames(bt))
 sum(!(tansim$perm1_names %in% rownames(bt)))
 ```
 
-# Localisation probabilities 
+# Visualising translocations
+
+We can visualise the changes in localisation between conditions on an alluvial plot using the `plotTranslocations` function
+```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
+plotTranslocations(bandleres)
+```
+
+Or alternatively, on a chord (circos) diagram
+
+```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
+
+plotTranslocations(bandleres, type = "chord")
+```
+
+<!-- Lastly, we can also pass the argument `table = TRUE` to the `plotTranslocations` function to display a summary table of the number of proteins that have changed in location between conditions  -->
+<!-- ```{r summarytable, warning=FALSE, message=FALSE} -->
+<!-- (sum.res <- plotTranslocations(bandleres, table = TRUE)) -->
+<!-- ``` -->
+
+# Allocation probabilities 
 
 The allocation probabilities are stored in the `tagm.joint` slot. These could
 be visualised in a heatmap
 ```{r,}
-pheatmap(summaries(bandleres)[[1]]@bandle.joint, cluster_cols = FALSE, color = viridis(n = 25))
-
+bjoint_control <- summaries(bandleres)[[1]]@bandle.joint
+pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
+```
+```{r,}
+bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint
+pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
+# Session information
+
+All software and respective versions used to produce this document are listed below.
+```{r,}
+sessionInfo()
+```

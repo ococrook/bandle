@@ -27,12 +27,17 @@ Imports: Rcpp (>= 1.0.4.6),
     methods,
     BiocParallel,
     robustbase,
-    BiocStyle
+    BiocStyle,
+    ggalluvial,
+    ggrepel,
+    tidyr,
+    circlize
 Suggests: coda(>= 0.19-4),
     akima,
     fields,
     pheatmap,
-    viridis
+    viridis,
+    rmarkdown
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)

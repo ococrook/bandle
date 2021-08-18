@@ -1,0 +1,1 @@
+StatStratum <- ggalluvial::StatStratum
