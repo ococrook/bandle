@@ -10,7 +10,7 @@ robustMahalanobis(delta)
 
 reprodScore(x, y, method = c("pearson"))
 
-mrMethod(objectCond1, objectCond2, plot = TRUE)
+mrMethod(objectCond1, objectCond2, plot = TRUE, method = "2017")
 }
 \arguments{
 \item{delta}{The difference profile to compute the squared mahalanobis distance}

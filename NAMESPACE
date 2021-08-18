@@ -4,7 +4,7 @@ exportPattern("^[[:alpha:]]+")
 import(Biobase)
 import(MSnbase)
 import(pRoloc)
-importFrom("graphics", "arrows", "matplot", "points")
+importFrom("graphics", "arrows", "matplot", "points", "axis", "par")
 importFrom("methods", "new")
 importFrom("stats", "cov", "dnorm", "pnorm", "quantile", "rbeta",
                 "rgamma", "rnorm", "runif", "var")
@@ -24,7 +24,7 @@ importFrom("ggplot2", "ggplot", "aes", "geom_violin",
            "theme_minimal", "element_rect", "xlab", "scale_x_discrete",
 	   "scale_y_continuous", "geom_label", "geom_text", "after_stat")
 importFrom("dplyr", "%>%", "mutate", "group_by", "summarise", "row_number")
-importFrom("stats", "cor", "p.adjust", "pchisq", "sd")
+importFrom("stats", "cor", "p.adjust", "pchisq", "sd", "setNames")
 importFrom("ggalluvial", "geom_flow", "geom_stratum", "GeomAlluvium", 
            "StatStratum")
 importFrom("ggrepel", "geom_text_repel", "geom_label_repel")
@@ -32,3 +32,4 @@ importFrom("tidyr", "pivot_longer")
 importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
            "get.cell.meta.data", "circos.text", "circos.axis", "circos.par", 
            "circos.clear",  "cm_h")
+importFrom("grDevices", "dev.off", "rainbow")

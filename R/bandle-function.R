@@ -48,7 +48,7 @@
 ##' covariance. Default is True and matern covariance is used
 ##' @param PC `logical` indicating whether to use a penalised complexity prior.
 ##' Default is TRUE.
-##' @param pcPrior `numeric` of length 3 indicating the lambda paramters for the
+##' @param pcPrior `matrix` of length 3 indicating the lambda paramters for the
 ##' penalised complexity prior. Default is `c(0.5, 3, 100)` and the order is 
 ##' length-scale, amplitude and variance.
 ##' @param nu `integter` indicating the smoothness of the matern prior. Default
@@ -84,7 +84,7 @@ bandle <- function(objectCond1,
                    dirPrior = NULL,
                    maternCov = TRUE,
                    PC = TRUE,
-                   pcPrior = c(0.5, 3, 100),
+                   pcPrior = as.matrix(c(0.5, 3, 100)),
                    nu = 2,
                    propSd = c(0.3, 0.1, 0.05),
                    numChains = 4L,

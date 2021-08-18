@@ -7,7 +7,10 @@ Date: 2020-12-26
 Author: c(person("Crook", "Oliver M.",
 		    email = "oliver.crook@stats.ox.ac.uk",
 		    comment = c(ORCID = "0000-0001-5669-8506"),
-		    role = c("aut", "cre")))
+		    role = c("aut", "cre"))),
+		c(person("Breckels", "Lisa"),
+		    email = "lms79@cam.ac.uk",
+		    role = c("aut"))
 Maintainer: Oliver Crook <oliver.crook@stats.ox.ac.uk>
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
