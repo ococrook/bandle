@@ -285,7 +285,6 @@ plotTranslocations <- function(params,
     # ------------chord/circos plot
     if (type == "chord") {
         # clear any previous plot
-        dev.off()
         circos.clear()
 
         # create circos
