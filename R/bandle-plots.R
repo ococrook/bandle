@@ -236,7 +236,7 @@ plotTranslocations <- function(params,
     if (inherits(params, "list")) {
         stopifnot(unlist(lapply(params, function(z) inherits(z, "MSnSet"))))
         params <- commonFeatureNames(params) ## keep only intersection between datasets
-        params <- list(params2[[1]], params2[[2]])
+        params <- list(params[[1]], params[[2]])
         if (missing(fcol)) stop(paste("Missing fcol, please specify feature columns"))
         if (length(fcol) == 1) {
             fcol <- rep(fcol, 2)
