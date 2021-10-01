@@ -273,13 +273,14 @@ plotTranslocations <- function(params,
     # add colour scheme if not provided
     if (missing(col)) {
         setStockcol(NULL)
-        grid.col <- segcol <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
+        grid.col <- setNames(getStockcol()[seq(fct.lev)], fct.lev)
         if (length(fct.lev) > length(getStockcol()))
-            grid.col <- segcol <- setNames(rainbow(length(fct.lev)), fct.lev)
+            grid.col <- setNames(rainbow(length(fct.lev)), fct.lev)
     } else {
         if (length(fct.lev) > length(col))
             stop(message("Not enough colours specified for subcellular classes"))
         grid.col <- col
+        names(grid.col) <- fct.lev
     }
     
     # ------------chord/circos plot
