@@ -277,10 +277,13 @@ plotTranslocations <- function(params,
         if (length(fct.lev) > length(getStockcol()))
             grid.col <- setNames(rainbow(length(fct.lev)), fct.lev)
     } else {
-        if (length(fct.lev) > length(col))
-            stop(message("Not enough colours specified for subcellular classes"))
+        if (length(fct.lev) > length(col)) 
+           stop(message("Not enough colours specified for subcellular classes"))
         grid.col <- col
-        names(grid.col) <- fct.lev
+        if (is.null(names(col))) {
+          names(grid.col) <- fct.lev
+          warning(message("Please specify a named character of colours\n to ensure matching of correct colours to subcellular classes "))
+        } 
     }
     
     # ------------chord/circos plot
