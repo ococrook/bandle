@@ -1,17 +1,21 @@
 ---
 title: "Analysing differential localisation experiments with BANDLE"
 author:
-- name: Oliver M. Crook
+- name: Oliver M. Crook 
+  affiliation: Department of Statistics, University of Oxford, UK
+- name: Lisa M. Breckels
+  affiliation: Cambridge Centre for Proteomics, University of Cambridge, UK
 package: bandle
 abstract: >
-  This vignette describes how to analyse a mass-spectrometry based 
-  differential localisation experiments using BANDLE. Data should be
-  stored as lists of `MSnSet`s. There is also features for quality control and
-  visualisation of results. Other vignettes are for convergence and other
-  methodology
+  This vignette describes how to analyse mass-spectrometry based 
+  differential localisation experiments using the BANDLE method [@bandle]. 
+  Data should be stored as lists of `MSnSet`s. There is also features for 
+  quality control and visualisation of results. Other vignettes are for 
+  convergence and other methodology.
 output:
   BiocStyle::html_document:
     toc_float: true
+bibliography: bandle.bib
 vignette: >
   %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE}
   %\VignetteEngine{knitr::rmarkdown}
@@ -24,7 +28,7 @@ BiocStyle::markdown()
 ```
 
 ```{r env, message = FALSE, warning = FALSE, echo = FALSE}
-options(width = 150)
+# options(width = 150)
 library("bandle")
 library("ggplot2")
 library("pRoloc")
@@ -36,18 +40,121 @@ library("viridis")
 setStockcol(paste0(getStockcol(),"90")) # see throught colours
 ```
 
-# A well-defined differential localisation experiment
+# Introduction
 
-We are going to generate a differential localisation experiment. They key 
-elements are replicates, and a perturbation of interest. There is code within
-the `bandle` package to simulate an example experiment. First we will use 
-the `pRolocdata` package to obtain a spatial proteomics dataset. This will be
-the basis of our simulation which will use boostrapping to generate new datasets.
+Bayesian ANalysis of Differential Localisation Experiments (BANDLE) is an
+integrative semi-supervised functional mixture model, developed by @bandle, 
+to obtain the probability of a protein being differentially
+localised between two conditions. 
 
-```{r,}
+In this vignette we walk users through how to install and use the R [@Rstat]
+Bioconductor [@Gentleman:2004] [`bandle` package](https://github.com/ococrook/bandle) 
+by simulating a well-defined differential localisation experiment from spatial
+proteomics data from the `pRolocdata` package [@pRoloc:2014].
+
+The BANDLE method uses posterior Bayesian computations performed using
+Markov-chain Monte-Carlo (MCMC) and thus uncertainty estimates are
+available [@Gilks:1995]. Throughout this vignette we use the term differentially
+localised to pertain to proteins which are assigned to different sub-cellular
+localisations between two conditions. One of the main outputs of BANDLE is the
+probability that a protein is differentially localised between two conditions.
+
+# The data
+
+In this vignette and @bandle, the main data source that we use to study
+differential protein sub-cellular localisation are data from high-throughput
+mass spectrometry-based experiments. The data from these types of experiments
+traditionally yield a matrix of measurements wherein we have, for example, PSMs,
+peptides or proteins along the rows, and samples/channels/fractions along the
+columns. The `bandle` package uses the `MSnSet` class as implemented in the
+Bioconductor `r Biocpkg("MSnbase")` package and thus requires users to import
+and store their data as a `MSnSet` instance. For more details on how to create a
+`MSnSet` see the relevant vignettes in `r Biocpkg("pRoloc")`. There is also
+additional information and examples in the `r Biocpkg("pRoloc")` sister package.
+The `r Biocpkg("pRolocdata")` experiment data package is a good starting
+place to look for test data. This data package contains tens of quantitative
+proteomics experiments, stored as `MSnSet`s. In the next section we load some
+real data from this package as a use-case to demonstrate how to run the `bandle`
+package.
+
+## Example data: spatialtemporal proteomic profiling of a THP-1 cell line
+
+The data used in this vignette has been published in @thplopit and is stored as
+`MSnSet` instances in `r Biocpkg("pRolocdata")` package. 
+
+Briefly, @thplopit performed triplicate hyperLOPIT experiments on THP-1 human
+leukamia cells where the samples were analysed and collected (1) when cells were
+unstimulated and then (2) following 12 hours stimulation with LPS (12h-LPS).
+
+In the following code chunk we load 4 of the datasets from the study: 2 replicates 
+of the unstimulated and 2 replicates of the 12h-LPS stimulated samples. 
+
+```{r loaddata}
 library("pRolocdata")
-data("tan2009r1")
+data("thpLOPIT_unstimulated_rep1_mulvey2021")
+data("thpLOPIT_unstimulated_rep3_mulvey2021")
+data("thpLOPIT_lps_rep1_mulvey2021")
+data("thpLOPIT_lps_rep3_mulvey2021")
 ```
+
+By typing the names of the datasets we get a `data`MSnSet` data summary. For
+example,
+
+```{r summarydata}
+thpLOPIT_unstimulated_rep1_mulvey2021
+thpLOPIT_lps_rep1_mulvey2021
+```
+
+We see that the datasets `thpLOPIT_unstimulated_rep1_mulvey2021` and
+`thpLOPIT_lps_rep1_mulvey2021` contain 5107 and 4879 proteins respectively,
+across 20 channels. The data is accessed through different slots of the `MSnSet`
+(see `str(thpLOPIT_unstimulated_rep1_mulvey2021)` for all available slots). The
+3 main slots which are used are those the contain the quantitation data,
+features i.e. PSM/peptide/protein information, and sample information, and these
+can be accessed using the functions `exprs`, `fData`, and `pData`, respectively.
+
+To run `bandle` there are a few minimal requirements that the data must fulfil. 
+Data are required to have
+- the same number of channels across conditions and replicates
+- the same proteins across conditons and replicates
+- data must be a `list` of `MSnSet` instances
+
+If we use the `dim` function we see that the datasets we have loaded have the
+same number of channels but a different number of proteins per experiment. 
+
+We use the function `commonFeatureNames` to extract proteins that are common
+across all replicates and this has a nice side effect which wraps the data
+into a `list`, ready for input into `bandle`.
+
+
+```{r cmnprots}
+thplopit <- commonFeatureNames(c(thpLOPIT_unstimulated_rep1_mulvey2021,  ## unstimulated rep
+                                 thpLOPIT_unstimulated_rep3_mulvey2021,  ## unstimulated rep
+                                 thpLOPIT_lps_rep1_mulvey2021,           ## 12h-LPS rep
+                                 thpLOPIT_lps_rep3_mulvey2021))          ## 12h-LPS rep
+```
+
+We now have our list of `MSnSet`s
+
+```{r listmsnsets}
+thplopit
+```
+
+We can visualise them using the `plot2D` function from `pRoloc`
+
+```{r exampledata, fig.height=10, fig.width=10}
+plot_id <- c("Unstimulated 1st rep", "Unstimulated 2nd rep",
+             "12h-LPS 1st rep", "12h-LPS 2nd rep")
+
+par(mfrow = c(2,2))
+for (i in seq(thplopit))
+    plot2D(thplopit[[i]], main = plot_id[i])
+addLegend(thplopit[[4]], where = "topleft", cex = .75)
+```
+
+
+
+
 
 ```{r exampledata,}
 plot2D(tan2009r1,
@@ -64,17 +171,22 @@ tansim <- sim_dynamic(object = tan2009r1,
                       numDyn = 100)
 
 ```
-
+The list of the 6 simulated experiments are found in `tansim$lopitrep`. The
+first 3 are the simulated control experiments (see `tansim$lopitrep[1:3]`), and
+the following 3 in the list are the treatment condition simulated experiments
+(see `tansim$lopitrep[4:6]`). We can plot them using the `plot2D` function from
+`pRoloc`.
 ```{r visualisationdata, out = FALSE, message = FALSE, echo=FALSE, fig.width=15, fig.height=15}
 par(mfrow = c(3,2))
 out <- lapply(tansim$lopitrep, function(z) plot2D(z, grid = FALSE))
 ```
 For understanding, exploring and visualizing individual spatial proteomics
 experiments, see the vignettes in `pRoloc` and `MSnbase` packages.  
-
 ```{r,}
 tansim$lopitrep[[1]]
 ```
+
+
 # Preparing for BANDLE analysis
 
 The main function of the bandle package is `bandle`, this uses a complex
@@ -125,6 +237,7 @@ parameter `q` allow us to check the prior probability that more than `q`
 differential localisations are expected.
 
 ```{r,}
+set.seed(1)
 dirPrior = diag(rep(1, K)) + matrix(0.001, nrow = K, ncol = K)
 predDirPrior <- prior_pred_dir(object = tansim$lopitrep[[1]],
                                dirPrior = dirPrior,
@@ -157,8 +270,8 @@ select the datasets and replicates that define the control and treatment.
 Furthermore, iterations are typically $1000$s, a few are run here for the 
 convenience of the vignette.
 ```{r, message=FALSE}
-control <- tansim$lopitrep[1:3]
-treatment <- tansim$lopitrep[4:6]
+control <- tansim[1:3]
+treatment <- tansim[4:6]
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
                     numIter = 50, # usually 10,000
@@ -282,3 +395,5 @@ All software and respective versions used to produce this document are listed be
 ```{r,}
 sessionInfo()
 ```
+
+# References {-}

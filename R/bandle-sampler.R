@@ -165,7 +165,6 @@ diffLoc <- function(objectCond1,
     allocprob <- lapply(numProtein, function(x) array(0, c(x, numRetained, K)))
     loglikelihoods <- lapply(rep(numProtein, numRepl), function(x) matrix(0, nrow = x, ncol = K))
     
-    
     #random allocation of unknown Proteins, allocations are condition specific
     alloctemp <- lapply(numProtein, function(x) sample.int(n = K, size = x, replace = TRUE))
     for (i in seq.int(numCond)) {
