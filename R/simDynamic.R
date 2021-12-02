@@ -7,31 +7,40 @@
 ##' @param subsample how many proteins to subsample to speed up analysis. Default is NULL.
 ##' @param knn_par the number of nearest neighbours to use in KNN classification to simulate
 ##'  dataset.
-##'  Defult is 10
-##' @param fcol feature column to indicate markers. Default is "markers".
-##' @param numRep The total number of datasets to generate. Default is 6.
+##'  Default is 10
+##' @param fcol feature column to indicate markers. Default is "markers". Proteins
+##' with unknown localisations must be encoded as "unknown". 
+##' @param numRep The total number of datasets to generate. Default is 6. An
+##' integer must be provided
 ##' @param method The bootstrap method to use to simulate dataset. Default is "wild".
 ##'  refer to BANDLE paper for more details.
 ##' @param batch Whether or not to include batch effects. Default is FALSE.
 ##' @param frac_perm whether or not to permute the fractions. Default is FALSE
 ##' @param nu parameter to generate residual inflated noise. Default is 2. See BANDLE
 ##' paper for more details
-##' @param numDyn The number of protein to simulate dynamic transitions. Default is 20.
+##' @param numDyn The number of protein to simulate dynamic transitions. Default is 20. 
 ##' @return returns simulate dynamic lopit datasets and the name of the relocalated protein.  
 ##' @md
 ##' 
 ##' @rdname bandle-sim
 sim_dynamic <- function(object,
                         subsample = NULL,
-                        knn_par = 10,
+                        knn_par = 10L,
                         fcol = "markers",
-                        numRep = 6,
+                        numRep = 6L,
                         method = "wild",
                         batch = FALSE,
                         frac_perm = FALSE,
                         nu = 2,
-                        numDyn = 20) {
-
+                        numDyn = 20L) {
+  # checks
+  stopifnot("object is not an instance of class MSnSet"=class(object) == "MSnSet")
+  stopifnot("number of Replicates is not valid, provide an integer"=class(numRep) == "integer")
+  stopifnot("number of Translocations is not valid, provide an integer"=class(numDyn) == "integer")
+  stopifnot("Knn parameers must be an integer"=class(knn_par) == "integer")
+  stopifnot("method is not valid"=method %in% c("wild", "rand", "const"))
+  stopifnot("batch is not valid"=batch %in% c(FALSE, "rand", "systematic"))
+    
   # generate marker and unknown MSnSets
   lopitmarkerset <- markerMSnSet(object, fcol = fcol)
   lopitunknownset <- unknownMSnSet(object, fcol = fcol)
@@ -128,7 +137,7 @@ sim_dynamic <- function(object,
   for (i in perm1_names) {
     K <- length(getMarkerClasses(object, fcol = fcol))
     r <- sample.int(K, size = 1)
-    for (j in 4:6) {
+    for (j in seq.int(numRep/2 + 1, numRep)) {
       exprs(lopitrep[[j]])[i, ] <- replicateStats[[j]]$M[r, ] + 
         rnorm(ncol(object), mean = 0, sd = sqrt(replicateStats[[j]]$V[r, ]))
     }

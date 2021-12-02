@@ -199,7 +199,7 @@ diffLoc <- function(objectCond1,
                          style = 3)
     ._t <- 0
     
-    for(t in 2:numIter){
+    for(t in seq.int(2, numIter)){
     
           
         # Between data allocation tally
@@ -319,7 +319,7 @@ diffLoc <- function(objectCond1,
         
         #update hypers
         if((t %% hyperIter) == 0){
-            if (maternCov == FALSE) {  
+            if ( isFALSE(maternCov)) {  
                 if(hyperLearn == "LBFGS"){
                 }else if(hyperLearn == "MH"){
                     # Between data allocation tally
@@ -352,7 +352,7 @@ diffLoc <- function(objectCond1,
                         .hypers[[i]] <- matrix(unlist(componenthypers[[i]]), ncol = 3, byrow = TRUE)
                     }  
                 }
-            } else if ((maternCov == TRUE) & (hyperLearn == "MH")) {
+            } else if (isTRUE(maternCov) & (hyperLearn == "MH")) {
                 # Between data allocation tally
                 nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
                                                      factor(alloctemp[[2]], levels = 1:K))
