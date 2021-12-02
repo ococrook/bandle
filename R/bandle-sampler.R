@@ -50,9 +50,10 @@
 ##' @param PC `logical` indicating whether to use a penalised complexity prior.
 ##' Default is TRUE.
 ##' @param pcPrior `numeric` of length 3 indicating the lambda paramters for the
-##' penalised complexity prior. Default is `c(0.5, 3, 100)` and the order is 
-##' length-scale, amplitude and variance.
-##' @param nu `integter` indicating the smoothness of the matern prior. Default
+##' penalised complexity prior. Default is null which internally sets
+##' the penalised complexity prior to `c(0.5, 3, 100)` for each organelle and the order is 
+##' length-scale, amplitude and variance. See vignette for more details.
+##' @param nu `integer` indicating the smoothness of the matern prior. Default
 ##' is 2.
 ##' @param propSd If MH is used to learn posterior hyperparameters then the proposal
 ##' standard deviations. A Gaussian random-walk proposal is used.
@@ -83,11 +84,37 @@ diffLoc <- function(objectCond1,
                     dirPrior = NULL,
                     maternCov = TRUE,
                     PC = TRUE,
-                    pcPrior = c(0.5, 3, 100),
                     nu = 2,
+                    pcPrior = NULL
                     propSd = c(0.3, 0.1, 0.05)){
     
     suppressMessages(require(Biobase))
+    
+    # Checks
+    stopifnot("ObjectCond1 must be an MSnSet"=class(objectCond1) == "MSnSet")
+    stopifnot("ObjectCond2 must be an MSnSet"=class(objectCond2) == "MSnSet")
+    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
+    stopifnot("numIter must be a numeric"=class(numIter) == "numeric")
+    stopifnot("burnin must be an integer"=class(burnin) == "integer")
+    stopifnot("thin must be an integer"=class(thin) == "integer")
+    stopifnot("burnin must be less than numIter"= burnin < numIter)
+    stopifnot("u must be numeric"=class(u) == "numeric")
+    stopifnot("v must be numeric"=class(v) == "numeric")
+    stopifnot("lambda must be numeric"=class(lambda) == "numeric")
+    stopifnot("gpParams must be an object of class gpParams or NULL"
+              =class(gpParams) %in% c("gpParams", "NULL"))
+    stopifnot("hyperIter must be numeric"=class(hyperIter) == "numeric")
+    stopifnot("hyperMean must be numeric"=class(hyperMean) == "numeric")
+    stopifnot("hyperSd must be numeric"=class(hyperSd) == "numeric")
+    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
+    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
+    stopifnot("tau must be numeric" = class(tau) == "numeric")
+    stopifnot("nu must be numeric" = class(nu) == "numeric")
+    stopifnot("propSd must be numeric"=class(propSd) == "numeric")
+    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+    
+    
+    
     
     # Setting seed manually
     if (is.null(seed)) {
@@ -127,6 +154,11 @@ diffLoc <- function(objectCond1,
     D <- ncol(object_cmb[[1]])
     K <- length(getMarkerClasses(object_cmb[[1]]))
     
+    # Set default pc priors
+    if(is.null(pcPrior)){
+        pcPrior <- matrix(rep(c(0.5, 3, 100),
+                   each = K), ncol = 3)
+    }
     
     # construct empirical Bayes Polya-Gamma prior
     if (is.null(pgPrior)) {

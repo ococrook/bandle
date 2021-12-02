@@ -90,6 +90,61 @@ bandle <- function(objectCond1,
                    numChains = 4L,
                    BPPARAM = BiocParallel::bpparam()){
     
+    
+    # Checks
+    stopifnot("ObjectCond1 must be an MSnSet"=class(objectCond1) == "MSnSet")
+    stopifnot("ObjectCond2 must be an MSnSet"=class(objectCond2) == "MSnSet")
+    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
+    stopifnot("numIter must be a numeric"=class(numIter) == "numeric")
+    stopifnot("burnin must be an integer"=class(burnin) == "integer")
+    stopifnot("thin must be an integer"=class(thin) == "integer")
+    stopifnot("burnin must be less than numIter"= burnin < numIter)
+    stopifnot("u must be numeric"=class(u) == "numeric")
+    stopifnot("v must be numeric"=class(v) == "numeric")
+    stopifnot("lambda must be numeric"=class(lambda) == "numeric")
+    stopifnot("gpParams must be an object of class gpParams or NULL"
+              =class(gpParams) %in% c("gpParams", "NULL"))
+    stopifnot("hyperIter must be numeric"=class(hyperIter) == "numeric")
+    stopifnot("hyperMean must be numeric"=class(hyperMean) == "numeric")
+    stopifnot("hyperSd must be numeric"=class(hyperSd) == "numeric")
+    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
+    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
+    stopifnot("tau must be numeric" = class(tau) == "numeric")
+    stopifnot("nu must be numeric" = class(nu) == "numeric")
+    stopifnot("propSd must be numeric"=class(propSd) == "numeric")
+    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+
+    
+    # valid experiment
+    ## same number of rows
+    validrow <- length(unique(sapply(c(objectCond1, objectCond2),
+                                     function(x) nrow(x)))) > 1
+    if (isTRUE(validrow)){
+        stop("Number of rows do not match, you may wish to subset your proteins")
+    }
+    ## same number of columns
+    validcol <- length(unique(sapply(c(objectCond1, objectCond2),
+                                     function(x) ncol(x)))) > 1
+    if (isFALSE(validcol)){
+        stop("Number of columns do not match, this analysis is not currently
+             implemented in bandle. Subset fractions so they match")
+    }
+    validrow2 <- var(apply(sapply(c(objectCond1, objectCond2),
+                                  function(x) rownames(x)), 1,
+                           function(x) length(unique(x)))) > 0
+    if (isTRUE(validrow2)){
+        stop("rownames do not match across experiments. Analysis
+             will lead to confusing results. Subset your proteins
+             so they match")
+    }
+    ## valid fcol
+    if (isFALSE(all(sapply(c(objectCond1, objectCond2), function(x)
+        fcol %in% colnames(fData(x)))))){
+        stop("fcol is not in all the datasets. Check fcol is present")
+    }
+    
+    
+    
     ## chains run in parallel, repeating number of iterations
     .res <- BiocParallel::bplapply(rep(numIter, numChains),
                                    FUN = diffLoc,
