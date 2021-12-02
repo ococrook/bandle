@@ -123,8 +123,8 @@ If we use the `dim` function we see that the datasets we have loaded have the
 same number of channels but a different number of proteins per experiment. 
 
 We use the function `commonFeatureNames` to extract proteins that are common
-across all replicates and this has a nice side effect which wraps the data
-into a `list`, ready for input into `bandle`.
+across all replicates. This function has a nice side effect which is that it
+also wraps the data into a `list`, ready for input into `bandle`.
 
 
 ```{r cmnprots}
@@ -140,12 +140,14 @@ We now have our list of `MSnSet`s
 thplopit
 ```
 
-We can visualise them using the `plot2D` function from `pRoloc`
+We can visualise the data using the `plot2D` function from `pRoloc`
 
 ```{r exampledata, fig.height=10, fig.width=10}
+## create a character vector of title names for the plots
 plot_id <- c("Unstimulated 1st rep", "Unstimulated 2nd rep",
              "12h-LPS 1st rep", "12h-LPS 2nd rep")
 
+## plot the data
 par(mfrow = c(2,2))
 for (i in seq(thplopit))
     plot2D(thplopit[[i]], main = plot_id[i])
@@ -153,41 +155,7 @@ addLegend(thplopit[[4]], where = "topleft", cex = .75)
 ```
 
 
-
-
-
-```{r exampledata,}
-plot2D(tan2009r1,
-       main = "example spatial proteomics datasets", grid = FALSE)
-addLegend(tan2009r1, where = "topleft", cex = 0.7)
-```
-The following code chuck simulates a differential localisation experiment.
-It will generate `numRep/2` of each a control and treatment condition. We
-will also simulate relocalisations for `numDyn` proteins.
-```{r simulatedataset,}
-set.seed(1)
-tansim <- sim_dynamic(object = tan2009r1,
-                      numRep = 6,
-                      numDyn = 100)
-
-```
-The list of the 6 simulated experiments are found in `tansim$lopitrep`. The
-first 3 are the simulated control experiments (see `tansim$lopitrep[1:3]`), and
-the following 3 in the list are the treatment condition simulated experiments
-(see `tansim$lopitrep[4:6]`). We can plot them using the `plot2D` function from
-`pRoloc`.
-```{r visualisationdata, out = FALSE, message = FALSE, echo=FALSE, fig.width=15, fig.height=15}
-par(mfrow = c(3,2))
-out <- lapply(tansim$lopitrep, function(z) plot2D(z, grid = FALSE))
-```
-For understanding, exploring and visualizing individual spatial proteomics
-experiments, see the vignettes in `pRoloc` and `MSnbase` packages.  
-```{r,}
-tansim$lopitrep[[1]]
-```
-
-
-# Preparing for BANDLE analysis
+# Running the `bandle` function
 
 The main function of the bandle package is `bandle`, this uses a complex
 model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is used to 
@@ -196,33 +164,49 @@ From which statistics of interest can be computed. Here we only run a few iterat
 for brevity but typically one needs to run thousands of iterations to ensure
 convergence, as well as multiple parallel chains.
 
-First, we need to fit non-parametric regression functions to the markers profiles,
-upon which we place our analysis. This uses Gaussian processes. The fitting uses
-some default penalised complexity priors, which work well. However, these
-can be altered, which is demonstrated in the next code chunk
+First, we need to fit non-parametric regression functions to the markers
+profiles, upon which we place our analysis. This uses Gaussian processes. We use
+the `fitGPmaternPC` function and the fitting uses some default penalised
+complexity priors (see `?fitGP`), which work well. However, these can be
+altered, which is demonstrated in the next code chunk
 
 
-```{r,}
+```{r fitgps}
 par(mfrow = c(3,4))
-gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x))
 ```
-The prior needs to form a `K*3` matrix, which gives the prior the length-scale
-amplitude and standard deviation parameters. Increasing these values, increases
-the shrinkage. For more details see the bandle paper.
 
-```{r,}
-K <- length(getMarkerClasses(tansim$lopitrep[[1]]))
+We apply the `fitGPmaternPC` function on every `MSnSet` experiment by calling
+`lapply` over the `thplopit` list of data. The output of `fitGPmaternPC` returns
+a list of posterior predictive means and standard deviations. As well as MAP
+hyperparamters for the GP. As a side effect the posterior predictive
+distributions are overlayed with markers protein profiles for each subcellular
+class.
+
+The prior needs to form a `K*3` matrix (where `K` is the number of subcellular
+classes in the data), and 3 for (1) the prior, (2) length-scale amplitude and
+(3) standard deviation parameters (see `hyppar` in `?fitGP`). Increasing these
+values, increases the shrinkage. For more details see the manuscript by @bandle.
+
+```{r sethyppar}
+K <- length(getMarkerClasses(thplopit[[1]], fcol = "markers"))
 pc_prior <- matrix(NA, ncol = 3, K)
 pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250),
                                        each = K), ncol = 3)
+
 ```
 
+Now we have generated these complexity priors we can pass them as an 
+argument to the `fitGPmaternPC` function. For example,
 
-```{r,}
+```{r runhyppar}
 par(mfrow = c(3,4))
-gpParams <- lapply(tansim$lopitrep,
+gpParams <- lapply(thplopit,
                    function(x) fitGPmaternPC(x, hyppar = pc_prior))
 ```
+
+By looking at the plot of posterior predictives we can see the GP fit
+looks sensible.
 
 # Setting the prior on the weights
 
@@ -236,10 +220,10 @@ The following functions help set up the priors and how to interpret them. The
 parameter `q` allow us to check the prior probability that more than `q`
 differential localisations are expected.
 
-```{r,}
+```{r setweightprior}
 set.seed(1)
-dirPrior = diag(rep(1, K)) + matrix(0.001, nrow = K, ncol = K)
-predDirPrior <- prior_pred_dir(object = tansim$lopitrep[[1]],
+dirPrior = diag(rep(1, K)) + matrix(0.0005, nrow = K, ncol = K)
+predDirPrior <- prior_pred_dir(object = thplopit[[1]],
                                dirPrior = dirPrior,
                                q = 15)
 ```
@@ -266,12 +250,15 @@ hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
 # The bandle function
 
 We are now ready to run the main bandle function. Remember to carefully
-select the datasets and replicates that define the control and treatment. 
-Furthermore, iterations are typically $1000$s, a few are run here for the 
-convenience of the vignette.
-```{r, message=FALSE}
-control <- tansim[1:3]
-treatment <- tansim[4:6]
+select the datasets and replicates that define the control and treatment.
+Here for convience of the vignette we only run 2 of the 3 replicates and
+furthermore, iterations are typically $1000$s. Again, a few are run here for the 
+convenience of the vignette run-time.
+
+```{r runbandle, message=FALSE}
+control <- list(thplopit[[1]], thplopit[[2]])
+treatment <- list(thplopit[[3]], thplopit[[4]])
+
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
                     numIter = 50, # usually 10,000
@@ -281,11 +268,12 @@ bandleres <- bandle(objectCond1 = control,
                     pcPrior = pc_prior,
                     numChains = 1, # usually >=4
                     dirPrior = dirPrior)
-
 ```
+
 The bandle function generates an object of class `bandleParams`. The `show`
 method indicates the number of parallel chains that were run, this should
 typically be greater than 4.
+
 ```{r,}
 bandleres
 ```
@@ -299,7 +287,7 @@ summaries(bandleres)
 ```
 
 These can be populated as follows
-```{r,}
+```{r processbandle}
 bandleres <- bandleProcess(bandleres)
 ```
 
@@ -314,9 +302,11 @@ proteins. The object is of length 2, 1 for control and 1 for treatment.
 length(summaries(bandleres))
 ```
 
-One quantity of interest is the protein allocations, which we can plot in a barplot
-```{r,}
-par(mfrow = c(1, 2))
+One quantity of interest is the protein allocations, which we can plot in a barplot. 
+We create a new object from populating the `bandleres` objects using the `summaries` function.
+
+```{r barplotalloc}
+par(mfrow = c(1, 2), oma = c(6,2,2,2))
 
 pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
 barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: control")
@@ -325,14 +315,22 @@ pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
 barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment")
 ```
 
+The bar plot tells us for this case study that the majority of unlabelled proteins are allocated to the nucleus (irrespective of the posterior probability).
+
 # Differential localisation probability
 
-The differential localization probability is also stored here, which gives
-the proteins that are most likely to differentially localised. The rank plot
-is a good visualisation. Indicating that most proteins are not differentially 
-localised and there are a few confident differentially localised protiens.
+As previously mentioned the term "differentially localised" is used to pertain
+to proteins which are assigned to different sub-cellular localisations between
+two conditions. For the majority of users this is the output they are keen to
+extract using the BANDLE method.
 
-```{r,}
+The differential localisation probability is also stored here, which tells us
+which proteins are most likely to differentially localise. The rank plot is a
+good visualisation. Indicating that most proteins are not differentially
+localised and there are a few confident differentially localised protiens of
+interest.
+
+```{r extractdiffloc}
 diffloc_probs <- pe1$bandle.differential.localisation
 plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
      col = getStockcol()[3], pch = 19, ylab = "Probability", 
@@ -340,26 +338,24 @@ plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
 ```
 We can examine the top `n` proteins (here 100) and produce bootstrap estimates 
 of the uncertainty (note here the uncertainty is likely to be underestimated
-as we did not produce many mcmc samples). These can be visualised as ranked
+as we did not produce many MCMC samples). These can be visualised as ranked
 boxplots
 
-```{r,}
+```{r diffloc_boot}
 set.seed(1)
 bt <- bootstrapdiffLocprob(params = bandleres, top = 100)
 boxplot(t(bt), col = getStockcol()[5],
         las = 2, ylab = "Probability", ylim = c(0, 1),
-        main = "Differential localisation probability plot (top 100 proteins)")
+        main = "Differential localisation \nprobability plot (top 100 proteins)")
 ```
-Let see how many proteins in the top 100 match those we had simulated relocalisations
-for. 
-```{r,}
-sum(tansim$perm1_names %in% rownames(bt))
-sum(!(tansim$perm1_names %in% rownames(bt)))
-```
+
+We see that all of these top 100 proteins have a posterior distribution of 1. We
+can plot the top 1000 to see how these distributions compare.
 
 # Visualising translocations
 
 We can visualise the changes in localisation between conditions on an alluvial plot using the `plotTranslocations` function
+
 ```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
 plotTranslocations(bandleres)
 ```
@@ -380,19 +376,255 @@ plotTranslocations(bandleres, type = "chord")
 
 The allocation probabilities are stored in the `tagm.joint` slot. These could
 be visualised in a heatmap
-```{r,}
+```{r heatmap_control}
 bjoint_control <- summaries(bandleres)[[1]]@bandle.joint
 pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
 ```
-```{r,}
+```{r heatmap_treatment}
 bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint
 pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
+
+
+
+<!-- ```{r exampledata,} -->
+<!-- plot2D(tan2009r1, -->
+<!--        main = "example spatial proteomics datasets", grid = FALSE) -->
+<!-- addLegend(tan2009r1, where = "topleft", cex = 0.7) -->
+<!-- ``` -->
+<!-- The following code chuck simulates a differential localisation experiment. -->
+<!-- It will generate `numRep/2` of each a control and treatment condition. We -->
+<!-- will also simulate relocalisations for `numDyn` proteins. -->
+<!-- ```{r simulatedataset,} -->
+<!-- set.seed(1) -->
+<!-- tansim <- sim_dynamic(object = tan2009r1, -->
+<!--                       numRep = 6, -->
+<!--                       numDyn = 100) -->
+
+<!-- ``` -->
+<!-- The list of the 6 simulated experiments are found in `tansim$lopitrep`. The -->
+<!-- first 3 are the simulated control experiments (see `tansim$lopitrep[1:3]`), and -->
+<!-- the following 3 in the list are the treatment condition simulated experiments -->
+<!-- (see `tansim$lopitrep[4:6]`). We can plot them using the `plot2D` function from -->
+<!-- `pRoloc`. -->
+<!-- ```{r visualisationdata, out = FALSE, message = FALSE, echo=FALSE, fig.width=15, fig.height=15} -->
+<!-- par(mfrow = c(3,2)) -->
+<!-- out <- lapply(tansim$lopitrep, function(z) plot2D(z, grid = FALSE)) -->
+<!-- ``` -->
+<!-- For understanding, exploring and visualizing individual spatial proteomics -->
+<!-- experiments, see the vignettes in `pRoloc` and `MSnbase` packages.   -->
+<!-- ```{r,} -->
+<!-- tansim$lopitrep[[1]] -->
+<!-- ``` -->
+
+
+<!-- # Preparing for BANDLE analysis -->
+
+<!-- The main function of the bandle package is `bandle`, this uses a complex -->
+<!-- model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is used to  -->
+<!-- sample the posterior distribution of parameters and latent variables. -->
+<!-- From which statistics of interest can be computed. Here we only run a few iterations -->
+<!-- for brevity but typically one needs to run thousands of iterations to ensure -->
+<!-- convergence, as well as multiple parallel chains. -->
+
+<!-- First, we need to fit non-parametric regression functions to the markers profiles, -->
+<!-- upon which we place our analysis. This uses Gaussian processes. The fitting uses -->
+<!-- some default penalised complexity priors, which work well. However, these -->
+<!-- can be altered, which is demonstrated in the next code chunk -->
+
+
+<!-- ```{r,} -->
+<!-- par(mfrow = c(3,4)) -->
+<!-- gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x)) -->
+<!-- ``` -->
+<!-- The prior needs to form a `K*3` matrix, which gives the prior the length-scale -->
+<!-- amplitude and standard deviation parameters. Increasing these values, increases -->
+<!-- the shrinkage. For more details see the bandle paper. -->
+
+<!-- ```{r,} -->
+<!-- K <- length(getMarkerClasses(tansim$lopitrep[[1]])) -->
+<!-- pc_prior <- matrix(NA, ncol = 3, K) -->
+<!-- pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250), -->
+<!--                                        each = K), ncol = 3) -->
+<!-- ``` -->
+
+
+<!-- ```{r,} -->
+<!-- par(mfrow = c(3,4)) -->
+<!-- gpParams <- lapply(tansim$lopitrep, -->
+<!--                    function(x) fitGPmaternPC(x, hyppar = pc_prior)) -->
+<!-- ``` -->
+
+<!-- # Setting the prior on the weights -->
+
+<!-- The next step is to set up the matrix Dirichlet prior on the mixing weights. These -->
+<!-- weights are defined across datasets so these are slightly different to mixture -->
+<!-- weights in usual mixture models. The $(i,j)^{th}$ entry is the prior probability -->
+<!-- that a protein localises to organelle $i$ in the control and $j$ in the treatment. -->
+<!-- This mean that off-diagonal terms have a different interpretation to diagonal terms. -->
+<!-- Since we expect relocalisation to be rare, off-diagonal terms should be small. -->
+<!-- The following functions help set up the priors and how to interpret them. The -->
+<!-- parameter `q` allow us to check the prior probability that more than `q` -->
+<!-- differential localisations are expected. -->
+
+<!-- ```{r,} -->
+<!-- set.seed(1) -->
+<!-- dirPrior = diag(rep(1, K)) + matrix(0.001, nrow = K, ncol = K) -->
+<!-- predDirPrior <- prior_pred_dir(object = tansim$lopitrep[[1]], -->
+<!--                                dirPrior = dirPrior, -->
+<!--                                q = 15) -->
+<!-- ``` -->
+
+<!-- The mean number of relocalisation is small: -->
+<!-- ```{r,} -->
+<!-- predDirPrior$meannotAlloc -->
+<!-- ``` -->
+
+<!-- The prior probability that more than `q` differential localisations are -->
+<!-- expected is small -->
+<!-- ```{r,} -->
+<!-- predDirPrior$tailnotAlloc -->
+<!-- ``` -->
+
+<!-- The full prior predictive can be visualised as histogram. The prior probability -->
+<!-- that proteins are allocated to different components between datasets concentrates -->
+<!-- around 0. -->
+
+<!-- ```{r,} -->
+<!-- hist(predDirPrior$priornotAlloc, col = getStockcol()[1]) -->
+<!-- ``` -->
+
+<!-- # The bandle function -->
+
+<!-- We are now ready to run the main bandle function. Remember to carefully -->
+<!-- select the datasets and replicates that define the control and treatment.  -->
+<!-- Furthermore, iterations are typically $1000$s, a few are run here for the  -->
+<!-- convenience of the vignette. -->
+<!-- ```{r, message=FALSE} -->
+<!-- control <- tansim[1:3] -->
+<!-- treatment <- tansim[4:6] -->
+<!-- bandleres <- bandle(objectCond1 = control, -->
+<!--                     objectCond2 = treatment, -->
+<!--                     numIter = 50, # usually 10,000 -->
+<!--                     burnin = 5, # usually 5,000 -->
+<!--                     thin = 1, # usually 20 -->
+<!--                     gpParams = gpParams, -->
+<!--                     pcPrior = pc_prior, -->
+<!--                     numChains = 1, # usually >=4 -->
+<!--                     dirPrior = dirPrior) -->
+
+<!-- ``` -->
+<!-- The bandle function generates an object of class `bandleParams`. The `show` -->
+<!-- method indicates the number of parallel chains that were run, this should -->
+<!-- typically be greater than 4. -->
+<!-- ```{r,} -->
+<!-- bandleres -->
+<!-- ``` -->
+
+<!-- # The summary slot -->
+
+<!-- Currently, the summary slots of the `bandleres` object are empty. The `summaries` -->
+<!-- function accesses them. -->
+<!-- ```{r,} -->
+<!-- summaries(bandleres) -->
+<!-- ``` -->
+
+<!-- These can be populated as follows -->
+<!-- ```{r,} -->
+<!-- bandleres <- bandleProcess(bandleres) -->
+<!-- ``` -->
+
+<!-- These slot have now been populated -->
+<!-- ```{r,} -->
+<!-- summary(summaries(bandleres)) -->
+<!-- ``` -->
+
+<!-- The `posteriorEstimates` slot gives posterior quantities of interest for different -->
+<!-- proteins. The object is of length 2, 1 for control and 1 for treatment. -->
+<!-- ```{r,} -->
+<!-- length(summaries(bandleres)) -->
+<!-- ``` -->
+
+<!-- One quantity of interest is the protein allocations, which we can plot in a barplot -->
+<!-- ```{r,} -->
+<!-- par(mfrow = c(1, 2)) -->
+
+<!-- pe1 <- summaries(bandleres)[[1]]@posteriorEstimates -->
+<!-- barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: control") -->
+
+<!-- pe2 <- summaries(bandleres)[[2]]@posteriorEstimates -->
+<!-- barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment") -->
+<!-- ``` -->
+
+<!-- # Differential localisation probability -->
+
+<!-- The differential localization probability is also stored here, which gives -->
+<!-- the proteins that are most likely to differentially localised. The rank plot -->
+<!-- is a good visualisation. Indicating that most proteins are not differentially  -->
+<!-- localised and there are a few confident differentially localised protiens. -->
+
+<!-- ```{r,} -->
+<!-- diffloc_probs <- pe1$bandle.differential.localisation -->
+<!-- plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)], -->
+<!--      col = getStockcol()[3], pch = 19, ylab = "Probability",  -->
+<!--      xlab = "Rank", main = "Differential localisation rank plot") -->
+<!-- ``` -->
+<!-- We can examine the top `n` proteins (here 100) and produce bootstrap estimates  -->
+<!-- of the uncertainty (note here the uncertainty is likely to be underestimated -->
+<!-- as we did not produce many mcmc samples). These can be visualised as ranked -->
+<!-- boxplots -->
+
+<!-- ```{r,} -->
+<!-- set.seed(1) -->
+<!-- bt <- bootstrapdiffLocprob(params = bandleres, top = 100) -->
+<!-- boxplot(t(bt), col = getStockcol()[5], -->
+<!--         las = 2, ylab = "Probability", ylim = c(0, 1), -->
+<!--         main = "Differential localisation probability plot (top 100 proteins)") -->
+<!-- ``` -->
+<!-- Let see how many proteins in the top 100 match those we had simulated relocalisations -->
+<!-- for.  -->
+<!-- ```{r,} -->
+<!-- sum(tansim$perm1_names %in% rownames(bt)) -->
+<!-- sum(!(tansim$perm1_names %in% rownames(bt))) -->
+<!-- ``` -->
+
+<!-- # Visualising translocations -->
+
+<!-- We can visualise the changes in localisation between conditions on an alluvial plot using the `plotTranslocations` function -->
+<!-- ```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8} -->
+<!-- plotTranslocations(bandleres) -->
+<!-- ``` -->
+
+<!-- Or alternatively, on a chord (circos) diagram -->
+
+<!-- ```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7} -->
+
+<!-- plotTranslocations(bandleres, type = "chord") -->
+<!-- ``` -->
+
+<!-- <!-- Lastly, we can also pass the argument `table = TRUE` to the `plotTranslocations` function to display a summary table of the number of proteins that have changed in location between conditions  --> -->
+<!-- <!-- ```{r summarytable, warning=FALSE, message=FALSE} --> -->
+<!-- <!-- (sum.res <- plotTranslocations(bandleres, table = TRUE)) --> -->
+<!-- <!-- ``` --> -->
+
+<!-- # Allocation probabilities  -->
+
+<!-- The allocation probabilities are stored in the `tagm.joint` slot. These could -->
+<!-- be visualised in a heatmap -->
+<!-- ```{r,} -->
+<!-- bjoint_control <- summaries(bandleres)[[1]]@bandle.joint -->
+<!-- pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25)) -->
+<!-- ``` -->
+<!-- ```{r,} -->
+<!-- bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint -->
+<!-- pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25)) -->
+<!-- ``` -->
+
 # Session information
 
 All software and respective versions used to produce this document are listed below.
-```{r,}
+```{r sessionInfo}
 sessionInfo()
 ```
 
