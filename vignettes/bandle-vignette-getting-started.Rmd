@@ -318,25 +318,41 @@ summary(summaries(bandleres))
 The `posteriorEstimates` slot gives posterior quantities of interest for
 different proteins. The object is of length 2, 1 for control and 1 for
 treatment.
+
 ```{r,}
 length(summaries(bandleres))
 ```
 
 
-## Protein allocations
+## Extracting posteriors and allocation results
 
-One quantity of interest is the protein allocations, which we can plot in a
-barplot. We create a new object from populating the `bandleres` objects using
-the `summaries` function.
+The posterior estimates and protein allocation predictions can be extracted from
+the `bandleres` object by using the `summaries` function and accessing the slot
+as follows
 
-```{r barplotalloc}
+```{r getposteriors}
 par(mfrow = c(1, 2), oma = c(6,2,2,2))
 
 pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
 pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
 
-barplot(table(pe1$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: control")
-barplot(table(pe2$bandle.allocation), col = getStockcol()[2], las = 2, main = "Protein allocation: treatment")
+head(pe1)
+```
+
+We create two new objects `pe1` and `pe2` in the above code chunk which contain
+the output of the `posteriorEstimates` slot. This is a `data.frame` containing
+the protein allocations and associated localisation probabilities (including the
+upper and lower quantiles of the allocation probability distribution), the mean
+Shannon entropy and the `bandle.differential.localisation` probability.
+
+One quantity of interest is the protein allocations, which we can plot in a
+barplot.
+
+```{r barplotalloc}
+barplot(table(pe1$bandle.allocation), col = getStockcol()[2], 
+        las = 2, main = "Protein allocation: control")
+barplot(table(pe2$bandle.allocation), col = getStockcol()[2], 
+        las = 2, main = "Protein allocation: treatment")
 ```
 
 The bar plot tells us for this case study that `bandle` has allocated the
@@ -352,11 +368,20 @@ extract using the BANDLE method.
 
 Following on from the above example, after extracting posterior estimates for
 each condition using the `summaries` function we can also access the
-differential localisation probability as it is also stored here.  The
-differential localisation probability tells us which proteins are most likely to
-*differentially localise*. The rank plot is a good visualisation. Indicating
-that most proteins are not differentially localised and there are a few
-confident differentially localised protiens of interest.
+differential localisation probability as it is also stored here in the
+`bandle.differential.localisation` column of the `data.frames` of `pe1` and `pe2`
+in the above code chunk.  
+
+The differential localisation probability tells us which proteins are most
+likely to *differentially localise*. If we take a 1% FDR and examine how many
+proteins get a differential probability greater than 0.99 we find there are 626
+proteins above this threshold.
+
+```{r numtransloc}
+length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))
+```
+
+This can also be seen on a rank plot of the direct probabilites
 
 ```{r extractdiffloc}
 diffloc_probs <- pe1$bandle.differential.localisation
@@ -365,26 +390,23 @@ plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
      xlab = "Rank", main = "Differential localisation rank plot")
 ```
 
-If we take a 1% FDR and examine how many proteins get a differential probability
-greater than 0.99 we find there are 626 proteins above this threshold.
+This indicated that most proteins are not differentially localised and there are a
+few hundred confident differentially localised proteins of interest.
 
-```{r numtransloc}
-length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))
-```
-
-## Estimating the uncertainty 
+## Estimating uncertainty 
 
 ### Applying the `bootstrapdiffLocprob` function
 
-We can examine the top `n` proteins (here `top = 100`) and produce bootstrap estimates 
-of the uncertainty (note here the uncertainty is likely to be underestimated
-as we did not produce many MCMC samples). These can be visualised as ranked
-boxplots
+We can examine the top `n` proteins (here `top = 100`) and produce bootstrap
+estimates of the uncertainty (note here the uncertainty is likely to be
+underestimated as we did not produce many MCMC samples). These can be visualised
+as ranked boxplots.
 
 ```{r diffloc_boot}
 set.seed(1)
-bt <- bootstrapdiffLocprob(params = bandleres, top = 100)
-boxplot(t(bt), col = getStockcol()[5],
+boot_t <- bootstrapdiffLocprob(params = bandleres, top = 100)
+
+boxplot(t(boot_t), col = getStockcol()[5],
         las = 2, ylab = "Probability", ylim = c(0, 1),
         main = "Differential localisation \nprobability plot (top 100 proteins)")
 ```
@@ -392,11 +414,34 @@ boxplot(t(bt), col = getStockcol()[5],
 
 ## Applying the `binomDiffLoc` function
 
-In addition to the 
+Instead of applying the `bootstrapdiffLocprob` we could try the `binomDiffLoc`
+function to obtain credible intervals from the binomial distribution.
+
+
+```{r diffloc_binom}
+bin_t <- binomialDiffLocProb(params = bandleres, top = 100, 
+                             nsample = 5000, decreasing = TRUE)
+
+boxplot(t(bin_t), col = getStockcol()[5],
+        las = 2, ylab = "Probability", ylim = c(0, 1),
+        main = "Differential localisation \nprobability plot (top 100 proteins)")
+```
+
 
 ## Extracting probability estimates
 
+There are many ways to obtain probability estimates, for example,
 
+```{r get_pe}
+# more robust estimate of probabilities
+dprobs <- rowMeans(bin_t)
+# compute cumalative error, there is not really a false discovery rate in bayesian statistics but
+# you can look at the cummatlive error rate
+ce <- cumsum(1  - dprobs)
+# you could threshold on the interval and this will reduce the number of differential localisations
+qt <- apply(bin_t, 1, function(x) quantile(x, .025))
+sum(qt > 0.99)
+```
 
 # Visualising differential localisation
 
