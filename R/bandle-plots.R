@@ -151,7 +151,7 @@ spatial2D <- function(object,
     df.lst <- df.lst %>%
         mutate(organelle = factor(organelle)) 
     K <- length(getMarkerClasses(object))
-    col <- getStockcol()[1:K] # get appropriate colours
+    col <- getStockcol()[seq.int(K)] # get appropriate colours
     
     
     gg <- ggplot(

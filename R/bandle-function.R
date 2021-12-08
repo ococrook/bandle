@@ -392,13 +392,13 @@ bandleProcess <- function(params) {
     }
     
     ## Store quantiles
-    bandle.probability.lowerquantile.cond1 <- .bandle.quantilesCond1[cbind(1:N,
+    bandle.probability.lowerquantile.cond1 <- .bandle.quantilesCond1[cbind(seq.int(N),
                                                                 apply(bandle.jointCond1, 1, which.max), rep(1, N))]
-    bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond1[cbind(1:N,
+    bandle.probability.upperquantile.cond1 <- .bandle.quantilesCond1[cbind(seq.int(N),
                                                                 apply(bandle.jointCond1, 1, which.max), rep(2, N))]
-    bandle.probability.lowerquantile.cond2 <- .bandle.quantilesCond2[cbind(1:N,
+    bandle.probability.lowerquantile.cond2 <- .bandle.quantilesCond2[cbind(seq.int(N),
                                                                 apply(bandle.jointCond2, 1, which.max), rep(1, N))]
-    bandle.probability.upperquantile.cond2 <- .bandle.quantilesCond2[cbind(1:N,
+    bandle.probability.upperquantile.cond2 <- .bandle.quantilesCond2[cbind(seq.int(N),
                                                                 apply(bandle.jointCond2, 1, which.max), rep(2, N))]
     
     ## Compute Shannon Entropy

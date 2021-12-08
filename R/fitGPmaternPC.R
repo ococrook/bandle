@@ -30,12 +30,12 @@ fitGPmaternPC <- function(object = object,
   initialvalues <- seq(-5, 0, 0.5)
   init <- matrix(0, length(initialvalues), 3)
   for(i in seq_along(initialvalues)){
-    init[i,] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = T)]
+    init[i,] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = TRUE)]
   }
   
   # indexing sets
-  idx <- seq.int(1:D)
-  tau <- seq.int(1:D)
+  idx <- seq.int(D)
+  tau <- seq.int(D)
   
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
@@ -82,7 +82,7 @@ fitGPmaternPC <- function(object = object,
     axis(1, at = idx, labels = idx)
     
     nk <- table(fData(object)$markers)[getMarkerClasses(object, fcol = fcol)][j]
-    S <- matrix(rep(1:length(tau), length(tau)), nrow = length(tau))
+    S <- matrix(rep(seq.int(length(tau)), length(tau)), nrow = length(tau))
     params <- .hypers
     sigmak <- sigma[j]
     amatern <- amaternk[j]
@@ -143,12 +143,12 @@ fitGPmatern <- function(object = object,
   initialvalues <- seq(-5, 0, 0.5)
   init <- matrix(0, length(initialvalues), 3)
   for(i in seq_along(initialvalues)){
-    init[i, ] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = T)]
+    init[i, ] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = TRUE)]
   }
   
   # indexing sets
-  idx <- seq.int(1:D)
-  tau <- seq.int(1:D)
+  idx <- seq.int(D)
+  tau <- seq.int(D)
   
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
@@ -193,7 +193,7 @@ fitGPmatern <- function(object = object,
     
     # require statistics
     nk <- table(fData(object)$markers)[getMarkerClasses(object)][j]
-    S <- matrix(rep(1:length(tau), length(tau)), nrow = length(tau))
+    S <- matrix(rep(seq.int(length(tau)), length(tau)), nrow = length(tau))
     params <- .hypers
     sigmak <- sigma[j]
     amatern <- amaternk[j]

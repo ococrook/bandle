@@ -85,7 +85,7 @@ diffLoc <- function(objectCond1,
                     maternCov = TRUE,
                     PC = TRUE,
                     nu = 2,
-                    pcPrior = NULL
+                    pcPrior = NULL,
                     propSd = c(0.3, 0.1, 0.05)){
     
     suppressMessages(require(Biobase))
@@ -235,8 +235,8 @@ diffLoc <- function(objectCond1,
     
           
         # Between data allocation tally
-        nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                             factor(alloctemp[[2]], levels = 1:K))
+        nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                             factor(alloctemp[[2]], levels = seq.int(K)))
         
         # Within data allocation tally
         nk <- list(cond1 = rowSums(nk_mat), cond2 = colSums(nk_mat))
@@ -291,11 +291,11 @@ diffLoc <- function(objectCond1,
         sigmasqrt <- lapply(sigmak, sqrt)
         loglikelihoods <- comploglikelist(centereddata, sigmasqrt)
         
-        resAllocCond1 <- proteinAllocation(loglikelihoods = loglikelihoods[1:numRepl],
+        resAllocCond1 <- proteinAllocation(loglikelihoods = loglikelihoods[seq.int(numRepl)],
                                            currentweights = currentweights,
                                            alloctemp = alloctemp,
                                            cond = 1)
-        resAllocCond2 <- proteinAllocation(loglikelihoods = loglikelihoods[(1+numRepl):(numRepl*numCond)],
+        resAllocCond2 <- proteinAllocation(loglikelihoods = loglikelihoods[seq.int(1+numRepl, numRepl*numCond)],
                                            currentweights = currentweights,
                                            alloctemp = alloctemp,
                                            cond = 2)
@@ -321,15 +321,15 @@ diffLoc <- function(objectCond1,
                                               sigma_ = V[[i]],
                                               df_ = 4,
                                               log_ = TRUE,
-                                              isChol_ = F)
+                                              isChol_ = FALSE)
         }
         
-        resOutCond1 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[1:numRepl],
+        resOutCond1 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[seq.int(1, numRepl)],
                                               loglikelihoods = loglikelihoods_cond1,
                                               epsilon = epsilon,
                                               alloctemp = alloctemp,
                                               cond = 1)
-        resOutCond2 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[(1+numRepl):(numRepl*numCond)],
+        resOutCond2 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[seq.int((1+numRepl),(numRepl*numCond))],
                                               loglikelihoods = loglikelihoods_cond2,
                                               epsilon = epsilon,
                                               alloctemp = alloctemp,
@@ -355,8 +355,8 @@ diffLoc <- function(objectCond1,
                 if(hyperLearn == "LBFGS"){
                 }else if(hyperLearn == "MH"){
                     # Between data allocation tally
-                    nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                                         factor(alloctemp[[2]], levels = 1:K))
+                    nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                                         factor(alloctemp[[2]], levels = seq.int(K)))
                     
                     # Within data allocation tally
                     nk <- list(cond1 = rowSums(nk_mat), cond2 = colSums(nk_mat)) 
@@ -386,8 +386,8 @@ diffLoc <- function(objectCond1,
                 }
             } else if (isTRUE(maternCov) & (hyperLearn == "MH")) {
                 # Between data allocation tally
-                nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                                     factor(alloctemp[[2]], levels = 1:K))
+                nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                                     factor(alloctemp[[2]], levels = seq.int(K)))
                 
                 for (i in seq.int(object_cmb)) {
                     for(j in seq.int(K)) {
@@ -398,7 +398,7 @@ diffLoc <- function(objectCond1,
                                            BY = - alloctemp[[l]] * 0,
                                            j = j)
                         
-                        hyperstoupdate <- c(exp(.hypers[[i]][j,1:2]), exp(2 * .hypers[[i]][j,3]))
+                        hyperstoupdate <- c(exp(.hypers[[i]][j, seq.int(2)]), exp(2 * .hypers[[i]][j,3]))
                         
                         .pc_prior <- pcPrior[j, ]
                         newhypers <- metropolisGPmatern(inith = hyperstoupdate,
@@ -411,7 +411,7 @@ diffLoc <- function(objectCond1,
                                                         hyppar = .pc_prior,
                                                         propSd = propSd)$h[ ,2]
                         
-                        componenthypers[[i]][[j]] <- c(log(newhypers[1:2]), log(newhypers[3])/2)
+                        componenthypers[[i]][[j]] <- c(log(newhypers[seq.int(2)]), log(newhypers[3])/2)
                     }
                     # stores current hyperparameters invisibily
                     .hypers[[i]] <- matrix(unlist(componenthypers[[i]]), ncol = 3, byrow = TRUE)

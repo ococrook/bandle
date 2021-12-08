@@ -105,11 +105,11 @@ sim_dynamic <- function(object,
   if (batch == "rand") {
     for (i in seq.int(numRep)){
       batch_effect <- rgamma(1, 1, 1) # sample batch effect
-      g <- sample(c(1:ncol(myobject)), size = 1) # sample which fraction to add the effect to
+      g <- sample(c(seq.int(ncol(myobject))), size = 1) # sample which fraction to add the effect to
       exprs(lopitrep[[i]])[, g] <- exprs(lopitrep[[i]])[, g] + batch_effect
     }
   } else if (batch == "systematic") {
-    g <- sample(c(1:ncol(myobject)), size = 1) # sample which fraction to add the effect to
+    g <- sample(c(seq.int(ncol(myobject))), size = 1) # sample which fraction to add the effect to
     batch_effect <- rgamma(1, 1, 1) # sample batch effect
     for (i in seq.int(numRep)) {
       exprs(lopitrep[[i]])[, g] <- exprs(lopitrep[[i]])[, g] + batch_effect

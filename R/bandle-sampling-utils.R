@@ -50,7 +50,7 @@ outlierAllocationProbs <- function(outlierlikelihood,
                                    alloctemp,
                                    cond) {
     
-    subset <- cbind(1:length(alloctemp[[cond]]), alloctemp[[cond]])
+    subset <- cbind(seq.int(length(alloctemp[[cond]])), alloctemp[[cond]])
     outlierlikelihood_comb <- Reduce("+", outlierlikelihood)
     allocnotOutprob <- log(1 - epsilon[cond]) + loglikelihoods[subset]
     allocOutprob <- log(epsilon[cond]) + outlierlikelihood_comb
@@ -109,7 +109,7 @@ pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
     
     if (is.null(pgPrior)) {
         mu_prior <- rep(-7, K^2)
-        mu_prior[c(K+1 * seq.int(1:K) - K)] <- mu_prior[c(K+1 * seq.int(1:K) - K)] + 1
+        mu_prior[c(K+1 * seq.int(K) - K)] <- mu_prior[c(K+1 * seq.int(K) - K)] + 1
         sigma1 <- covOrganelle(object = object_cond1[[1]])
         sigma2 <- covOrganelle(object = object_cond2[[1]])
     }

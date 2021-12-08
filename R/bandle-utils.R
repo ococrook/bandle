@@ -182,7 +182,7 @@ prior_pred_dir <- function(object,
         
         concentration <- diag(nkknown) + dirPrior
         currentweights <- t(sampleDirichlet(K^2, c(concentration)))
-        priornotAlloc[i] <- sum(currentweights[1, -c((K + 1) * seq.int(1:(K)) - K)])
+        priornotAlloc[i] <- sum(currentweights[1, -c((K + 1) * seq.int(K) - K)])
     }
     
     # average number of differential localisations
@@ -244,7 +244,7 @@ prior_pred_pg <- function(objectCond1,
     
     if (is.null(mu_prior)) {
         mu_prior <- rep(-9, K^2)
-        mu_prior[c((K + 1) * seq.int(1:(K)) - K)] <- mu_prior[c((K + 1) * seq.int(1:(K)) - K)] + 1
+        mu_prior[c((K + 1) * seq.int(K) - K)] <- mu_prior[c((K + 1) * seq.int(K) - K)] + 1
     }
     
     
@@ -265,7 +265,7 @@ prior_pred_pg <- function(objectCond1,
         currentweights[K^2] <- stick
         
         w <- rcpp_pgdraw(rep(1, K^2), phi)
-        priornotAllocpg[i] <- sum(currentweights[-c((K + 1) * seq.int(1:(K)) - K)])
+        priornotAllocpg[i] <- sum(currentweights[-c((K + 1) * seq.int(K) - K)])
     }
     
     # average number of differential localisations

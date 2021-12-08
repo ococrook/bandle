@@ -57,7 +57,7 @@ mrMethod <- function(objectCond1,
     
     
     # Compute delta matrices
-    delta <- lapply(1:length(exprsObj1),
+    delta <- lapply(seq.int(length(exprsObj1)),
                     function(n) exprsObj1[[n]] - exprsObj2[[n]])
     
     # Compute robust mahalanobis distance
@@ -84,7 +84,7 @@ mrMethod <- function(objectCond1,
     Mscore <- -log10(summarisedPvalue)
     
     # compute reproducibility sore
-    Rscore1 <- lapply(1:length(exprsObj1),
+    Rscore1 <- lapply(seq.int(length(exprsObj1)),
                      function(x) reprodScore(x = delta[[x]], y = delta[[(x)%%length(objectCond1) + 1]]))
     
     # take smallest score

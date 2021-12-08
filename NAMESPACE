@@ -33,3 +33,4 @@ importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
            "get.cell.meta.data", "circos.text", "circos.axis", "circos.par", 
            "circos.clear",  "cm_h")
 importFrom("grDevices", "dev.off", "rainbow")
+importFrom("plyr", "id")
