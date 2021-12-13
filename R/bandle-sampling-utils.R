@@ -101,17 +101,18 @@ covOrganelle <- function(object, fcol = "markers"){
 ##' @param K the number of organelle classes
 ##' @param pgPrior The Polya-Gamma if user provided. Default is NULL to obtain value
 ##'  empirically
+##' @param fcol The feature column containing the markers.
 ##' @return returns the Polya-Gamma prior
 ##' @md
 ##' 
 ##' @rdname bandle-internal
-pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
+pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL, fcol = "markers") {
     
     if (is.null(pgPrior)) {
         mu_prior <- rep(-7, K^2)
         mu_prior[c(K+1 * seq.int(K) - K)] <- mu_prior[c(K+1 * seq.int(K) - K)] + 1
-        sigma1 <- covOrganelle(object = object_cond1[[1]])
-        sigma2 <- covOrganelle(object = object_cond2[[1]])
+        sigma1 <- covOrganelle(object = object_cond1[[1]], fcol = fcol)
+        sigma2 <- covOrganelle(object = object_cond2[[1]], fcol = fcol)
     }
     pgPrior <- list(mu_prior = mu_prior, sigma1 =  sigma1, sigma2 = sigma2)
     return(pgPrior)
