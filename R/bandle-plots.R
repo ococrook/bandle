@@ -24,8 +24,8 @@ mcmc_plot_probs <- function(params,
                             scale = "width",
                             trim = TRUE) {
     
-    stopifnot(class(params) == "bandleParams")
-    stopifnot(class(fname) == "character")
+    stopifnot(is(params, "bandleParams"))
+    stopifnot(is(fname, "character"))
     Organelle <- Probability <- NULL
     
     ch <- chains(params)[[n]]
@@ -83,8 +83,8 @@ spatial2D <- function(object,
                       breaks = c(0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7),
                       aspect = 0.5) {
     
-    stopifnot(class(object) == "MSnSet")
-    stopifnot(class(params) == "bandleParams")
+    stopifnot(is(object, "MSnSet"))
+    stopifnot(is(params, "bandleParams"))
     organelle <- x <- y <- z <- level <- NULL
     
     if (is.null(cov.function)){

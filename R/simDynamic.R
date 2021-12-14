@@ -34,10 +34,10 @@ sim_dynamic <- function(object,
                         nu = 2,
                         numDyn = 20L) {
   # checks
-  stopifnot("object is not an instance of class MSnSet"=class(object) == "MSnSet")
-  stopifnot("number of Replicates is not valid, provide an integer"=class(numRep) == "integer")
-  stopifnot("number of Translocations is not valid, provide an integer"=class(numDyn) == "integer")
-  stopifnot("Knn parameers must be an integer"=class(knn_par) == "integer")
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
+  stopifnot("number of Replicates is not valid, provide an integer"=is(numRep, "integer"))
+  stopifnot("number of Translocations is not valid, provide an integer"=is(numDyn, "integer"))
+  stopifnot("Knn parameers must be an integer"=is(knn_par, "integer"))
   stopifnot("method is not valid"=method %in% c("wild", "rand", "const"))
   stopifnot("batch is not valid"=batch %in% c(FALSE, "rand", "systematic"))
     

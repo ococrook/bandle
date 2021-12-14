@@ -33,7 +33,11 @@ Imports: Rcpp (>= 1.0.4.6),
     ggalluvial,
     ggrepel,
     tidyr,
-    circlize
+    circlize,
+    graphics,
+    stats,
+    utils,
+    grDevices
 Suggests: coda(>= 0.19-4),
     akima,
     fields,

@@ -242,7 +242,6 @@ setMethod("length", "nicheParams",
 ##'@param object An instance of appropriate class.
 ##'@rdname bandleParams
 summaries <- function(object) {
-    stopifnot(inherits(object, "bandleParams"))
     object@summary@summaries
 }
 

@@ -47,8 +47,8 @@ mrMethod <- function(objectCond1,
                      plot = TRUE,
                      method = "2017") {
     
-    stopifnot(class(objectCond1[[1]]) == "MSnSet")
-    stopifnot(class(objectCond2[[1]]) == "MSnSet")
+    stopifnot(is(objectCond1[[1]], "MSnSet"))
+    stopifnot(is(objectCond2[[1]], "MSnSet"))
     stopifnot(length(objectCond1) >= 2)
     stopifnot(length(objectCond2) >= 2)
     

@@ -84,7 +84,7 @@ fitGP <- function(object = object,
     trenchres <- trenchDetcpp(R[1,])
     Z <- trenchInvcpp(trenchres$v)
     invcov <- diag(1, nk*D)/sigmak - kronecker(matrix(1, nk, nk), Z %*% covA)/sigmak^2
-    Kstar <- a*exp(-(matrix(rep(tau, nk * D),  nrow = D, byrow = FALSE) - matrix(rep(tau, nk*D),nrow = D, byrow = T))^2/l)
+    Kstar <- a*exp(-(matrix(rep(tau, nk * D),  nrow = D, byrow = FALSE) - matrix(rep(tau, nk*D),nrow = D, byrow = TRUE))^2/l)
     Kstarstar <- rep(a+sigmak, length(tau))
     M[[j]] <- Kstar %*% invcov %*% as.vector(Orgdata)
     V[[j]] <- sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar)))

@@ -11,7 +11,7 @@
 diffLocalisationProb <- function(params) {
     
     # Must be a valid bandleParams object
-    stopifnot(class(params) == "bandleParams")
+    stopifnot(is(params, "bandleParams"))
     
     res <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]] - params@chains@chains[[1]]@niche[[2]]) != 0)
     res <- res/ncol(params@chains@chains[[1]]@niche[[1]])
@@ -68,7 +68,7 @@ binomialDiffLocProb <- function(params,
                                 decreasing = TRUE){
     
     # Must be a valid bandleParams object
-    stopifnot(class(params) == "bandleParams")
+    stopifnot(is(params, "bandleParams"))
     
     res <- matrix(NA, ncol = nsample, nrow = top)
     probs <- diffLocalisationProb(params = params)
@@ -95,7 +95,7 @@ binomialDiffLocProb <- function(params,
 ##' @rdname bandle
 meanOrganelle <- function(object, fcol = "markers"){
     
-    stopifnot(class(object) == "MSnSet")
+    stopifnot(is(object, "MSnSet"))
     
     M <- V <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
     rownames(M) <- rownames(V) <-  getMarkerClasses(object, fcol = fcol)
@@ -224,8 +224,8 @@ prior_pred_pg <- function(objectCond1,
                           iter = 10000,
                           q = 15) {
     
-    stopifnot(class(objectCond1) == "MSnSet")
-    stopifnot(class(objectCond2) == "MSnSet")
+    stopifnot(is(objectCond1[[1]] == "MSnSet"))
+    stopifnot(is(objectCond2[[1]] == "MSnSet"))
     
     # Expressions from data and important summaries
     mydata <- Biobase::exprs(objectCond1)

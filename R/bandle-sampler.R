@@ -91,26 +91,24 @@ diffLoc <- function(objectCond1,
     suppressMessages(require(Biobase))
     
     # Checks
-    stopifnot("ObjectCond1 must be an MSnSet"=class(objectCond1) == "MSnSet")
-    stopifnot("ObjectCond2 must be an MSnSet"=class(objectCond2) == "MSnSet")
+    stopifnot("ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet"))
+    stopifnot("ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet"))
     stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
-    stopifnot("numIter must be a numeric"=class(numIter) == "numeric")
-    stopifnot("burnin must be an integer"=class(burnin) == "integer")
-    stopifnot("thin must be an integer"=class(thin) == "integer")
+    stopifnot("numIter must be a numeric"=is(numIter, "numeric"))
+    stopifnot("burnin must be an integer"=is(burnin, "integer"))
+    stopifnot("thin must be an integer"=is(thin, "integer"))
     stopifnot("burnin must be less than numIter"= burnin < numIter)
-    stopifnot("u must be numeric"=class(u) == "numeric")
-    stopifnot("v must be numeric"=class(v) == "numeric")
-    stopifnot("lambda must be numeric"=class(lambda) == "numeric")
-    stopifnot("gpParams must be an object of class gpParams or NULL"
-              =class(gpParams) %in% c("gpParams", "NULL"))
-    stopifnot("hyperIter must be numeric"=class(hyperIter) == "numeric")
-    stopifnot("hyperMean must be numeric"=class(hyperMean) == "numeric")
-    stopifnot("hyperSd must be numeric"=class(hyperSd) == "numeric")
+    stopifnot("u must be numeric"=is(u, "numeric"))
+    stopifnot("v must be numeric"=is(v, "numeric"))
+    stopifnot("lambda must be numeric"=is(lambda, "numeric"))
+    stopifnot("hyperIter must be numeric"=is(hyperIter, "numeric"))
+    stopifnot("hyperMean must be numeric"=is(hyperMean, "numeric"))
+    stopifnot("hyperSd must be numeric"=is(hyperSd, "numeric"))
     stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
     stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
-    stopifnot("tau must be numeric" = class(tau) == "numeric")
-    stopifnot("nu must be numeric" = class(nu) == "numeric")
-    stopifnot("propSd must be numeric"=class(propSd) == "numeric")
+    stopifnot("tau must be numeric" = is(tau, "numeric"))
+    stopifnot("nu must be numeric" = is(nu, "numeric"))
+    stopifnot("propSd must be numeric"=is(propSd, "numeric"))
     stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
     
     
@@ -152,7 +150,7 @@ diffLoc <- function(objectCond1,
     
     # Getting data dimensions
     D <- ncol(object_cmb[[1]])
-    K <- length(getMarkerClasses(object_cmb[[1]]))
+    K <- length(getMarkerClasses(object_cmb[[1]], fcol = fcol))
     
     # Set default pc priors
     if(is.null(pcPrior)){
@@ -162,7 +160,7 @@ diffLoc <- function(objectCond1,
     
     # construct empirical Bayes Polya-Gamma prior
     if (is.null(pgPrior)) {
-        pgPrior <- pg_prior(normCond1, normCond2, K = K, pgPrior = NULL)
+        pgPrior <- pg_prior(normCond1, normCond2, K = K, pgPrior = NULL, fcol = fcol)
     }
     
     # Fit GPs to markers
@@ -178,7 +176,7 @@ diffLoc <- function(objectCond1,
     }
     
     # separate data into known and unknown
-    unknown_cmb <- lapply(object_cmb, unknownMSnSet)
+    unknown_cmb <- lapply(object_cmb, function(x) unknownMSnSet(x, fcol = fcol))
     exprsUnknown_cmb <- lapply(unknown_cmb, Biobase::exprs)
     exprsKnown <- lapply(object_cmb, function(x) Biobase::exprs(markerMSnSet(x, fcol = fcol)))
     
@@ -200,12 +198,12 @@ diffLoc <- function(objectCond1,
     #random allocation of unknown Proteins, allocations are condition specific
     alloctemp <- lapply(numProtein, function(x) sample.int(n = K, size = x, replace = TRUE))
     for (i in seq.int(numCond)) {
-        object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10)
+        object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10, fcol = fcol)
         alloc[[i]][, 1] <- fData(object_cmb[[i]][rownames(unknown_cmb[[i]])])$knn
     }
     # number of proteins allocated to each component
     nkknown <- lapply(object_cmb[c(1, numRepl + 1)], function(x)
-        table(getMarkers(x, verbose = FALSE))[getMarkerClasses(x)])
+        table(getMarkers(x, verbose = FALSE, fcol = fcol))[getMarkerClasses(x, fcol = fcol)])
     
     #number initial allocated to outlier component
     outlier <- vector(mode = "list", length = 2)
