@@ -33,5 +33,5 @@ test_that("bandle consistency", {
                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
     ans1 <- bandlePredict(objectCond1 = control1, objectCond2 = treatment1, params = mcmc1, fcol = "markers")
     ans2 <- bandlePredict(objectCond1 = control2, objectCond2 = treatment2, params = mcmc2, fcol = "xx")
-    expect_equal(ans1[[1]], ans2[[1]], check.attributes = FALSE)
+    expect_equal(fData(ans2[[1]][[1]])$bandle.probability, fData(ans1[[1]][[1]])$bandle.probability)
 })
