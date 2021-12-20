@@ -26,7 +26,7 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Object of class gpparams. parameters from prior fitting of GPs
+##' @param gpParams Parameters from prior fitting of GPs
 ##' to each niche to accelerate inference. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20

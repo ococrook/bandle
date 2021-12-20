@@ -612,6 +612,112 @@ plotTranslocations(list(res_dl_control, res_dl_treatment),
                                  fcol = "bandle.allocation.pred", table = TRUE))
 ```
 
+# Description of `bandle` parameters
+
+The `bandle` function has a significant number of parameters to allow flexible 
+and bespoke analysis. Here, we describe these parameters in more detail to 
+allow user to make decisions on the level of flexibility they wish to exploit.
+
+1. `objectCond1`. This is a list of `MSnSets` containing the first condition.
+2. `objectCond2`. This is a list of `MSnSets` containing the second condition.
+    a. These object should have the same observations and features. These will
+    be checked during bandle analysis.
+3. `fcol` indicates the feature column in the `MSnSets` that indicated the
+markers. Proteins that are not markers should be labels `unknown`. The default
+is `markers`.
+4. `hyperLearn` is the algorithm used to learn the hyperparameters of the 
+Gaussian processes. For speed the default is an optimization algorithm called
+"LBFGS", however is users want to perform uncertainty quantification on these
+parameters we can use Markov-chain Monte Carlo (MCMC) methods. This is implemented
+using the Metropolis-Hastings algorithm. Though this latter methodology provides
+more information, it is much more costly. The analysis is expected to take
+several days rather than hours. 
+5. `numIter` is the number of MCMC iterations for the algorithm. We typically
+suggest around 10,000 iterations is plenty for convergence. Though some cases
+may take longer. If resources are constrained, we suggest 4,000 iterations
+as acceptable. A minimum number of iterations is around 1,000 though at this
+level we expect the posterior estimates to suffer considerably. If possible
+more parallel chains should be run in this case by changing `numChains` to, 
+say, 9. The more chains and iterations the more computationally expensive
+the algorithm. The time taken for the algorithm scales roughly linearly
+in the number of iterations
+6. `burnin` is the number of samples that should be discarded from the
+beginning of the chain due to the bias induced by the starting point of the 
+algorithm. We suggest sensible `burnin` values to be roughly $10-50\%$ of the
+number of iterations
+7. `thin` reduces auto-correlation in the MCMC samples. The default is $5$,
+which means every 5th sample is taken. If memory requirements are an issue,
+we suggest to increase the thinning amount. Though above $20$, you will see 
+a decrease in performance.
+8. `u` and `v` represent the prior hyperparameters of the proportion of outliers.
+This is modelled using a `Beta(u,v)` with `u = 2` and `v = 10` a default. This
+suggest that roughly $\frac{u}{u = V} = 16%$ of proteins are believed to be
+outliers and that it is quite unlikely that more than $50%$ of proteins
+are outliers. Users can examine the quantiles of the `Beta(u,v)` distribution
+if they wish to place a more bespoke prior. For example, increasing `u`
+will increase the number of a prior believed outliers.
+9. `lambda` is a ridge parameter used for numerical stability and is set to 
+$0.01$. If you experience the algorithm fails due to numerical issue then you
+can set this value larger. If you require values above $1$ it is likely that
+there are other issues with the analysis. We suggest checking the method
+is appropriate for your problem and opening issue detailing the problems.
+10. `gpParams` results from fitting Gaussian proccess (Gaussian random fields).
+We refer the users to those functions. The default is `NULL` which will fit
+GPs internally but we recommend setting these outside the bandle function
+because it leads to more stable results.
+11. `hyperIter` if the hyperparameters of the GP are learnt using MH algorithm
+then this is the frequency at which these are updated relative to the bandle
+algorithm. By default this is unused, but if `hyperLearn` is set to `MH` then
+this proceed at every 20 iterations. 
+12. `hyperMean` is the mean of the log normal prior used on the hyperparameters.
+Though by default this is not used unless `PC` is set to false
+12. `hyperSd` is the standard deviation of the log normal prior used on the 
+hyperparameters. The default is `c(1,1,1)` for the 3 hyperparameters, increasing
+these values increases the uncertainty in the prior values of the hyperpara,eters.
+12. `seed` is the random-number seed.
+13. `pg` indicates whether or not to use the Polya-Gamma (PG) prior. The default
+is false and a dirichlet prior is used instead. If set to true the `pg` is used.
+In which case a default PG prior is used. This prior attempts to match the
+default dirichlet prior that is used when PG prior is set to false. The PG
+prior is more computationally expensive but can provide prior information on 
+correlations
+13. `pgPrior` is by default NULL. We suggest using the `pg_prior` function
+to help set this parameter and the documentation therein. This function
+uses an empirical approach to compute a sensible default.
+14. `tau` is a parameter used by the Polya-Gamma prior and we refer to 
+bandle manuscript for details. By default it is only used if `pg` prior is true,
+when the default becomes `0.2`. At this value the `pg` prior is similar to the
+dirichlet prior but with information on correlations.
+15. `dirPrior` is the dirichlet matrix prior on the correlations. This should
+be provided as a K by K matrix, where K is the number of subcellular niches. 
+The diagonal component should represent the prior belief that organelles do
+not relocalise (same compartment), where as the off-diagonal terms represent
+the prior terms of relocalisation. The `prior_pred_dir` can be used to provide
+a prior predictive check based on the provided prior. It is recommended
+that the off-diagonal terms are atleast two orders of magnitude smaller than the
+diagonal terms. An example is given in the vignette.
+16. `maternCov` is this true the covariance function is the matern covariance,
+otherwise a gaussian covaraince is used.
+17. `PC` indicates whether a penalised complexity (PC) is used. The default 
+is true and otherwise log normal priors are used. 
+18. `pcPrior` is a numeric of length 3 indicating the parameters of the PC prior.
+The prior is placed on the parameters of length-scale, amplitude, and variance 
+in that order. The default values are $0.5,3,100$, and increasing the value 
+increases the shrinkage towards straight-lines with zero variance.
+19. `nu` which defaults to 2 is the smoothness of the matern covariance. By 
+increasing `nu` you encourage smoother solutions. `nu` should be an integer,
+though for values of `nu` above 3, we have observed numerical instability.
+20.  `propSd` is the standard deviation of the random-walk update used in the MH
+algorithm. We do not recommend changing this unless you are familiar with
+Bayesian analysis. The default is `c(0.3,0.1,0.05)` for the 3 hyperparameters.
+Changing these will alter the efficiency of the underlying samplers.
+21. `numChains` is the number of parrallel chains and defaults to 4. We recommend
+using as much processing resources as you have and frequently have used 9 in
+practise.
+22. `BPPARAM` is the BiocParallel backend which defaults to 
+`BiocParallel::bpparam()`. We refer you to the BiocParallel package for details
+on setting this dependent on your computing system.
+
 # Session information
 
 All software and respective versions used to produce this document are listed below.
