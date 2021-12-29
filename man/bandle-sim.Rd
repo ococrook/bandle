@@ -7,14 +7,14 @@
 sim_dynamic(
   object,
   subsample = NULL,
-  knn_par = 10,
+  knn_par = 10L,
   fcol = "markers",
-  numRep = 6,
+  numRep = 6L,
   method = "wild",
   batch = FALSE,
   frac_perm = FALSE,
   nu = 2,
-  numDyn = 20
+  numDyn = 20L
 )
 }
 \arguments{
@@ -25,11 +25,13 @@ proteomics dataset.}
 
 \item{knn_par}{the number of nearest neighbours to use in KNN classification to simulate
 dataset.
-Defult is 10}
+Default is 10}
 
-\item{fcol}{feature column to indicate markers. Default is "markers".}
+\item{fcol}{feature column to indicate markers. Default is "markers". Proteins
+with unknown localisations must be encoded as "unknown".}
 
-\item{numRep}{The total number of datasets to generate. Default is 6.}
+\item{numRep}{The total number of datasets to generate. Default is 6. An
+integer must be provided}
 
 \item{method}{The bootstrap method to use to simulate dataset. Default is "wild".
 refer to BANDLE paper for more details.}
@@ -41,11 +43,19 @@ refer to BANDLE paper for more details.}
 \item{nu}{parameter to generate residual inflated noise. Default is 2. See BANDLE
 paper for more details}
 
-\item{numDyn}{The number of protein to simulate dynamic transitions. Default is 20.}
+\item{numDyn}{An integer number of protein to simulate dynamic transitions. Default is 20}
 }
 \value{
 returns simulate dynamic lopit datasets and the name of the relocalated protein.
 }
 \description{
 A function to simulate dynamic spatial proteomics data using a bootstrap method
+}
+\examples{
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, numRep = 6L, numDyn = 100L)
+
+
 }

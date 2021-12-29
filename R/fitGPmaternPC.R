@@ -1,23 +1,42 @@
-##' Function to fit matern GPs to data, side effect will plot posterior predictives
+##' Function to fit matern GPs to data with penalised complexity priors on the
+##' hyperparameters, side effect will plot posterior predictives
 ##' 
 ##' 
 ##' @title Fit matern GP to spatial proteomics data.
 ##' @param object A instance of class `MSnSet`
 ##' @param fcol feature column to indicate markers. Default is "markers".
-##' @param materncov `logical` indicating whether matern covariance is used
+##' @param materncov `logical` indicating whether matern covariance is used,
+##' else Gaussian covariance is used.
 ##' @param nu matern smoothness parameter. Default is 2.
-##' @param hyppar The vector of penalised complexity hyperparameters
+##' @param hyppar The vector of penalised complexity hyperparameters, you must 
+##' provide a matrix with 3 columns and 1 row. The order is hyperparameters
+##' on length-scale, amplitude, variance.
 ##' @return returns a list of posterior predictive means and standard deviations.
 ##'  As well as MAP hyperparamters for the GP. Side effect will plot the posterior
 ##'  predictive overlayed with markers.
 ##' @md
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, 
+##' function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
 ##' 
 ##' @rdname bandle-gpfit
 fitGPmaternPC <- function(object = object,
                           fcol = "markers",
                           materncov = TRUE,
                           nu = 2,
-                          hyppar = c(1,50,50)) {
+                          hyppar = matrix(c(1, 50, 50), nrow = 1)) {
+    
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
+  stopifnot("matercov must be a logical"=is(materncov, "logical"))
+  stopifnot("hyppar must be a matrix"=is(hyppar, "matrix"))
+  stopifnot("You must provide a matrix with 3 columns for hyperparmeters"
+            =ncol(hyppar) == 3)
   
   ## storage
   componenthypers <- vector(mode = "list", length(getMarkerClasses(object, fcol = fcol)))
@@ -119,19 +138,30 @@ fitGPmaternPC <- function(object = object,
 ##' @title Fit matern GP to spatial proteomics data.
 ##' @param object A instance of class `MSnSet`
 ##' @param fcol feature column to indicate markers. Default is "markers".
-##' @param materncov `logical` indicating whether matern covariance is used
+##' @param materncov `logical` indicating whether matern covariance is used.
 ##' @param nu matern smoothness parameter. Default is 2.
 ##' @return returns a list of posterior predictive means and standard deviations.
 ##'  As well as maximum marginal likelihood for the GP. Side effect will plot the posterior
 ##'  predictive overlayed with markers.
 ##' @md
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
 ##' 
 ##' @rdname bandle-gpfit
 fitGPmatern <- function(object = object,
                         fcol = "markers",
                         materncov = TRUE,
                         nu = 2) {
-  
+    
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
+  stopifnot("matercov must be a logical"=is(materncov, "logical"))
+
   ## storage
   componenthypers <- vector(mode = "list", length(getMarkerClasses(object, fcol = fcol)))
   

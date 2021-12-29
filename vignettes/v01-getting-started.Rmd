@@ -18,7 +18,7 @@ output:
     toc_float: true
 bibliography: bandle.bib
 vignette: >
-  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE}
+  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE: Vignette 1}
   %\VignetteEngine{knitr::rmarkdown}
   %%\VignetteKeywords{Mass Spectrometry, MS, MSMS, Proteomics, Metabolomics, Infrastructure, Quantitative}
   %\VignetteEncoding{UTF-8}
@@ -107,8 +107,8 @@ simulate relocalisations for `numDyn` proteins.
 ```{r simdata, fig.width=8, fig.height=10}
 set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1,
-                      numRep = 6,
-                      numDyn = 100)
+                      numRep = 6L,
+                      numDyn = 100L)
 
 ```
 
@@ -257,8 +257,8 @@ treatment <- tansim$lopitrep[4:6]
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
                     numIter = 50, # usually 10,000
-                    burnin = 5, # usually 5,000
-                    thin = 1, # usually 20
+                    burnin = 5L, # usually 5,000
+                    thin = 1L, # usually 20
                     gpParams = gpParams,
                     pcPrior = pc_prior,
                     numChains = 1, # usually >=4

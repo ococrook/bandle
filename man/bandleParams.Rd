@@ -98,6 +98,10 @@ params(object)
 
 \item{drop}{Missing.}
 }
+\value{
+An object of class \code{bandleParams} which stores the main results
+for the analysis when using bandle
+}
 \description{
 The \code{bandleParams} infrastructure is used to store and process MCMC results for
 bandle model from Crook et al 2021

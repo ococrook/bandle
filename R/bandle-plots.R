@@ -15,6 +15,24 @@
 ##' @return  returns a named vector of differential localisation probabilities
 ##' @md
 ##' 
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1,
+##'  objectCond2 = treatment1, gpParams = gpParams,
+##'  fcol = "markers", numIter = 25L, burnin = 1L, thin = 2L,
+##'  numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc_plot_probs(params = mcmc1, fname = rownames(tan2009r1)[1])
+##' 
 ##' @rdname bandle-plots
 mcmc_plot_probs <- function(params,
                             fname,

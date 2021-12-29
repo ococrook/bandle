@@ -49,18 +49,32 @@
 ##' covariance. Default is True and matern covariance is used
 ##' @param PC `logical` indicating whether to use a penalised complexity prior.
 ##' Default is TRUE.
-##' @param pcPrior `numeric` of length 3 indicating the lambda paramters for the
+##' @param nu `integer` indicating the smoothness of the matern prior. Default
+##' is 2.
+##' @param pcPrior `matrix` with 3 columns indicating the lambda paramters for the
 ##' penalised complexity prior. Default is null which internally sets
 ##' the penalised complexity prior to `c(0.5, 3, 100)` for each organelle and the order is 
 ##' length-scale, amplitude and variance. See vignette for more details.
-##' @param nu `integer` indicating the smoothness of the matern prior. Default
-##' is 2.
 ##' @param propSd If MH is used to learn posterior hyperparameters then the proposal
 ##' standard deviations. A Gaussian random-walk proposal is used.
 ##' @param numChains `integer` indicating the number of parallel chains to run.
 ##' Defaults to 4.
 ##' @return  `bandle` returns an instance of class `bandleParams`
 ##' @md
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, 
+##' function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- diffLoc(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L)
 ##' 
 ##' @rdname bandle
 diffLoc <- function(objectCond1,

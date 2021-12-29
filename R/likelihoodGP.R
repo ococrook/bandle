@@ -62,6 +62,9 @@ posteriorGPmatern <- function(Xk, tau, h, nk, D, materncov, nu, hyppar){
 ##' @return Returns the likelihood of the type-2 GUmbel distribution
 ##' @md
 ##' 
+##' @examples 
+##' Gumbel(3, lambda = 1)
+##' 
 ##' @rdname bandle-gp
 Gumbel <- function(x,
                    lambda,

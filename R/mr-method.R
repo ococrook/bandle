@@ -41,6 +41,21 @@ reprodScore <- function(x, y, method = c("pearson")) {
 ##' @param plot Whether to generate an MR plot as a side effect. 
 ##' @return The MR score of the Ithzak et al. 2016/2017
 ##' @md
+##' 
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
+##' 
+##' 
+##' 
 ##' @rdname method-mr
 mrMethod <- function(objectCond1,
                      objectCond2,

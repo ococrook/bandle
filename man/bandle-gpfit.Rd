@@ -13,7 +13,7 @@ fitGPmaternPC(
   fcol = "markers",
   materncov = TRUE,
   nu = 2,
-  hyppar = c(1, 50, 50)
+  hyppar = matrix(c(1, 50, 50), nrow = 1)
 )
 
 fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
@@ -23,11 +23,13 @@ fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
 
 \item{fcol}{feature column to indicate markers. Default is "markers".}
 
-\item{materncov}{\code{logical} indicating whether matern covariance is used}
+\item{materncov}{\code{logical} indicating whether matern covariance is used.}
 
 \item{nu}{matern smoothness parameter. Default is 2.}
 
-\item{hyppar}{The vector of penalised complexity hyperparameters}
+\item{hyppar}{The vector of penalised complexity hyperparameters, you must
+provide a matrix with 3 columns and 1 row. The order is hyperparameters
+on length-scale, amplitude, variance.}
 }
 \value{
 means and standard deviation of gaussian process fitted to data,
@@ -46,7 +48,35 @@ predictive overlayed with markers.
 Helper function to fit GPs with squared exponential convariances,
 maximum marginal likelihood
 
-Function to fit matern GPs to data, side effect will plot posterior predictives
+Function to fit matern GPs to data with penalised complexity priors on the
+hyperparameters, side effect will plot posterior predictives
 
 Function to fit matern GPs to data, side effect will plot posterior predictives
+}
+\examples{
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, 
+function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+
 }

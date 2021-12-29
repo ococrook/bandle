@@ -38,7 +38,7 @@ bandle(
   dirPrior = NULL,
   maternCov = TRUE,
   PC = TRUE,
-  pcPrior = c(0.5, 3, 100),
+  pcPrior = matrix(c(0.5, 3, 100), nrow = 1),
   nu = 2,
   propSd = c(0.3, 0.1, 0.05),
   numChains = 4L,
@@ -71,8 +71,8 @@ diffLoc(
   dirPrior = NULL,
   maternCov = TRUE,
   PC = TRUE,
-  pcPrior = c(0.5, 3, 100),
   nu = 2,
+  pcPrior = NULL,
   propSd = c(0.3, 0.1, 0.05)
 )
 
@@ -84,15 +84,16 @@ binomialDiffLocProb(params, top = 20, nsample = 5000, decreasing = TRUE)
 
 meanOrganelle(object, fcol = "markers")
 
-kldirpg(sigma, mu, alpha)
+kldirpg(sigma = diag(1, 1, 1), mu = c(0, 0, 0), alpha = c(1))
 
 kldir(alpha, beta)
 
-prior_pred_dir(object, iter = 5000, dirPrior = NULL, q = 15)
+prior_pred_dir(object, fcol = "markers", iter = 5000, dirPrior = NULL, q = 15)
 
 prior_pred_pg(
   objectCond1,
   objectCond2,
+  fcol = "markers",
   tau = 0.2,
   lambda = 0.01,
   mu_prior = NULL,
@@ -105,7 +106,7 @@ prior_pred_pg(
 
 \item{objectCond2}{An instance of class \code{MSnSet}, usually the treatment dataset}
 
-\item{fcol}{a feature column indicating which feature define the markers}
+\item{fcol}{The feature column indiating the markers. Default is "markers"}
 
 \item{hyperLearn}{Algorithm to learn posterior hyperparameters of the Gaussian
 processes. Default is \code{LBFGS} and \code{MH} for metropolis-hastings is also implemented.}
@@ -150,7 +151,11 @@ but pgPrior is NULL then a pgPrior is generated on the fly.}
 \item{tau}{The \code{tau} parameter of the Polya-Gamma prior. Default is 0.2.}
 
 \item{dirPrior}{The Dirichlet prior used. If NULL (default) will generate a
-a default Dirichlet prior}
+a default Dirichlet prior. This should be a matrix with the same dimensions
+as the number of subcellular niches. The diagonal terms correspond
+to the prior probability of not differentially localising. The (i,j)
+term corresponds to prior probabilty of differntially localising between
+niche i and j.}
 
 \item{maternCov}{\code{logical} indicated whether to use a matern or gaussian
 covariance. Default is True and matern covariance is used}
@@ -158,11 +163,12 @@ covariance. Default is True and matern covariance is used}
 \item{PC}{\code{logical} indicating whether to use a penalised complexity prior.
 Default is TRUE.}
 
-\item{pcPrior}{\code{numeric} of length 3 indicating the lambda paramters for the
-penalised complexity prior. Default is \code{c(0.5, 3, 100)} and the order is
-length-scale, amplitude and variance.}
+\item{pcPrior}{\code{matrix} with 3 columns indicating the lambda paramters for the
+penalised complexity prior. Default is null which internally sets
+the penalised complexity prior to \code{c(0.5, 3, 100)} for each organelle and the order is
+length-scale, amplitude and variance. See vignette for more details.}
 
-\item{nu}{\code{integter} indicating the smoothness of the matern prior. Default
+\item{nu}{\code{integer} indicating the smoothness of the matern prior. Default
 is 2.}
 
 \item{propSd}{If MH is used to learn posterior hyperparameters then the proposal
@@ -186,9 +192,10 @@ using bpparam()}
 
 \item{object}{An instance of class \code{MSnSet}}
 
-\item{sigma}{the sigma parameter of the Polya-Gamma prior}
+\item{sigma}{the sigma parameter of the Polya-Gamma prior. A positive-definite
+symmetric matrix.}
 
-\item{mu}{the mu parameter of the Polya-Gamma prior}
+\item{mu}{the mu parameter of the Polya-Gamma prior. A vector of means}
 
 \item{alpha}{The concentration parameter of the first Dirichlet distribution}
 
@@ -271,4 +278,111 @@ proteomics datasets (object of class \code{\link[MSnbase:MSnSet-class]{MSnbase::
 passed to the \code{bandlePredict} function to predict the sub-cellular localisation
 and compute the differential localisation probability of proteins. See the
 vignette for examples
+}
+\examples{
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) 
+fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- bandle(objectCond1 = control1,
+ objectCond2 = treatment1, gpParams = gpParams,
+ fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+ numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, 
+function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- diffLoc(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L)
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) 
+fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+mcmc1 <- bandleProcess(mcmc1)
+dp <- diffLocalisationProb(mcmc1)
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, 
+function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+mcmc1 <- bandleProcess(mcmc1)
+bdp <- bootstrapdiffLocprob(mcmc1)
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, 
+function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+mcmc1 <- bandleProcess(mcmc1)
+dp <- binomialDiffLocProb(mcmc1)
+library(pRolocdata)
+data("tan2009r1")
+meanOrganelle(object = tan2009r1)
+
+kldirpg(sigma = diag(c(1,1,1)), mu = c(0,0,0), alpha = 1)
+
+kldir(c(1,1), c(3,1))
+
+library(pRolocdata)
+data("tan2009r1")
+
+out <- prior_pred_dir(object = tan2009r1)
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+out <- prior_pred_pg(objectCond1 = control1[[1]],
+objectCond2 = treatment1[[1]])
+
+
 }

@@ -18,9 +18,16 @@
 ##' @param frac_perm whether or not to permute the fractions. Default is FALSE
 ##' @param nu parameter to generate residual inflated noise. Default is 2. See BANDLE
 ##' paper for more details
-##' @param numDyn The number of protein to simulate dynamic transitions. Default is 20. 
+##' @param numDyn An integer number of protein to simulate dynamic transitions. Default is 20 
 ##' @return returns simulate dynamic lopit datasets and the name of the relocalated protein.  
 ##' @md
+##' 
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, numRep = 6L, numDyn = 100L)
+##' 
 ##' 
 ##' @rdname bandle-sim
 sim_dynamic <- function(object,

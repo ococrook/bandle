@@ -11,6 +11,8 @@
 \alias{posteriorGPmatern}
 \alias{Gumbel}
 \alias{PCrhomvar}
+\alias{metropolisGP}
+\alias{metropolisGPmatern}
 \title{Compute GP gradient}
 \usage{
 gradientGP(Xk, tau, h, nk, D)
@@ -31,6 +33,29 @@ Gumbel(x, lambda, log = TRUE)
 
 PCrhomvar(rho, a, lambda1, lambda2, log = TRUE)
 
+metropolisGP(
+  inith,
+  X,
+  tau,
+  nk,
+  D,
+  niter,
+  hyperMean = c(0, 0, 0),
+  hyperSd = c(1, 1, 1)
+)
+
+metropolisGPmatern(
+  inith,
+  X,
+  tau,
+  nk,
+  D,
+  niter,
+  nu = 2,
+  hyppar = c(1, 1, 1),
+  propSd = c(0.3, 0.1, 0.1)
+)
+
 Gumbel(x, lambda, log = TRUE)
 
 PCrhomvar(rho, a, lambda1, lambda2, log = TRUE)
@@ -48,9 +73,10 @@ PCrhomvar(rho, a, lambda1, lambda2, log = TRUE)
 
 \item{materncov}{\code{logical} indicating whether matern covariance is used}
 
-\item{nu}{matern smoothness parameter.}
+\item{nu}{Smoothness of the matern covariance}
 
-\item{hyppar}{prior hyperparameters of the penalised complexity prior.}
+\item{hyppar}{A vector indicating the penalised complexity prior hyperparameters.
+Default is \code{c(1,1,1)}}
 
 \item{x}{observation}
 
@@ -65,6 +91,19 @@ PCrhomvar(rho, a, lambda1, lambda2, log = TRUE)
 \item{lambda1}{first parameter of distribution}
 
 \item{lambda2}{second parameter of distribution}
+
+\item{inith}{initial hyperparamters}
+
+\item{X}{The data}
+
+\item{niter}{Number of MH iteractions}
+
+\item{hyperMean}{A vector indicating the log-normal means. Default is \code{c(0,0,0)}.}
+
+\item{hyperSd}{A vector indicating the log-normal standard deviations. Default is \code{c(1,1,1)}}
+
+\item{propSd}{The proposal standard deviation. Default is \code{c(0.3,0.1,0.1)}. Do not
+change unless you know what you are doing.}
 }
 \value{
 Returns gp gradient
@@ -86,6 +125,8 @@ Returns the likelihood of the type-2 GUmbel distribution
 
 Returns the likelihood of the bivariate penalised complexity prior
 
+Returns new hyperparamters and the acceptance rate
+
 Returns the likelihood of the type-2 GUmbel distribution
 
 Returns the likelihood of the bivariate penalised complexity prior
@@ -94,4 +135,10 @@ Returns the likelihood of the bivariate penalised complexity prior
 Internal R function to pass R to C++, not for external use.
 
 Internal R function to pass R to C++, not for external use.
+
+Function to perform Metropolis-Hastings for GP hyperparameters with different priors
+}
+\examples{
+Gumbel(3, lambda = 1)
+
 }

@@ -83,8 +83,16 @@ sampleOutlier <- function(allocoutlierprob){
 ##' @return returns covariance of organelles using marker proteins
 ##' @md
 ##' 
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' covOrganelle(object = tan2009r1)
+##' 
+##' 
 ##' @rdname bandle-internal
 covOrganelle <- function(object, fcol = "markers"){
+    
+    stopifnot("object must be a class of MSnSet"=is(object, "MSnSet"))
     
     M <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
     rownames(M) <- getMarkerClasses(object, fcol = fcol)
@@ -104,6 +112,20 @@ covOrganelle <- function(object, fcol = "markers"){
 ##' @param fcol The feature column containing the markers.
 ##' @return returns the Polya-Gamma prior
 ##' @md
+##' 
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' out <- pg_prior(object_cond1 = control1,
+##'  object_cond2 = treatment1, K = 11) 
+##' 
 ##' 
 ##' @rdname bandle-internal
 pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL, fcol = "markers") {

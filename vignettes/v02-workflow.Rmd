@@ -17,7 +17,7 @@ output:
     toc_float: true
 bibliography: bandle.bib
 vignette: >
-  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE}
+  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE: Vignette 2}
   %\VignetteEngine{knitr::rmarkdown}
   %%\VignetteKeywords{Mass Spectrometry, MS, MSMS, Proteomics, Metabolomics, Infrastructure, Quantitative}
   %\VignetteEncoding{UTF-8}

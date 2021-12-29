@@ -24,7 +24,7 @@ sampleOutlier(allocoutlierprob)
 
 covOrganelle(object, fcol = "markers")
 
-pg_prior(object_cond1, object_cond2, K, pgPrior = NULL)
+pg_prior(object_cond1, object_cond2, K, pgPrior = NULL, fcol = "markers")
 
 sample_weights_pg(nk_mat, pgPrior, w, K, tau = 0.2)
 
@@ -47,7 +47,7 @@ sample_weights_dir(nk_mat, dirPrior)
 
 \item{object}{An instance of class \code{MSnSet}}
 
-\item{fcol}{feature column indicating marker data. Default is "markers"}
+\item{fcol}{The feature column containing the markers.}
 
 \item{object_cond1}{A list of instance of class \code{MSnSets} usually control}
 
@@ -83,4 +83,24 @@ returns A sample of the weights using Dirichlet prior.
 }
 \description{
 Internal sampling function, not for outside use documented for completness
+}
+\examples{
+library(pRolocdata)
+data("tan2009r1")
+covOrganelle(object = tan2009r1)
+
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+out <- pg_prior(object_cond1 = control1,
+ object_cond2 = treatment1, K = 11) 
+
+
 }
