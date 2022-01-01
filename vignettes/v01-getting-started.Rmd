@@ -267,7 +267,10 @@ bandleres <- bandle(objectCond1 = control,
 
 The `bandle` function generates an object of class `bandleParams`. The `show`
 method indicates the number of parallel chains that were run, this should
-typically be greater than 4 (here we use 1 just as a demo).
+typically be greater than 4 (here we use 1 just as a demo). Normally, we
+should also assess convergence but this omitted for the moment so that we 
+can move forward with the analysis. Please set the end of the vignette for
+convergence plots.
 
 ```{r,}
 bandleres
@@ -611,6 +614,42 @@ plotTranslocations(list(res_dl_control, res_dl_treatment),
 (final.res <- plotTranslocations(params = list(res_dl_control, res_dl_treatment), 
                                  fcol = "bandle.allocation.pred", table = TRUE))
 ```
+
+# Assessing convergence
+
+In this section, we demonstrate how to visually assess convergence of the MCMC
+algorithm. In the chunk below, we use 4 chains so that we can assess the 
+convergence.
+
+```{r, bandleagain}
+control <- tansim$lopitrep[1:3] 
+treatment <- tansim$lopitrep[4:6]
+
+bandleres <- bandle(objectCond1 = control,
+                    objectCond2 = treatment,
+                    numIter = 50, # usually 10,000
+                    burnin = 10L, # usually 5,000
+                    thin = 1L, # usually 20
+                    gpParams = gpParams,
+                    pcPrior = pc_prior,
+                    numChains = 4,
+                    dirPrior = dirPrior)
+
+```
+We then use the `plotConvergence` function which plots the ranks of the total
+number of outliers within in each of the chains. If convergence has been reached
+these plots should be uniform. As we can see these plots are not uniform and
+are skewed towards the extremes, so they have not convereged. Clearly one
+of the chains has higher values on average than the other chains producing
+the skew. Running the algorithm for more iterations should produce convergence.
+This is not done here for brevity of the vignette.
+
+```{r, convergence}
+par(mfrow = c(2,2))
+out <- plotConvergence(bandleres)
+```
+
+
 
 # Description of `bandle` parameters
 

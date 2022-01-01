@@ -438,3 +438,28 @@ plotTranslocations <- function(params,
     }
     
 }
+##' Produces a rank plot to analyse convergence of MCMC algorithm
+##' @title Generates a histogram of ranks (a rank plot) for convergence
+##' @param params An instance of class \code{bandleParams}
+##' @return Returns the ranks of the number of outliers in each chain. The
+##' side effect returns rank plots. Number of rank plots is equal to the number
+##' of chains
+##' @md
+##' 
+##'  
+##' @rdname bandle-plots
+plotConvergence <- function(params){
+    
+    stopifnot("params must be an object of
+              class bandleParams"=is(params, "bandleParams"))
+    
+    n <- as.numeric(seq(params@chains@chains[[1]]@n))
+    out <- vapply(params@chains@chains, 
+                  function(x) colSums(x@outlier$cond11), n)
+    toplot <- apply(out, 1, rank)
+    sapply(seq.int(nrow(toplot)), function(i) 
+        hist(toplot[i,], main = "convergence rank plot", xlab = "rank", 
+             col = alpha(getStockcol()[i], 0.7)))
+    return(toplot)
+}
+

@@ -5,6 +5,7 @@
 \alias{mcmc_plot_probs}
 \alias{spatial2D}
 \alias{plotTranslocations}
+\alias{plotConvergence}
 \alias{StatStratum}
 \title{Generate a violin plot showing the probabilitiy of protein localisation
 to different organelles}
@@ -51,11 +52,12 @@ plotTranslocations(
   ...
 )
 
+plotConvergence(params)
+
 StatStratum
 }
 \arguments{
-\item{params}{An instance of class \code{bandleParams} or an instance of class
-\code{MSnSetList} of length 2.}
+\item{params}{An instance of class \code{bandleParams}}
 
 \item{fname}{The name of the protein to plot}
 
@@ -125,12 +127,18 @@ returns a named vector of differential localisation probabilities
 
 Returns a directional circos/chord diagram showing the translocation of proteins
 between conditions. If \code{type = "alluvial"} ouput is a \code{ggplot} object.
+
+Returns the ranks of the number of outliers in each chain. The
+side effect returns rank plots. Number of rank plots is equal to the number
+of chains
 }
 \description{
 These functions implement plotting functions for bandle objects
 
 Produces a chord diagram (circos plot) or an alluvial plot (also known as a Sankey diagram)
 to show changes in location between two conditions or datasets.
+
+Produces a rank plot to analyse convergence of MCMC algorithm
 }
 \examples{
 library(pRolocdata)
