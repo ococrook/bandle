@@ -9,6 +9,7 @@
 \alias{diffLocalisationProb}
 \alias{bootstrapdiffLocprob}
 \alias{binomialDiffLocProb}
+\alias{EFDR}
 \alias{meanOrganelle}
 \alias{kldirpg}
 \alias{kldir}
@@ -81,6 +82,8 @@ diffLocalisationProb(params)
 bootstrapdiffLocprob(params, top = 20, Bootsample = 5000, decreasing = TRUE)
 
 binomialDiffLocProb(params, top = 20, nsample = 5000, decreasing = TRUE)
+
+EFDR(prob, threshold = 0.9)
 
 meanOrganelle(object, fcol = "markers")
 
@@ -190,6 +193,11 @@ using bpparam()}
 
 \item{nsample}{how many samples to return from the binomial distribution}
 
+\item{prob}{A numeric indicating probabilities of differential localisation}
+
+\item{threshold}{A numeric indicating the probability threshold. The default
+is 0.90.}
+
 \item{object}{An instance of class \code{MSnSet}}
 
 \item{sigma}{the sigma parameter of the Polya-Gamma prior. A positive-definite
@@ -240,6 +248,8 @@ returns a matrix of size Bootsample * top containing bootstrap
 
 returns a list containing empirical binomial samples
 
+The expected false discovery rate for a given threshold
+
 returns a list of means and variances for each
 
 returns a numeric indicating the KL divergence
@@ -263,6 +273,12 @@ spatial proteomics datasets using MCMC for inference, this is an internal sampli
 function
 
 These functions implement helper functions for the bandle method
+
+The EFDR for a given threshold is equal to the sum over all proteins
+that exceed that threshold of one minus the posterior probability of
+differential localisations, divides by the total number of proteins
+with probabilities of differential localisation greater than that
+threshold.
 }
 \details{
 The \code{bandle} function generate the sample from the posterior distributions
@@ -359,6 +375,24 @@ mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpP
                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
 mcmc1 <- bandleProcess(mcmc1)
 dp <- binomialDiffLocProb(mcmc1)
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) 
+fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+d1 <- tansim$lopitrep
+control1 <- d1[1:3]
+treatment1 <- d1[4:6]
+mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+mcmc1 <- bandleProcess(mcmc1)
+dp <- diffLocalisationProb(mcmc1)
+EFDR(dp, threshold = 0.5)
+
 library(pRolocdata)
 data("tan2009r1")
 meanOrganelle(object = tan2009r1)

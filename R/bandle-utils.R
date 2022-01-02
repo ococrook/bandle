@@ -135,6 +135,52 @@ binomialDiffLocProb <- function(params,
     
     return(res)
 }
+
+##' The EFDR for a given threshold is equal to the sum over all proteins
+##' that exceed that threshold of one minus the posterior probability of
+##' differential localisations, divides by the total number of proteins
+##' with probabilities of differential localisation greater than that
+##' threshold.
+##' 
+##' @title Compute the expected False Discovery Rate 
+##' @param prob A numeric indicating probabilities of differential localisation
+##' @param threshold A numeric indicating the probability threshold. The default
+##' is 0.90.
+##' @return The expected false discovery rate for a given threshold
+##' @md
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc1 <- bandleProcess(mcmc1)
+##' dp <- diffLocalisationProb(mcmc1)
+##' EFDR(dp, threshold = 0.5)
+##' 
+##' @rdname bandle
+EFDR <- function(prob, threshold = 0.90) {
+    
+    stopifnot("prob must be numeric"=is(prob, "numeric"))
+    stopifnot("prob must be probabilities"=max(prob) <= 1)
+    stopifnot("prob must be probabilities"=min(prob) >= 0)
+    stopifnot("threshold must be numeric"=is(threshold, "numeric"))
+    stopifnot("threshold must be a single values"=length(threshold) == 1)
+    
+    .out <- sum((1 - prob) * I(prob > threshold)) / sum(I(prob > threshold))
+    return(.out)
+}
+
+
 ##' @title Computes Organelle means and variances using markers
 ##' @param object a instance of class `MSnset`
 ##' @param fcol a feature column indicating which feature define the markers
