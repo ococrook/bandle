@@ -62,7 +62,7 @@ probability that a protein is differentially localised between two conditions.
 
 # The data
 
-In this vignette and [@bandle], the main data source that we use to study
+In this vignette and @bandle, the main data source that we use to study
 differential protein sub-cellular localisation are data from high-throughput
 mass spectrometry-based experiments. The data from these types of experiments
 traditionally yield a matrix of measurements wherein we have, for example, PSMs,
@@ -70,17 +70,19 @@ peptides or proteins along the rows, and samples/channels/fractions along the
 columns. The `bandle` package uses the `MSnSet` class as implemented in the
 Bioconductor `r Biocpkg("MSnbase")` package and thus requires users to import
 and store their data as a `MSnSet` instance. For more details on how to create a
-`MSnSet` see the relevant vignettes in `r Biocpkg("pRoloc")`. There is also
-additional information and examples in the `r Biocpkg("pRoloc")` sister package.
-The `r Biocpkg("pRolocdata")` experiment data package is a good starting
-place to look for test data. This data package contains tens of quantitative
-proteomics experiments, stored as `MSnSet`s. 
+`MSnSet` see the relevant vignettes in `r Biocpkg("pRoloc")`. The 
+`r Biocpkg("pRolocdata")` experiment data package is a good starting place to
+look for test data. This data package contains tens of quantitative proteomics
+experiments, stored as `MSnSet`s.
 
 ## A well-defined theoretical example
 
-We are going to generate a differential localisation experiment. They key
-elements are replicates, and a perturbation of interest. There is code within
-the `r Biocpkg("bandle")` package to simulate an example experiment. 
+To get started with the basics of using `bandle` we begin by generating a simple
+example dataset which simulates a differential localisation experiment (please
+see the second vignette in this package for a full real-life biological use
+case). In this example data, the key elements are replicates, and a perturbation
+of interest. There is code within the `r Biocpkg("bandle")` package to simulate
+an example experiment.
 
 In the code chunk below we begin by loading the `r Biocpkg("pRolocdata")`
 package to obtain a spatial proteomics dataset. This will be the basis of our
@@ -89,7 +91,8 @@ have chosen to load is a dataset from 2009 (`tan2009r1`). This is data from a
 early LOPIT experiment performed on Drosophila embryos [@Tan:2009]. The aim of
 this experiment was to apply LOPIT to an organism with heterogeneous cell types.
 This experiment used four isotopes across four distinct fractions and thus
-yielded four measurements (features) per protein profile.
+yielded four measurements (features) per protein profile. We visualise the
+data by using principal 
 
 ```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
 library("pRolocdata")
@@ -148,7 +151,7 @@ well as multiple parallel chains.
 First, we need to fit non-parametric regression functions to the markers
 profiles, upon which we place our analysis. This uses Gaussian processes. The
 `fitGPmaternPC` function can be used and fits some default penalised complexity
-priors (see `?fitGP`), which work well. However, these can be altered, which is
+priors (see `?fitGP`), which works well. However, these can be altered, which is
 demonstrated in the next code chunk
 
 
@@ -229,10 +232,13 @@ around 0.
 hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
 ```
 
-If the the distribution did not concentrated around zero, as in most use-cases
-we would expect the number of re-localisations to be small, users could try
-testing smaller values in `dirPrior` for example, 0.0005 or smaller, instead of
-0.001.
+For most use-cases we indeed expect the number of differential
+localisations to be small. However, there may be specific cases where one may
+expect the either a smaller or larger number of differential localisations.
+Users could try testing different values for the `dirPrior` for example,
+replacing 0.001 with 0.0005 or smaller, for larger datasets to bring the number
+of expected re-localisations inline with the biological expectation, and
+visa-versa when we expect the number of proteins to have changed to be higher.
 
 
 
@@ -240,15 +246,15 @@ testing smaller values in `dirPrior` for example, 0.0005 or smaller, instead of
 
 We are now ready to run the main `bandle` function. Remember to carefully
 select the datasets and replicates that define the control and treatment. 
-As a reminder, in this "Getting started" vignette we have used a small dataset
+As a reminder, in this introductory vignette we have used a small dataset
 and generated theoretical triplicates of each theoretical condition. Please see
 the second vignette in this package for a more detailed workflow and real
-biological use-case. In the below code chunk we run bandle for only 50
+biological use-case. In the below code chunk we run `bandle` for only 50
 iterations for the convenience of building the vignette, but typically we'd
-recommend you run the number of iterations (`numIter`) in the $1000$s.
+recommend you run the number of iterations (`numIter`) in the 1000s.
 
 Remember: the first 3 datasets are the first 3 elements of `tansim` and the
-final 3 datasets are the treatment triplicates.
+final 3 elements are the "treatment" triplicate datasets.
 
 ```{r runbandle, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide'}
 control <- tansim$lopitrep[1:3] 
@@ -269,7 +275,7 @@ The `bandle` function generates an object of class `bandleParams`. The `show`
 method indicates the number of parallel chains that were run, this should
 typically be greater than 4 (here we use 1 just as a demo). Normally, we
 should also assess convergence but this omitted for the moment so that we 
-can move forward with the analysis. Please set the end of the vignette for
+can move forward with the analysis. Please see the end of the vignette for
 convergence plots.
 
 ```{r,}
@@ -474,15 +480,17 @@ differential localisation probability as it is stored in the
 `pe2`, in the above sections.
 
 The differential localisation probability tells us which proteins are most
-likely to *differentially localise*. If we take a 1% FDR and examine how many
-proteins get a differential probability greater than 0.99 we find there are 
-74 proteins above this threshold.
+likely to *differentially localise*. We can for example, take a 1% FDR and
+examine how many proteins get a differential probability greater than 0.99.
 
 ```{r numtransloc}
 diffloc_probs <- pe1$bandle.differential.localisation
 head(diffloc_probs, 50)
 length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))
 ```
+
+We find there are `r length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))` 
+proteins above this threshold.
 
 This can also be seen on a rank plot
 
@@ -534,7 +542,7 @@ boxplot(t(bin_t), col = getStockcol()[5],
 
 There are many ways we could obtain probability estimates from either of the
 above methods. We could, for example, take the mean of each protein estimate, or
-compute the cumalative error (there is not really a false discovery rate in
+compute the cumulative error (there is not really a false discovery rate in
 Bayesian statistics) or we could threshold on the interal to reduce the number
 of differential localisations if you feel the model has been overconfident.
 
@@ -543,8 +551,8 @@ of differential localisations if you feel the model has been overconfident.
 # more robust estimate of probabilities
 dprobs <- rowMeans(bin_t)
 
-# compute cumalative error, there is not really a false discovery rate in
-# bayesian statistics but you can look at the cummatlive error rate
+# compute cumulative error, there is not really a false discovery rate in
+# Bayesian statistics but you can look at the cumulative error rate
 ce <- cumsum(1  - dprobs)
 
 # you could threshold on the interval and this will reduce the number of
@@ -561,8 +569,6 @@ plot using the `plotTranslocations` function
 ```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
 plotTranslocations(bandleres)
 ```
-
-By default, irrespective of probability, the predicted allocation is taken from
 
 Or alternatively, on a chord (circos) diagram
 
@@ -583,26 +589,31 @@ These visualisations are showing the change in class label between the two
 conditions (as assigned by `bandle` i.e. the result stored in
 `bandle.allocation`). The results are taken directly from `bandleres` and thus
 no thresholding on the class label and posterior to allow for proteins to be
-left "unassigned" or unknown, is conducted. Furthermore, there is not
+left "unassigned" or unknown, is conducted. Furthermore, there is no
 thresholding on the `bandle.differential.localisation` probability.
 
-It would be better to re-plot these figures to get a better representation of
-what is moving. The easiest way to do this is to pass the `MSnSets` output after
-performing `bandlePredict` and `getPredictions`.
+It would be better to re-plot these figures with some thresholds on the above
+quantities, to get a better representation of what is moving. The easiest way to
+do this is to pass the `MSnSets` output after performing `bandlePredict` and
+`getPredictions`.
 
 For example, first let's identify which proteins get a high differential
 localisation probability,
 
 ```{r plotafterthresh}
+## identify which proteins get a high differential localisation probability
 ind <- which(fData(res_control[[1]])$bandle.differential.localisation > 0.99)
+
+## create two new MSnSets with only these proteins
 res_dl_control <- res_control[[1]][ind, ]
 res_dl_treatment <- res_treatment[[1]][ind, ]
 ```
 
-Now we can plot only these and also specify where the prediction results are
-located,
+Now we can plot only these `r length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))`
+proteins which are deemed to move/differentially localise. We also specify where the prediction results are
+located e.g. `fcol = "bandle.allocation.pred"`.
 
-```{r plottlres}
+```{r plottlres, warning=FALSE, fig.height=8, fig.width=8}
 mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
 names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
 
@@ -621,7 +632,7 @@ In this section, we demonstrate how to visually assess convergence of the MCMC
 algorithm. In the chunk below, we use 4 chains so that we can assess the 
 convergence of the method.
 
-```{r, bandleagain}
+```{r, bandleagain, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide'}
 control <- tansim$lopitrep[1:3] 
 treatment <- tansim$lopitrep[4:6]
 
@@ -644,7 +655,7 @@ of the chains has higher values on average than the other chains producing
 the skew. Running the algorithm for more iterations (typically 10,000)
 should produce convergence. This is not done here for brevity of the vignette.
 
-```{r, convergence}
+```{r, convergence, fig.height=8}
 par(mfrow = c(2,2))
 out <- plotConvergence(bandleres)
 ```
@@ -658,12 +669,15 @@ and bespoke analysis. Here, we describe these parameters in more detail to
 allow user to make decisions on the level of flexibility they wish to exploit.
 
 1. `objectCond1`. This is a list of `MSnSets` containing the first condition.
+
 2. `objectCond2`. This is a list of `MSnSets` containing the second condition.
     a. These object should have the same observations and features. These will
     be checked during bandle analysis.
+    
 3. `fcol` indicates the feature column in the `MSnSets` that indicated the
 markers. Proteins that are not markers should be labels `unknown`. The default
 is `markers`.
+
 4. `hyperLearn` is the algorithm used to learn the hyperparameters of the 
 Gaussian processes. For speed the default is an optimization algorithm called
 "LBFGS", however is users want to perform uncertainty quantification on these
@@ -671,6 +685,7 @@ parameters we can use Markov-chain Monte Carlo (MCMC) methods. This is implement
 using the Metropolis-Hastings algorithm. Though this latter methodology provides
 more information, it is much more costly. The analysis is expected to take
 several days rather than hours. 
+
 5. `numIter` is the number of MCMC iterations for the algorithm. We typically
 suggest around 10,000 iterations is plenty for convergence. Though some cases
 may take longer. If resources are constrained, we suggest 4,000 iterations
@@ -680,14 +695,17 @@ more parallel chains should be run in this case by changing `numChains` to,
 say, 9. The more chains and iterations the more computationally expensive
 the algorithm. The time taken for the algorithm scales roughly linearly
 in the number of iterations
+
 6. `burnin` is the number of samples that should be discarded from the
 beginning of the chain due to the bias induced by the starting point of the 
 algorithm. We suggest sensible `burnin` values to be roughly $10-50\%$ of the
 number of iterations
+
 7. `thin` reduces auto-correlation in the MCMC samples. The default is $5$,
 which means every 5th sample is taken. If memory requirements are an issue,
 we suggest to increase the thinning amount. Though above $20$, you will see 
 a decrease in performance.
+
 8. `u` and `v` represent the prior hyperparameters of the proportion of outliers.
 This is modelled using a `Beta(u,v)` with `u = 2` and `v = 10` a default. This
 suggest that roughly $\frac{u}{u = V} = 16%$ of proteins are believed to be
@@ -695,67 +713,84 @@ outliers and that it is quite unlikely that more than $50%$ of proteins
 are outliers. Users can examine the quantiles of the `Beta(u,v)` distribution
 if they wish to place a more bespoke prior. For example, increasing `u`
 will increase the number of a prior believed outliers.
+
 9. `lambda` is a ridge parameter used for numerical stability and is set to 
 $0.01$. If you experience the algorithm fails due to numerical issue then you
 can set this value larger. If you require values above $1$ it is likely that
 there are other issues with the analysis. We suggest checking the method
 is appropriate for your problem and opening issue detailing the problems.
+
 10. `gpParams` results from fitting Gaussian proccess (Gaussian random fields).
 We refer the users to those functions. The default is `NULL` which will fit
 GPs internally but we recommend setting these outside the bandle function
 because it leads to more stable results.
+
 11. `hyperIter` if the hyperparameters of the GP are learnt using MH algorithm
 then this is the frequency at which these are updated relative to the bandle
 algorithm. By default this is unused, but if `hyperLearn` is set to `MH` then
 this proceed at every 20 iterations. 
+
 12. `hyperMean` is the mean of the log normal prior used on the hyperparameters.
 Though by default this is not used unless `PC` is set to false
-12. `hyperSd` is the standard deviation of the log normal prior used on the 
+
+13. `hyperSd` is the standard deviation of the log normal prior used on the 
 hyperparameters. The default is `c(1,1,1)` for the 3 hyperparameters, increasing
-these values increases the uncertainty in the prior values of the hyperpara,eters.
-12. `seed` is the random-number seed.
-13. `pg` indicates whether or not to use the Polya-Gamma (PG) prior. The default
-is false and a dirichlet prior is used instead. If set to true the `pg` is used.
+these values increases the uncertainty in the prior values of the hyperparameters.
+
+14. `seed` is the random-number seed.
+
+15. `pg` indicates whether or not to use the Polya-Gamma (PG) prior. The default
+is false and a Dirichlet prior is used instead. If set to true the `pg` is used.
 In which case a default PG prior is used. This prior attempts to match the
-default dirichlet prior that is used when PG prior is set to false. The PG
+default Dirichlet prior that is used when PG prior is set to false. The PG
 prior is more computationally expensive but can provide prior information on 
 correlations
-13. `pgPrior` is by default NULL. We suggest using the `pg_prior` function
+
+16. `pgPrior` is by default NULL. We suggest using the `pg_prior` function
 to help set this parameter and the documentation therein. This function
 uses an empirical approach to compute a sensible default.
-14. `tau` is a parameter used by the Polya-Gamma prior and we refer to 
-bandle manuscript for details. By default it is only used if `pg` prior is true,
+
+17. `tau` is a parameter used by the Polya-Gamma prior and we refer to 
+BANDLE manuscript for details. By default it is only used if `pg` prior is true,
 when the default becomes `0.2`. At this value the `pg` prior is similar to the
-dirichlet prior but with information on correlations.
-15. `dirPrior` is the dirichlet matrix prior on the correlations. This should
+Dirichlet prior but with information on correlations.
+
+18. `dirPrior` is the Dirichlet matrix prior on the correlations. This should
 be provided as a K by K matrix, where K is the number of subcellular niches. 
 The diagonal component should represent the prior belief that organelles do
-not relocalise (same compartment), where as the off-diagonal terms represent
-the prior terms of relocalisation. The `prior_pred_dir` can be used to provide
+not re-localise (same compartment), where as the off-diagonal terms represent
+the prior terms of re-localisation. The `prior_pred_dir` can be used to provide
 a prior predictive check based on the provided prior. It is recommended
-that the off-diagonal terms are atleast two orders of magnitude smaller than the
+that the off-diagonal terms are at least two orders of magnitude smaller than the
 diagonal terms. An example is given in the vignette.
-16. `maternCov` is this true the covariance function is the matern covariance,
-otherwise a gaussian covaraince is used.
-17. `PC` indicates whether a penalised complexity (PC) is used. The default 
+
+19. `maternCov` is this true the covariance function is the matern covariance,
+otherwise a Gaussian covariance is used.
+
+20. `PC` indicates whether a penalised complexity (PC) is used. The default 
 is true and otherwise log normal priors are used. 
-18. `pcPrior` is a numeric of length 3 indicating the parameters of the PC prior.
+
+21. `pcPrior` is a numeric of length 3 indicating the parameters of the PC prior.
 The prior is placed on the parameters of length-scale, amplitude, and variance 
 in that order. The default values are $0.5,3,100$, and increasing the value 
 increases the shrinkage towards straight-lines with zero variance.
-19. `nu` which defaults to 2 is the smoothness of the matern covariance. By 
+
+22. `nu` which defaults to 2 is the smoothness of the matern covariance. By 
 increasing `nu` you encourage smoother solutions. `nu` should be an integer,
 though for values of `nu` above 3, we have observed numerical instability.
-20.  `propSd` is the standard deviation of the random-walk update used in the MH
+
+23.  `propSd` is the standard deviation of the random-walk update used in the MH
 algorithm. We do not recommend changing this unless you are familiar with
 Bayesian analysis. The default is `c(0.3,0.1,0.05)` for the 3 hyperparameters.
 Changing these will alter the efficiency of the underlying samplers.
-21. `numChains` is the number of parrallel chains and defaults to 4. We recommend
+
+24. `numChains` is the number of parrallel chains and defaults to 4. We recommend
 using as much processing resources as you have and frequently have used 9 in
 practise.
-22. `BPPARAM` is the BiocParallel backend which defaults to 
-`BiocParallel::bpparam()`. We refer you to the BiocParallel package for details
-on setting this dependent on your computing system.
+
+25. `BPPARAM` is the BiocParallel back-end which defaults to 
+`BiocParallel::bpparam()`. We refer you to the `r Biocpkg("BiocParallel")` 
+package for details on setting this dependent on your computing system.
 
 # Session information
 
