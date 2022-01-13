@@ -49,11 +49,11 @@ Differential Localisation Experiments (BANDLE) method.
 
 As mentioned in "Vignette 1: Getting Started with BANDLE" data from mass
 spectrometry based proteomics methods most commonly yield a matrix of
-measurements where we have proteins/peptides along the rows, and
-samples/fractions along the columns. To use `bandle` the data must be stored as
-a `MSnSet`, as implemented in the Bioconductor `r Biocpkg("MSnbase")` package.
-Please see the relevant vignettes in `r Biocpkg("MSnbase")` for constructing
-these data containers.
+measurements where we have proteins/peptides (or peptide spectrum matches
+(PSMs)) along the rows, and samples/fractions along the columns. To use `bandle`
+the data must be stored as a `MSnSet`, as implemented in the Bioconductor 
+`r Biocpkg("MSnbase")` package. Please see the relevant vignettes in 
+`r Biocpkg("MSnbase")` for constructing these data containers.
 
 The data used in this vignette has been published in @thplopit and is currently
 stored as `MSnSet` instances in the the `r Biocpkg("pRolocdata")` package. We
@@ -338,7 +338,7 @@ head(pe1)
 ```
 
 Each object is a `data.frame` containing the protein allocations and associated
-localisation probabilities. The 7 columns are
+localisation probabilities for each condition. The 7 columns are
 
 - `bandle.allocation` which contains the the localisation predictions to one of the
 subcellular classes that appear in the training data.
@@ -363,10 +363,145 @@ barplot(table(pe2$bandle.allocation), col = getStockcol()[2],
         las = 2, main = "Protein allocation: treatment")
 ```
 
-The bar plot tells us for this case study that `bandle` has allocated the
-majority of unlabelled proteins to the nucleus (please note, this results is
-irrespective of the posterior probability assigned to the protein and thus
-includes low confidence assignments).
+The bar plot tells us for this data `bandle` has allocated the majority of
+unlabelled proteins to the nucleus. This allocation result is determined by
+`bandle` by looking at which subcellular niche was given the highest posterior
+probability. This may be quite low in confidence so we urge users to threshold
+their allocation results based on the posterior.
+
+## Predicting subcellular location
+
+As mentioned in Vignette 1, it is common to threshold allocation results based
+on the posterior probability. Proteins that do not meet the threshold are not
+assigned to a subcellular location and left unlabelled (here we use the
+terminology "unknown" for consistency with the `pRoloc` package). It is
+important not to force proteins to allocate to one of the niches defined here in
+the training data, if they have low probability to reside there. We wish to
+allow for greater subcellular diversity and to have multiple location, this is
+captured essentially in leaving a protein "unlabelled" or "unknown".
+
+We use the `bandlePredict` function to append our results to the original
+`MSnSet` datasets. 
+
+```{r predictlocation}
+## Add the bandle results to a MSnSet
+xx <- bandlePredict(control, 
+                    treatment, 
+                    params = bandleres, 
+                    fcol = "markers")
+res_0h <- xx[[1]]
+res_12h <- xx[[2]]
+```
+
+The BANDLE model combines replicate information within each condition to obtain the
+localisation of proteins for each single experimental condition.
+
+The results for each condition are appended to the *first* dataset in the list
+of `MSnSets` (for each condition). It is important to familiarise yourself with
+the `MSnSet` data structure. To further highlight this in the below code chunk
+we look at the `fvarLabels` of each datasets, this shows the column header names
+of the `fData` feature data. We see that the first replicate at 0h e.g.
+`res_0h[[1]]` has 7 columns (as described above) with the output of `bandle`
+e.g. `bandle.probability`, `bandle.allocation`, `bandle.outlier` etc. appended
+to the feature data (`fData(res_0h[[1]])`). The second dataset at 0h i.e.
+`res_0h[[2]]` does not have this information appended to the feature data. This
+is the same for the second condition at 12h post LPS stimulation.
+
+```{r showappended, eval=FALSE}
+fvarLabels(res_0h[[1]])
+fvarLabels(res_0h[[2]])
+
+fvarLabels(res_12h[[1]])
+fvarLabels(res_12h[[2]])
+```
+
+To obtain classification results we threshold using a 1% FDR based on the
+`bandle.probability` and append the results to the data using the
+`getPredictions` function from `MSnbase`.
+
+```{r thresholddata}
+## threshold results using 1% FDR
+res_0h[[1]] <- getPredictions(res_0h[[1]], 
+                              fcol = "bandle.allocation",  
+                              scol = "bandle.probability",    
+                              mcol = "markers", 
+                              t = .99)
+
+res_12h[[1]] <- getPredictions(res_12h[[1]], 
+                               fcol = "bandle.allocation",
+                               scol = "bandle.probability", 
+                               mcol = "markers",      
+                               t = .99)
+```
+
+
+In addition to thresholding on the `bandle.probability` we can threshold
+based on the `bandle.outlier` i.e. the probability of being an outlier. A high value
+indicates that the protein is unlikely to belong to any annotated class (and is
+hence considered an outlier). We wish to assign proteins to a subcellular niche 
+if they have a high `bandle.probability` and also a low `bandle.outlier` probability.
+This is a nice way to ensure we keep the most high confidence localisations. 
+
+In the below code chunk we use first create a new column called `bandle.outlier.t`
+in the feature data which is 1 - outlier probability. This allows us then to use
+the `getPredictions` once again and keep only proteins which meet both the 0.99
+threshold on the `bandle.probability` and the `bandle.outlier`.
+
+Note, that running `getPredictions` appends the results to a new feature data
+column called `fcol.pred`, please see `?getPredictions` for the documentation.
+As we have run this function twice, our column of classification results
+are found in `bandle.allocation.pred.pred`.
+
+```{r threshold2}
+## add outlier probability
+fData(res_0h[[1]])$bandle.outlier.t <- 1 -  fData(res_0h[[1]])$bandle.outlier
+fData(res_12h[[1]])$bandle.outlier.t <- 1 -  fData(res_12h[[1]])$bandle.outlier
+
+## threshold again, now on the outlier probability
+res_0h[[1]] <- getPredictions(res_0h[[1]], 
+                              fcol = "bandle.allocation.pred",  
+                              scol = "bandle.outlier.t",    
+                              mcol = "markers", 
+                              t = .99)
+
+res_12h[[1]] <- getPredictions(res_12h[[1]], 
+                               fcol = "bandle.allocation.pred",
+                               scol = "bandle.outlier.t", 
+                               mcol = "markers",      
+                               t = .99)
+ 
+```
+
+
+Let's append the results to the second replicate so we can plot them using `plot2D`
+
+```{r appendtosecond}
+## Add results to second replicate at 0h
+res_alloc_0hr <- fData(res_0h[[1]])$bandle.allocation.pred.pred
+fData(res_0h[[2]])$bandle.allocation.pred.pred <- res_alloc_0hr
+
+## Add results to second replicate at 12h
+res_alloc_12hr <- fData(res_12h[[1]])$bandle.allocation.pred.pred
+fData(res_12h[[2]])$bandle.allocation.pred.pred <- res_alloc_12hr
+```
+
+We can plot these results on a PCA plot.
+
+```{r plotres}
+par(mfrow = c(3,2))
+plot2D(res_0h[[1]], main = "Unstimulated - replicate 1 \nprotein allocations (1% FDR)", 
+       fcol = "bandle.allocation.pred.pred")
+plot2D(res_0h[[1]], main = "Unstimulated - replicate 2 \nprotein allocations (1% FDR)", 
+       fcol = "bandle.allocation.pred.pred")
+plot2D(res_0h[[1]], main = "12h LPS - replicate 1 \nprotein allocations (1% FDR)", 
+       fcol = "bandle.allocation.pred.pred")
+plot2D(res_0h[[1]], main = "12h LPS - replicate 2 \nprotein allocations (1% FDR)", 
+       fcol = "bandle.allocation.pred.pred")
+
+plot(NULL, xaxt='n',yaxt='n',bty='n',ylab='',xlab='', xlim=0:1, ylim=0:1)
+addLegend(res_0h[[1]], where = "topleft", cex = .8)
+```
+
 
 <!-- ## Differential localisation -->
 
