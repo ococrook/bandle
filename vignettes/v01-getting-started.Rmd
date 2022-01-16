@@ -543,7 +543,7 @@ boxplot(t(bin_t), col = getStockcol()[5],
 There are many ways we could obtain probability estimates from either of the
 above methods. We could, for example, take the mean of each protein estimate, or
 compute the cumulative error (there is not really a false discovery rate in
-Bayesian statistics) or we could threshold on the interal to reduce the number
+Bayesian statistics) or we could threshold on the interval to reduce the number
 of differential localisations if you feel the model has been overconfident.
 
 
@@ -559,6 +559,22 @@ ce <- cumsum(1  - dprobs)
 # differential localisations
 qt <- apply(bin_t, 1, function(x) quantile(x, .025))
 ```
+
+
+#### The expected false discovery rate
+
+Instead of estimating the false discovery rate we can estimate the expected
+false discovery rate from the posterior probabilities at a particular 
+threshold. This mean that for fixed threshold, we compute the expected proportion
+of false discoveries. Here is an example below. We can see that setting
+a probability treshold of 0.9 leads to an expected false discovery rate of
+less than $0.5\%$
+
+```{r,}
+EFDR(diffloc_probs, threshold = 0.90)
+
+```
+
 
 
 # Visualising differential localisation
