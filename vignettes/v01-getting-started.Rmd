@@ -38,7 +38,7 @@ library("MSnbase")
 library("pheatmap")
 library("viridis")
 
-setStockcol(paste0(getStockcol(),"90")) # see throught colours
+setStockcol(paste0(getStockcol(),"90")) # settransparent colours
 ```
 
 # Introduction
@@ -302,7 +302,7 @@ These can be populated as follows
 bandleres <- bandleProcess(bandleres)
 ```
 
-These slot have now been populated
+These slots have now been populated
 ```{r processbandle3}
 summary(summaries(bandleres))
 ```
