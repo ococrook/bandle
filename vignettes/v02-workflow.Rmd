@@ -605,7 +605,7 @@ on the interval to reduce the number of differential localisations.
 qt <- apply(bin_t, 1, function(x) quantile(x, .025))
 ```
 
-This leave us with `r sum(qt > 0.95)` proteins to investigate.
+This leaves us with `r sum(qt > 0.95)` proteins to investigate.
 
 ```{r candidates}
 (candidates <- names(which(qt > 0.95)))
@@ -678,14 +678,32 @@ In the next section we can visualise these results.
 
 # Visualising differential localisation
 
+
 There are several different ways we can visualise the output of `bandle`. Now we
-have out set of candidates we can subset `MSnSet` datasets and plot the data.
+have our set of candidates we can subset `MSnSet` datasets and plot the the
+results.
 
 To subset the data, 
 ```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
 msnset_cands <- list(res_0h[[1]][candidates, ], 
                      res_12h[[1]][candidates, ])
 ```
+
+We can visualise this as a `data.frame` too for ease,
+
+```{r dataframeres}
+# construct data.fram
+df_cands <- data.frame(
+    fData(msnset_cands[[1]])[, c("dl.estimate", "bandle.allocation.pred.pred")],
+    fData(msnset_cands[[2]])[, "bandle.allocation.pred.pred"])
+colnames(df_cands) <- c("dl.estimate", "0hr_location", "12h_location")
+
+# order by highest differential localisation estimate
+df_cands <- df_cands %>% arrange(desc(dl.estimate))
+head(df_cands)
+```
+
+## Alluvial plots
 
 We can now plot this on an alluvial plot to view the changes in subcellular
 location. The class label is taken from the column called
@@ -743,6 +761,38 @@ secretory_alluvial + ggtitle("Movements of secretory proteins")
 
 ## Protein profiles
 
+Let's plot the profiles of a few of the proteins with the highest
+differential localisation scores,
+
+```{r plotdfprof}
+head(df_cands)
+```
+
+Let's take the first protein as an example; protein with accession B2RUZ4. It
+has a high differential localisation score and it's steady state localisation in
+the control is predicted to be lysosomal and in the treatment condition at 12
+hours-LPS is plasma membrane. This fits with the information we see on Uniprot
+which tells us it is Small integral membrane protein 1 (SMIM1).
+
+In the below code chunk we plot the protein profiles of proteins identified as
+lysosomal from BANDLE in the control and then overlay SMIM1. We do the same at
+12hrs post LPS with all plasma membrane proteins.
+
+```{r protprof}
+par(mfrow = c(2, 1))
+
+## plot lysosomal profiles
+lyso <- which(fData(res_0h[[1]])$bandle.allocation.pred.pred == "Lysosome")
+plotDist(res_0h[[1]][lyso], pcol = cols["Lysosome"], alpha = 0.1)
+matlines(exprs(res_0h[[1]])["B2RUZ4", ], col = cols["Lysosome"], lwd = 3)
+title("Protein SMIM1 (B2RUZ4) at 0hr (control)")
+
+## plot plasma membrane profiles
+pm <- which(fData(res_12h[[1]])$bandle.allocation.pred.pred == "Plasma Membrane")
+plotDist(res_12h[[1]][pm], pcol = cols["Plasma Membrane"], alpha = 0.1)
+matlines(exprs(res_12h[[1]])["B2RUZ4", ], col = cols["Plasma Membrane"], lwd = 3)
+title("Protein SMIM1 (B2RUZ4) at 12hr-LPS (treatment)")
+```
 
 
 
