@@ -567,15 +567,12 @@ Instead of estimating the false discovery rate we can estimate the expected
 false discovery rate from the posterior probabilities at a particular 
 threshold. This mean that for fixed threshold, we compute the expected proportion
 of false discoveries. Here is an example below. We can see that setting
-a probability treshold of 0.9 leads to an expected false discovery rate of
+a probability threshold of 0.9 leads to an expected false discovery rate of
 less than $0.5\%$
 
 ```{r,}
 EFDR(diffloc_probs, threshold = 0.90)
-
 ```
-
-
 
 # Visualising differential localisation
 

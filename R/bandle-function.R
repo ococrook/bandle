@@ -72,8 +72,8 @@
 ##' data("tan2009r1")
 ##' set.seed(1)
 ##' tansim <- sim_dynamic(object = tan2009r1, 
-##'                     numRep = 6L,
-##'                    numDyn = 100L)
+##'                       numRep = 6L,
+##'                       numDyn = 100L)
 ##' gpParams <- lapply(tansim$lopitrep, function(x) 
 ##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
 ##' d1 <- tansim$lopitrep
