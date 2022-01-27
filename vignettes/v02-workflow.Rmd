@@ -35,6 +35,7 @@ library("pRoloc")
 library("MSnbase")
 library("pheatmap")
 library("viridis")
+library("dplyr")
 
 setStockcol(paste0(getStockcol(),"90")) # make colours transparent
 ```
@@ -514,7 +515,7 @@ fData(res_12h[[2]])$bandle.allocation.pred.pred <- res_alloc_12hr
 We can plot these results on a PCA plot and compare to the original subcellular
 markers.
 
-```{r plotres, fig.height=14, fig.width=5}
+```{r plotmyres, fig.height=14, fig.width=5}
 par(mfrow = c(5, 2))
 
 plot2D(res_0h[[1]], main = "Unstimulated - replicate 1 \n subcellular markers", 
@@ -611,67 +612,54 @@ This leaves us with `r sum(qt > 0.95)` proteins to investigate.
 (candidates <- names(which(qt > 0.95)))
 ```
 
-<!-- ### Add the results to the MSnSet -->
+### Add the results to the MSnSet
 
-<!-- Let's add the results to each replicate in the `MSnSet`s. -->
-<!-- The reason for doing this is so that later on when we wish -->
-<!-- to visulalise the data we have the information readily  -->
-<!-- accessible to make use of the functions in the `pRoloc`  -->
-<!-- package. -->
+Let's add the results to each replicate in the `MSnSet`s.
+The reason for doing this is so that later on when we wish
+to visulalise the data we have the information readily
+accessible to make use of the functions in the `pRoloc`
+package.
 
-<!-- Let's double check all datasets have the same proteins, -->
-<!-- ```{r chkallsame} -->
-<!-- all(featureNames(res_0h[[1]]) == featureNames(res_0h[[2]])) -->
-<!-- all(featureNames(res_0h[[1]]) == featureNames(res_12h[[1]])) -->
-<!-- all(featureNames(res_12h[[1]]) == featureNames(res_12h[[2]])) -->
-<!-- ``` -->
+Let's double check all datasets have the same proteins,
+```{r chkallsame}
+all(featureNames(res_0h[[1]]) == featureNames(res_0h[[2]]))
+all(featureNames(res_0h[[1]]) == featureNames(res_12h[[1]]))
+all(featureNames(res_12h[[1]]) == featureNames(res_12h[[2]]))
+```
 
-<!-- Now let's add the differential location estimates, -->
+Now let's add the differential location estimates,
 
-<!-- ```{r addtomsn} -->
-<!-- dl.estimate <- qt[candidates] -->
-<!-- fn <- featureNames(control[[1]]) -->
-<!-- cmn <- fn %in% names(dl.estimate) -->
-
-
-<!-- ## Add results to the 0h time-point (control) -->
-<!-- for (i in seq(res_0h)) { -->
-<!--     ## create column called "dl.estimate" in the data -->
-<!--     mcol <- "dl.estimate" -->
-<!--     fData(res_0h[[i]])[, mcol] <- NA -->
-<!--     fData(res_0h[[i]])[cmn, mcol] <- dl.estimate -->
-<!--     ## create column called "dl.candidate" in the data -->
-<!--     mcol <- "dl.candidate" -->
-<!--     fData(res_0h[[i]])[, mcol] <- "unknown" -->
-<!--     fData(res_0h[[i]])[cmn, mcol] <- "DL candidate" -->
-<!-- } -->
+```{r addtomsn}
+dl.estimate <- qt[candidates]
+fn <- featureNames(control[[1]])
+cmn <- fn %in% names(dl.estimate)
 
 
-<!-- ## Add results to the 12h time-point (treatment) -->
-<!-- for (i in seq(res_12h)) { -->
-<!--     ## create column called "dl.estimate" in the data -->
-<!--     mcol <- "dl.estimate" -->
-<!--     fData(res_12h[[i]])[, mcol] <- NA -->
-<!--     fData(res_12h[[i]])[cmn, mcol] <- dl.estimate -->
-<!--     ## create column called "dl.candidate" in the data -->
-<!--     mcol <- "dl.candidate" -->
-<!--     fData(res_12h[[i]])[, mcol] <- "unknown" -->
-<!--     fData(res_12h[[i]])[cmn, mcol] <- "DL candidate" -->
-<!-- } -->
-<!-- ``` -->
+## Add results to the 0h time-point (control)
+for (i in seq(res_0h)) {
+    ## create column called "dl.estimate" in the data
+    mcol <- "dl.estimate"
+    fData(res_0h[[i]])[, mcol] <- NA
+    fData(res_0h[[i]])[cmn, mcol] <- dl.estimate
+    ## create column called "dl.candidate" in the data
+    mcol <- "dl.candidate"
+    fData(res_0h[[i]])[, mcol] <- "unknown"
+    fData(res_0h[[i]])[cmn, mcol] <- "DL candidate"
+}
 
-<!-- We also combine the replicates of each condition -->
-<!-- for purpose of plotting. -->
 
-<!-- ```{r cmbdata, warning=FALSE} -->
-<!-- res_0h[[2]] <- updateFvarLabels(res_0h[[2]], label = "data2") -->
-<!-- res_12h[[2]] <- updateFvarLabels(res_12h[[2]], label = "data2") -->
-
-<!-- res_0h_cmb <- combine(res_0h[[1]], res_0h[[2]]) -->
-<!-- res_12h_cmb <- combine(res_12h[[1]], res_12h[[2]]) -->
-
-<!-- res_all <- list(res_0h_cmb, res_12h_cmb) -->
-<!-- ``` -->
+## Add results to the 12h time-point (treatment)
+for (i in seq(res_12h)) {
+    ## create column called "dl.estimate" in the data
+    mcol <- "dl.estimate"
+    fData(res_12h[[i]])[, mcol] <- NA
+    fData(res_12h[[i]])[cmn, mcol] <- dl.estimate
+    ## create column called "dl.candidate" in the data
+    mcol <- "dl.candidate"
+    fData(res_12h[[i]])[, mcol] <- "unknown"
+    fData(res_12h[[i]])[cmn, mcol] <- "DL candidate"
+}
+```
 
 In the next section we can visualise these results.
 
@@ -692,7 +680,7 @@ msnset_cands <- list(res_0h[[1]][candidates, ],
 We can visualise this as a `data.frame` too for ease,
 
 ```{r dataframeres}
-# construct data.fram
+# construct data.frame
 df_cands <- data.frame(
     fData(msnset_cands[[1]])[, c("dl.estimate", "bandle.allocation.pred.pred")],
     fData(msnset_cands[[2]])[, "bandle.allocation.pred.pred"])
@@ -761,8 +749,8 @@ secretory_alluvial + ggtitle("Movements of secretory proteins")
 
 ## Protein profiles
 
-Let's plot the profiles of a few of the proteins with the highest
-differential localisation scores,
+In the next section we see how to plot proteins of interest.Our differential
+localisation candidates can be found in `df_cands`,
 
 ```{r plotdfprof}
 head(df_cands)
@@ -771,29 +759,42 @@ head(df_cands)
 Let's take the first protein as an example; protein with accession B2RUZ4. It
 has a high differential localisation score and it's steady state localisation in
 the control is predicted to be lysosomal and in the treatment condition at 12
-hours-LPS is plasma membrane. This fits with the information we see on Uniprot
-which tells us it is Small integral membrane protein 1 (SMIM1).
+hours-LPS it is predicted to localise to the plasma membrane. This fits with the
+information we see on Uniprot which tells us it is Small integral membrane
+protein 1 (SMIM1).
 
-In the below code chunk we plot the protein profiles of proteins identified as
-lysosomal from BANDLE in the control and then overlay SMIM1. We do the same at
-12hrs post LPS with all plasma membrane proteins.
+In the below code chunk we plot the protein profiles of all proteins that were
+identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do
+the same at 12hrs post LPS with all plasma membrane proteins.
 
 ```{r protprof}
 par(mfrow = c(2, 1))
 
 ## plot lysosomal profiles
 lyso <- which(fData(res_0h[[1]])$bandle.allocation.pred.pred == "Lysosome")
-plotDist(res_0h[[1]][lyso], pcol = cols["Lysosome"], alpha = 0.1)
+plotDist(res_0h[[1]][lyso], pcol = cols["Lysosome"], alpha = 0.04)
 matlines(exprs(res_0h[[1]])["B2RUZ4", ], col = cols["Lysosome"], lwd = 3)
 title("Protein SMIM1 (B2RUZ4) at 0hr (control)")
 
 ## plot plasma membrane profiles
 pm <- which(fData(res_12h[[1]])$bandle.allocation.pred.pred == "Plasma Membrane")
-plotDist(res_12h[[1]][pm], pcol = cols["Plasma Membrane"], alpha = 0.1)
+plotDist(res_12h[[1]][pm], pcol = cols["Plasma Membrane"], alpha = 0.04)
 matlines(exprs(res_12h[[1]])["B2RUZ4", ], col = cols["Plasma Membrane"], lwd = 3)
 title("Protein SMIM1 (B2RUZ4) at 12hr-LPS (treatment)")
 ```
 
+We can also visualise there on a PCA or `t-SNE plot.
+
+```{r plotpcacands}
+par(mfrow = c(1, 2))
+plot2D(res_0h[[1]], fcol = "bandle.allocation.pred.pred",
+       main = "Unstimulated - replicate 1 \n predicted location")
+highlightOnPlot(res_0h[[1]], foi = "B2RUZ4")
+
+plot2D(res_12h[[1]], fcol = "bandle.allocation.pred.pred",
+       main = "12h-LPS - replicate 1 \n predicted location")
+highlightOnPlot(res_12h[[1]], foi = "B2RUZ4")
+```
 
 
 # Session information
