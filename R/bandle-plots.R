@@ -1,17 +1,22 @@
+## Declare globalVariables
+utils::globalVariables(c("x", "y", "z", "value", "Condition", "label", 
+                         "stratum"))
+
 ##' These functions implement plotting functions for bandle objects
 ##' 
 ##' 
-##' @title Generate a violin plot showing the probabilitiy of protein localisation
-##'  to different organelles
+##' @title Generate a violin plot showing the probabilitiy of protein
+##'   localisation to different organelles
 ##' @param params An instance of class `bandleParams`
 ##' @param fname The name of the protein to plot
 ##' @param cond Which conditions do we want to plot. Must be `1` or `2`. Default
-##'  is `1`
-##' @param n The chain from which we plot the probability distribution. Default is 1.
-##' @param bw The bandwidth use in probability distribution smoothing of geom_violin
-##'  Default is 0.05.
+##'   is `1`
+##' @param n The chain from which we plot the probability distribution. Default
+##'   is 1.
+##' @param bw The bandwidth use in probability distribution smoothing of
+##'   geom_violin Default is 0.05.
 ##' @param scale Scaling of geom_violin. Defaults to width.
-##' @param trim trim parameter of geom_violin. Defaults to true. 
+##' @param trim trim parameter of geom_violin. Defaults to true.
 ##' @return  returns a named vector of differential localisation probabilities
 ##' @md
 ##' 
@@ -73,19 +78,22 @@ mcmc_plot_probs <- function(params,
 ##' @param params An instance of class `bandleParams`
 ##' @param fcol Feature columns that defines the markers. Defaults to "markers".
 ##' @param dims The PCA dimensions to plot. Defaults to `c(1,2)`
-##' @param cov.function The covariance function for the smoothing kernel. Defaults
-##'  to wendland.cov
-##' @param n The chain from which we plot the probability distribution. Default is 1.
+##' @param cov.function The covariance function for the smoothing kernel.
+##'   Defaults to wendland.cov
+##' @param n The chain from which we plot the probability distribution. Default
+##'   is 1.
 ##' @param theta The theta parameter of the wendland.cov. Defaults to 2.
-##' @param derivative The derivative paramter of the wendland.cov. Defaults to 2.
-##' @param k The k parameter of the wendland.cov 
-##' @param breaks The levels at which to plot the contours. Defaults to c(0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7)
+##' @param derivative The derivative paramter of the wendland.cov. Defaults to
+##'   2.
+##' @param k The k parameter of the wendland.cov
+##' @param breaks The levels at which to plot the contours. Defaults to c(0.99,
+##'   0.95, 0.9, 0.85, 0.8, 0.75, 0.7)
 ##' @param aspect The aspect ratio of the pca plots. Defaults to 0.5.
 ##' @param cond Which conditions do we want to plot. Must be `1` or `2`. Default
-##'  is `1`
+##'   is `1`
 ##' @return  returns a named vector of differential localisation probabilities
 ##' @md
-##' 
+##'
 ##' @rdname bandle-plots
 
 spatial2D <- function(object,
@@ -115,7 +123,8 @@ spatial2D <- function(object,
     
     ## create allocation matrix for markers
     markerSet <- markerMSnSet(object, fcol = fcol)
-    .probmat <- matrix(0, nrow = nrow(markerSet), ncol = length(getMarkerClasses(object)))
+    .probmat <- matrix(0, nrow = nrow(markerSet), 
+                       ncol = length(getMarkerClasses(object)))
     .class <- fData(markerSet)[, fcol]
     for (j in seq_len(nrow(markerSet))) {
         ## give markers prob 1
@@ -152,17 +161,23 @@ spatial2D <- function(object,
         coords[[j]] <- akima::interp(x = probs.lst.df$x[idxOrg],
                                      y = probs.lst.df$y[idxOrg],
                                      z = probs.lst.df$probability[idxOrg],
-                                     extrap=FALSE, linear = TRUE, duplicate = TRUE) # interpolate onto appropriate grid
+                                     extrap=FALSE, linear = TRUE, 
+                                     duplicate = TRUE) 
+                                     # interpolate onto appropriate grid
         coords[[j]]$z[is.na(coords[[j]]$z)] <- 0 # NaNs beyond data set to 0
-        locations[[j]] <- cbind(rep(coords[[j]]$x, 40), rep(coords[[j]]$y, each = 40)) # get grid
+        locations[[j]] <- cbind(rep(coords[[j]]$x, 40), 
+                                rep(coords[[j]]$y, each = 40)) # get grid
         smoothedprobs <- fields::smooth.2d(coords[[j]]$z, x = locations[[j]],
                                            cov.function = cov.function,
                                            theta = theta,
-                                           derivative = derivative, k = k) # spatial smoothing of probabilities
+                                           derivative = derivative, k = k) 
+                                           # spatial smoothing of probabilities
         # normalisation and formatting
         zmat <- matrix(smoothedprobs$z, ncol = 1)
         zmat <- zmat/max(zmat)
-        df[[j]] <- data.frame(x = rep(smoothedprobs$x, 64), y = rep(smoothedprobs$y, each = 64), z = zmat)
+        df[[j]] <- data.frame(x = rep(smoothedprobs$x, 64), 
+                              y = rep(smoothedprobs$y, each = 64), 
+                              z = zmat)
     }
     # format data
     df.lst <- plyr::ldply(df, .fun = function(x) x, .id = "organelle") 
@@ -196,34 +211,39 @@ spatial2D <- function(object,
     return(gg)
 }
 
-##' Produces a chord diagram (circos plot) or an alluvial plot (also known as a Sankey diagram)
-##' to show changes in location between two conditions or datasets.
-##' @title Generates a chord diagram or alluvial plot for visualising changes in localisation
-##' between two conditions/datasets
-##' @param params An instance of class \code{bandleParams} or an instance of class 
-##' \code{MSnSetList} of length 2. 
-##' @param type A \code{character} specifying the type of visualisation to plot. One of
-##' \code{"alluvial"} (default) or \code{"chord"}.
-##' @param all A logical specifying whether to count all proteins or only show those that
-##' have changed in location between conditions. Default is `FALSE`.
-##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then \code{fcol} must
-##' be defined. This is a \code{character} vector of length 2 to set different labels for 
-##' each dataset. If only one label is specified, and the \code{character} is of length 1
-##' then this single label will be used to identify the annotation column in both datasets.
-##' @param col A list of colours to define the classes in the data. If not defined then
-##' the default \code{pRoloc} colours in \code{getStockCol()} are used.
-##' @param labels Logical indicating whether to display class/organelle labels for the 
-##' chord segments or alluvial stratum. Default is \code{TRUE}.
-##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be specified as
-##' one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
-##' @param spacer A `numeric`. Default is 4. Controls the white space around the circos 
-##' plotting region. 
+##' Produces a chord diagram (circos plot) or an alluvial plot (also known as a
+##' Sankey diagram) to show changes in location between two conditions or
+##' datasets.
+##' @title Generates a chord diagram or alluvial plot for visualising changes in
+##'   localisation between two conditions/datasets
+##' @param params An instance of class \code{bandleParams} or an instance of
+##'   class \code{MSnSetList} of length 2.
+##' @param type A \code{character} specifying the type of visualisation to plot.
+##'   One of \code{"alluvial"} (default) or \code{"chord"}.
+##' @param all A logical specifying whether to count all proteins or only show
+##'   those that have changed in location between conditions. Default is
+##'   `FALSE`.
+##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then
+##'   \code{fcol} must be defined. This is a \code{character} vector of length 2
+##'   to set different labels for each dataset. If only one label is specified,
+##'   and the \code{character} is of length 1 then this single label will be
+##'   used to identify the annotation column in both datasets.
+##' @param col A list of colours to define the classes in the data. If not
+##'   defined then the default \code{pRoloc} colours in \code{getStockCol()} are
+##'   used.
+##' @param labels Logical indicating whether to display class/organelle labels
+##'   for the chord segments or alluvial stratum. Default is \code{TRUE}.
+##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be
+##'   specified as one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
+##' @param spacer A `numeric`. Default is 4. Controls the white space around the
+##'   circos plotting region.
 ##' @param cex Text size. Default is 1.
-##' @param table Logical. Print a summary table of translocations between subcellular classes.
-##' Default is \code{FALSE}.
-##' @param ... Additional arguments passed to the `chordDiagram` function. 
-##' @return Returns a directional circos/chord diagram showing the translocation of proteins 
-##' between conditions. If \code{type = "alluvial"} ouput is a \code{ggplot} object. 
+##' @param table Logical. Print a summary table of translocations between
+##'   subcellular classes. Default is \code{FALSE}.
+##' @param ... Additional arguments passed to the `chordDiagram` function.
+##' @return Returns a directional circos/chord diagram showing the translocation
+##'   of proteins between conditions. If \code{type = "alluvial"} ouput is a
+##'   \code{ggplot} object.
 ##' @rdname bandle-plots
 
 plotTranslocations <- function(params,
@@ -266,7 +286,8 @@ plotTranslocations <- function(params,
         }
         for (i in seq(fcol)) {
             if (!is.null(fcol[i]) && !fcol[i] %in% fvarLabels(params[[i]]))
-                stop("No fcol found in MSnSet, please specify a valid fcol ", immediate. = TRUE)
+                stop("No fcol found in MSnSet, please specify a valid fcol ",
+                     immediate. = TRUE)
         }
         res1 <- fData(params[[1]])[, fcol[1]]
         res2 <- fData(params[[2]])[, fcol[2]]
