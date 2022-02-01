@@ -3,7 +3,6 @@ Type: Package
 Title: An R package to for the Bayesian analysis of differential subcellular
     localisation experiments
 Version: 0.99.0
-Date: 2022-01-26
 Authors@R: c(person(family = "Crook", given = "Oliver M.",
 		                email = "oliver.crook@stats.ox.ac.uk",
 		                comment = c(ORCID = "0000-0001-5669-8506"),
