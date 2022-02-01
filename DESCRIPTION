@@ -1,16 +1,16 @@
 Package: bandle
 Type: Package
-Title: An R package to for the bayesian analysis of differential subcellular
+Title: An R package to for the Bayesian analysis of differential subcellular
     localisation experiments
-Version: 1.0.0
-Date: 2020-12-26
+Version: 0.99.0
+Date: 2022-01-26
 Authors@R: c(person(family = "Crook", given = "Oliver M.",
-		        email = "oliver.crook@stats.ox.ac.uk",
-		        comment = c(ORCID = "0000-0001-5669-8506"),
-		        role = c("aut", "cre")),
-		    person(family = "Breckels", given = "Lisa",
-		        email = "lms79@cam.ac.uk",
-		        role = c("aut")))
+		                email = "oliver.crook@stats.ox.ac.uk",
+		                comment = c(ORCID = "0000-0001-5669-8506"),
+		                role = c("aut", "cre")),
+		         person(family = "Breckels", given = "Lisa",
+		                email = "lms79@cam.ac.uk",
+		                role = c("aut")))
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
     Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
@@ -49,5 +49,7 @@ VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)
 RoxygenNote: 7.1.2
-biocViews: Bayesian, Classification, Clustering, ImmunoOncology, QualityControl, DataImport, Proteomics, MassSpectrometry
+biocViews: Bayesian, Classification, Clustering, ImmunoOncology,
+    QualityControl,DataImport, Proteomics, MassSpectrometry
 BugReports: https://github.com/ococrook/bandle/issues
+URL: http://github.com/ococrook/bandle
