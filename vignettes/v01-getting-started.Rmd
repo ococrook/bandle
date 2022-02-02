@@ -29,7 +29,7 @@ BiocStyle::markdown()
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dpi=200,fig.width=7)
+knitr::opts_chunk$set(dpi=20,fig.width=7)
 ```
 
 ```{r env, message = FALSE, warning = FALSE, echo = FALSE}
