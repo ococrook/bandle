@@ -177,14 +177,15 @@ complexity priors (see `?fitGP`), which work well.
 
 ```{r fitgps}
 par(mfrow = c(3,4))
-gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x))
+gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x), plot = FALSE)
 ```
 
 We apply the `fitGPmaternPC` function on to each dataset by using `lapply` over
 the `thplopit` list of data. The posterior predictive means, standard deviations
 and MAP hyperparamters for the GP are returned. As a side effect the posterior
 predictive distributions are overlayed with the marker protein profiles for each
-subcellular class.
+subcellular class when the argument `plot = TRUE` is used. Here we do not render
+the plots to conform to Biconductor vignette size guidelines.
 
 The prior needs to form a `K*3` matrix (where `K` is the number of subcellular
 classes in the data), 
@@ -212,7 +213,9 @@ argument to the `fitGPmaternPC` function. For example,
 ```{r runhyppar}
 par(mfrow = c(3,4))
 gpParams <- lapply(thplopit,
-                   function(x) fitGPmaternPC(x, hyppar = pc_prior))
+                   function(x) fitGPmaternPC(x, 
+                                             hyppar = pc_prior,
+                                             plot = FALSE))
 ```
 
 The distributions and fit looks sensible for each class so we will proceed with
@@ -247,7 +250,7 @@ expected is
 predDirPrior$tailnotAlloc
 ```
 
-```{r,}
+```{r, fig.height=3, fig.width=4}
 hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
 ```
 
@@ -260,7 +263,7 @@ be a little stricter with the number of differential localisations output by
 which reduces the number of re-localisations.
 
 
-```{r try}
+```{r try, fig.height=3, fig.width=4}}
 set.seed(1)
 dirPrior = diag(rep(1, K)) + matrix(0.0005, nrow = K, ncol = K)
 predDirPrior <- prior_pred_dir(object = thplopit[[1]],
@@ -570,7 +573,7 @@ length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.95))
 
 On a rank plot we can see the distribution of differential probabilities.
                                                                                                                                                                                                                                                               
-```{r extractdifflocp}
+```{r extractdifflocp, fig.height=3, fig.width=4}
 plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
      col = getStockcol()[2], pch = 19, ylab = "Probability",
      xlab = "Rank", main = "Differential localisation rank plot")
@@ -609,7 +612,8 @@ qt <- apply(bin_t, 1, function(x) quantile(x, .025))
 This leaves us with `r sum(qt > 0.95)` proteins to investigate.
 
 ```{r candidates}
-(candidates <- names(which(qt > 0.95)))
+candidates <- names(which(qt > 0.95))
+head(candidates)
 ```
 
 ### Add the results to the MSnSet
@@ -767,7 +771,7 @@ In the below code chunk we plot the protein profiles of all proteins that were
 identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do
 the same at 12hrs post LPS with all plasma membrane proteins.
 
-```{r protprof}
+```{r protprof, fig.height=3, fig.width=4}
 par(mfrow = c(2, 1))
 
 ## plot lysosomal profiles
@@ -783,9 +787,9 @@ matlines(exprs(res_12h[[1]])["B2RUZ4", ], col = cols["Plasma Membrane"], lwd = 3
 title("Protein SMIM1 (B2RUZ4) at 12hr-LPS (treatment)")
 ```
 
-We can also visualise there on a PCA or `t-SNE plot.
+We can also visualise there on a PCA or t-SNE plot.
 
-```{r plotpcacands}
+```{r plotpcacands, fig.height=2, fig.width=4}
 par(mfrow = c(1, 2))
 plot2D(res_0h[[1]], fcol = "bandle.allocation.pred.pred",
        main = "Unstimulated - replicate 1 \n predicted location")

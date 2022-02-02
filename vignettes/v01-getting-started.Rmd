@@ -94,7 +94,7 @@ This experiment used four isotopes across four distinct fractions and thus
 yielded four measurements (features) per protein profile. We visualise the
 data by using principal 
 
-```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=8, fig.height=6}
+```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=4, fig.height=3}
 library("pRolocdata")
 data("tan2009r1")
 plot2D(tan2009r1,
@@ -157,7 +157,7 @@ demonstrated in the next code chunk
 
 ```{r fitgps}
 par(mfrow = c(3,4))
-gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x, plot = FALSE))
 ```
 
 We apply the `fitGPmaternPC` function to each datasets by calling `lapply` over
@@ -165,7 +165,8 @@ the `tansim$lopitrep` list of datasets. The output of `fitGPmaternPC` returns a
 list of posterior predictive means and standard deviations. As well as MAP
 hyperparamters for the GP. As a side effect a profile plot is produced for each
 class in each replicate condition where the posterior predictive distributions
-are overlayed with markers protein profiles.
+are overlayed with markers protein profiles (set `plot = FALSE` if you do not
+want these plotted).
 
 The prior needs to form a `K*3` matrix. `K` corresponds to the number of
 subcellular classes in the data, and 3 columns for (1) the prior, (2)
@@ -579,13 +580,13 @@ EFDR(diffloc_probs, threshold = 0.90)
 We can visualise the changes in localisation between conditions on an alluvial
 plot using the `plotTranslocations` function
 
-```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
+```{r alluvial, warning=FALSE, message=FALSE, fig.height=5, fig.width=3}
 plotTranslocations(bandleres)
 ```
 
 Or alternatively, on a chord (circos) diagram
 
-```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
+```{r chord, warning=FALSE, message=FALSE, fig.height=4, fig.width=4}
 plotTranslocations(bandleres, type = "chord")
 ```
 
@@ -626,7 +627,7 @@ Now we can plot only these `r length(which(diffloc_probs[order(diffloc_probs, de
 proteins which are deemed to move/differentially localise. We also specify where the prediction results are
 located e.g. `fcol = "bandle.allocation.pred"`.
 
-```{r plottlres, warning=FALSE, fig.height=8, fig.width=8}
+```{r plottlres, warning=FALSE, fig.height=4, fig.width=4}
 mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
 names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
 
@@ -645,7 +646,7 @@ In this section, we demonstrate how to visually assess convergence of the MCMC
 algorithm. In the chunk below, we use 4 chains so that we can assess the 
 convergence of the method.
 
-```{r, bandleagain, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide'}
+```{r, bandleagain, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide',fig.height=4, fig.width=4}
 control <- tansim$lopitrep[1:3] 
 treatment <- tansim$lopitrep[4:6]
 
