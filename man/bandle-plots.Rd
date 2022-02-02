@@ -7,8 +7,8 @@
 \alias{plotTranslocations}
 \alias{plotConvergence}
 \alias{StatStratum}
-\title{Generate a violin plot showing the probabilitiy of protein localisation
-to different organelles}
+\title{Generate a violin plot showing the probabilitiy of protein
+localisation to different organelles}
 \format{
 An object of class \code{StatStratum} (inherits from \code{Stat}, \code{ggproto}, \code{gg}) of length 5.
 }
@@ -64,10 +64,11 @@ StatStratum
 \item{cond}{Which conditions do we want to plot. Must be \code{1} or \code{2}. Default
 is \code{1}}
 
-\item{n}{The chain from which we plot the probability distribution. Default is 1.}
+\item{n}{The chain from which we plot the probability distribution. Default
+is 1.}
 
-\item{bw}{The bandwidth use in probability distribution smoothing of geom_violin
-Default is 0.05.}
+\item{bw}{The bandwidth use in probability distribution smoothing of
+geom_violin Default is 0.05.}
 
 \item{scale}{Scaling of geom_violin. Defaults to width.}
 
@@ -75,48 +76,53 @@ Default is 0.05.}
 
 \item{object}{An instance of class \code{MSnSet} to provide the pca coordinates}
 
-\item{fcol}{If \code{params} is a \code{list} of \code{MSnSets}. Then \code{fcol} must
-be defined. This is a \code{character} vector of length 2 to set different labels for
-each dataset. If only one label is specified, and the \code{character} is of length 1
-then this single label will be used to identify the annotation column in both datasets.}
+\item{fcol}{If \code{params} is a \code{list} of \code{MSnSets}. Then
+\code{fcol} must be defined. This is a \code{character} vector of length 2
+to set different labels for each dataset. If only one label is specified,
+and the \code{character} is of length 1 then this single label will be
+used to identify the annotation column in both datasets.}
 
 \item{dims}{The PCA dimensions to plot. Defaults to \code{c(1,2)}}
 
-\item{cov.function}{The covariance function for the smoothing kernel. Defaults
-to wendland.cov}
+\item{cov.function}{The covariance function for the smoothing kernel.
+Defaults to wendland.cov}
 
 \item{theta}{The theta parameter of the wendland.cov. Defaults to 2.}
 
-\item{derivative}{The derivative paramter of the wendland.cov. Defaults to 2.}
+\item{derivative}{The derivative paramter of the wendland.cov. Defaults to
+2.}
 
 \item{k}{The k parameter of the wendland.cov}
 
-\item{breaks}{The levels at which to plot the contours. Defaults to c(0.99, 0.95, 0.9, 0.85, 0.8, 0.75, 0.7)}
+\item{breaks}{The levels at which to plot the contours. Defaults to c(0.99,
+0.95, 0.9, 0.85, 0.8, 0.75, 0.7)}
 
 \item{aspect}{The aspect ratio of the pca plots. Defaults to 0.5.}
 
-\item{type}{A \code{character} specifying the type of visualisation to plot. One of
-\code{"alluvial"} (default) or \code{"chord"}.}
+\item{type}{A \code{character} specifying the type of visualisation to plot.
+One of \code{"alluvial"} (default) or \code{"chord"}.}
 
-\item{all}{A logical specifying whether to count all proteins or only show those that
-have changed in location between conditions. Default is \code{FALSE}.}
+\item{all}{A logical specifying whether to count all proteins or only show
+those that have changed in location between conditions. Default is
+\code{FALSE}.}
 
-\item{col}{A list of colours to define the classes in the data. If not defined then
-the default \code{pRoloc} colours in \code{getStockCol()} are used.}
+\item{col}{A list of colours to define the classes in the data. If not
+defined then the default \code{pRoloc} colours in \code{getStockCol()} are
+used.}
 
-\item{labels}{Logical indicating whether to display class/organelle labels for the
-chord segments or alluvial stratum. Default is \code{TRUE}.}
+\item{labels}{Logical indicating whether to display class/organelle labels
+for the chord segments or alluvial stratum. Default is \code{TRUE}.}
 
-\item{labels.par}{If \code{type} is \code{"alluvial"}. Label style can be specified as
-one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.}
+\item{labels.par}{If \code{type} is \code{"alluvial"}. Label style can be
+specified as one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.}
 
 \item{cex}{Text size. Default is 1.}
 
-\item{spacer}{A \code{numeric}. Default is 4. Controls the white space around the circos
-plotting region.}
+\item{spacer}{A \code{numeric}. Default is 4. Controls the white space around the
+circos plotting region.}
 
-\item{table}{Logical. Print a summary table of translocations between subcellular classes.
-Default is \code{FALSE}.}
+\item{table}{Logical. Print a summary table of translocations between
+subcellular classes. Default is \code{FALSE}.}
 
 \item{...}{Additional arguments passed to the \code{chordDiagram} function.}
 }
@@ -125,8 +131,9 @@ returns a named vector of differential localisation probabilities
 
 returns a named vector of differential localisation probabilities
 
-Returns a directional circos/chord diagram showing the translocation of proteins
-between conditions. If \code{type = "alluvial"} ouput is a \code{ggplot} object.
+Returns a directional circos/chord diagram showing the translocation
+of proteins between conditions. If \code{type = "alluvial"} ouput is a
+\code{ggplot} object.
 
 Returns the ranks of the number of outliers in each chain. The
 side effect returns rank plots. Number of rank plots is equal to the number
@@ -135,8 +142,9 @@ of chains
 \description{
 These functions implement plotting functions for bandle objects
 
-Produces a chord diagram (circos plot) or an alluvial plot (also known as a Sankey diagram)
-to show changes in location between two conditions or datasets.
+Produces a chord diagram (circos plot) or an alluvial plot (also known as a
+Sankey diagram) to show changes in location between two conditions or
+datasets.
 
 Produces a rank plot to analyse convergence of MCMC algorithm
 }

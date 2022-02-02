@@ -771,7 +771,7 @@ In the below code chunk we plot the protein profiles of all proteins that were
 identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do
 the same at 12hrs post LPS with all plasma membrane proteins.
 
-```{r protprof, fig.height=3, fig.width=4}
+```{r protprof}
 par(mfrow = c(2, 1))
 
 ## plot lysosomal profiles
