@@ -177,7 +177,7 @@ complexity priors (see `?fitGP`), which work well.
 
 ```{r fitgps}
 par(mfrow = c(3,4))
-gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x), plot = FALSE)
+gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x, plot = FALSE))
 ```
 
 We apply the `fitGPmaternPC` function on to each dataset by using `lapply` over
