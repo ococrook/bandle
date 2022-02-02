@@ -10,6 +10,26 @@ R-package for analysis differential localisation experiments, include storage, c
 
 - start with replicated MS spatial proteomics data in `MSnSets` and perform a workflow
 
+We recommend reading our other workflow manuscripts:
+
+Basic processing and machine learning:
+
+https://f1000research.com/articles/5-2926
+
+Bayesian analysis:
+
+https://f1000research.com/articles/8-446
+
+The BANDLE manusript is currently on biorxiv:
+
+https://www.biorxiv.org/content/10.1101/2021.01.04.425239v3
+
+
+For manuscripts that apply bandle, see:
+
+https://www.biorxiv.org/content/10.1101/2022.01.24.477541v1
+https://linkinghub.elsevier.com/retrieve/pii/S1535-9476(22)00002-0
+
 
 # Installation requirements
 
@@ -23,8 +43,18 @@ devtools::install_github("ococrook/bandle")
 
 A simple demo is given in the vigenettes folder with clear demonstrations of the input and output. A small dataset can take around an hour to run; for large dataset we recommend a a compute server. The longest the analysis has taken has been a couple of hours on a single compute node. The demo take a few minutes to run.
 
+The vignettes include an example of the analysis of the THP-1 monocyte system, as well as simulated examples.
+
+
 # Documentation
 
 Documentation to run the main functions can be found in the vignette or by typing ?bandle in the consol after loading the package.
 
+# Contribution
+
+Contributions are welcome, please open issue so we can discuss any contribution in advance.
+
+# Feature requests
+
+This package is actively being developed and maintained, please open an issue if you would like a particular feature.
 
