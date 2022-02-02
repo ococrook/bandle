@@ -17,6 +17,14 @@ using namespace Rcpp ;
 //' Foundation, Inc., 59 Temple Place - Suite 330, Boston, MA  02111-1307,
 //' USA. */
 
+//' @title Fast mahalonbis distance
+//' @param X data
+//' @param mu mean
+//' @param sigma variance matrix
+//' @param isChol boolen indicated whether sigma is cholesky decomposition
+//' @md
+//' 
+//' @rdname bandle-cpp  
 //[[Rcpp::export]]
 arma::vec mahaInt(arma::mat & X,  
                   arma::vec & mu,  
@@ -72,6 +80,15 @@ arma::vec mahaInt(arma::mat & X,
 return out;
 }
 
+//' @title density of multivariate t
+//' @param X data
+//' @param mu mean
+//' @param cholDec Cholesky decomposition of variance matrix
+//' @param log boolen of log density
+//' @param df degrees of freedom for t distribution
+//' @md
+//' 
+//' @rdname bandle-cpp  
 //[[Rcpp::export]]
   arma::vec dmvtInt( arma::mat X, 
                      arma::vec mu, 
@@ -110,10 +127,20 @@ return out;
   return( out );
   }
 
-
-
-
-
+//' @title wrapper function for t distribution density
+//' @param X_ the data
+//' @param mu_ the mean
+//' @param sigma_ the variance matrix
+//' @param df_ the degrees of freedom
+//' @param log_ return log density (boolean).
+//' @param isChol_ is variance matrix in cholesky decomposition
+//' @return A numeric indicating the density of the t-distribution
+//' @md
+//' 
+//' @examples
+//' dmvtCpp(diag(1,1,1), 1, diag(1,1,1), 1, TRUE, TRUE)
+//' 
+//' @rdname bandle-cpp  
 //[[Rcpp::export]]
 SEXP dmvtCpp( arma::mat X_,  
               arma::vec mu_,  

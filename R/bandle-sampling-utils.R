@@ -50,7 +50,7 @@ outlierAllocationProbs <- function(outlierlikelihood,
                                    alloctemp,
                                    cond) {
     
-    subset <- cbind(1:length(alloctemp[[cond]]), alloctemp[[cond]])
+    subset <- cbind(seq.int(length(alloctemp[[cond]])), alloctemp[[cond]])
     outlierlikelihood_comb <- Reduce("+", outlierlikelihood)
     allocnotOutprob <- log(1 - epsilon[cond]) + loglikelihoods[subset]
     allocOutprob <- log(epsilon[cond]) + outlierlikelihood_comb
@@ -83,8 +83,16 @@ sampleOutlier <- function(allocoutlierprob){
 ##' @return returns covariance of organelles using marker proteins
 ##' @md
 ##' 
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' covOrganelle(object = tan2009r1)
+##' 
+##' 
 ##' @rdname bandle-internal
 covOrganelle <- function(object, fcol = "markers"){
+    
+    stopifnot("object must be a class of MSnSet"=is(object, "MSnSet"))
     
     M <- matrix(NA, nrow = length(getMarkerClasses(object, fcol = fcol)), ncol = ncol(object))
     rownames(M) <- getMarkerClasses(object, fcol = fcol)
@@ -101,17 +109,32 @@ covOrganelle <- function(object, fcol = "markers"){
 ##' @param K the number of organelle classes
 ##' @param pgPrior The Polya-Gamma if user provided. Default is NULL to obtain value
 ##'  empirically
+##' @param fcol The feature column containing the markers.
 ##' @return returns the Polya-Gamma prior
 ##' @md
 ##' 
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' out <- pg_prior(object_cond1 = control1,
+##'  object_cond2 = treatment1, K = 11) 
+##' 
+##' 
 ##' @rdname bandle-internal
-pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL) {
+pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL, fcol = "markers") {
     
     if (is.null(pgPrior)) {
         mu_prior <- rep(-7, K^2)
-        mu_prior[c(K+1 * seq.int(1:K) - K)] <- mu_prior[c(K+1 * seq.int(1:K) - K)] + 1
-        sigma1 <- covOrganelle(object = object_cond1[[1]])
-        sigma2 <- covOrganelle(object = object_cond2[[1]])
+        mu_prior[c(K+1 * seq.int(K) - K)] <- mu_prior[c(K+1 * seq.int(K) - K)] + 1
+        sigma1 <- covOrganelle(object = object_cond1[[1]], fcol = fcol)
+        sigma2 <- covOrganelle(object = object_cond2[[1]], fcol = fcol)
     }
     pgPrior <- list(mu_prior = mu_prior, sigma1 =  sigma1, sigma2 = sigma2)
     return(pgPrior)

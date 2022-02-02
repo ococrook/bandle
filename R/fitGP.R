@@ -7,11 +7,23 @@
 ##' @return means and standard deviation of gaussian process fitted to data,
 ##'  along with hyperparameters with maximum marginal likelihood fitting. Side
 ##'  effect, plot the markers with overlayed Gaussian processes.
-##'@md
+##' @md
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+##'
 ##'@rdname bandle-gpfit
 fitGP <- function(object = object,
                   fcol = "markers") {
 
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))    
+    
+    
   ## storage
   componenthypers <- vector(mode = "list", length(getMarkerClasses(object, fcol = fcol)))
 
@@ -23,12 +35,12 @@ fitGP <- function(object = object,
   initialvalues <- seq(-3, 3, 2)
   init <- matrix(0, length(initialvalues), 3)
   for(i in seq_along(initialvalues)){
-    init[i, ] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = T)]
+    init[i, ] <- initialvalues[sample.int(length(initialvalues), size = 3, replace = TRUE)]
   }
 
   # indexing sets
-  idx <- seq.int(1:D)
-  tau <- seq.int(1:D)
+  idx <- seq.int(D)
+  tau <- seq.int(D)
 
   # LBFGS routine to get hypers via maximum marginal likelihood
   for (j in seq.int(K)) {
@@ -72,7 +84,7 @@ fitGP <- function(object = object,
     
     # basic paramters
     nk <- table(fData(object)$markers)[getMarkerClasses(object, fcol = fcol)][j]
-    S <- matrix(rep(1:length(tau), length(tau)), nrow = length(tau))
+    S <- matrix(rep(seq.int(length(tau)), length(tau)), nrow = length(tau))
     params <- .hypers
     sigmak <- sigma[j]
     a <- ak[j]
@@ -84,7 +96,7 @@ fitGP <- function(object = object,
     trenchres <- trenchDetcpp(R[1,])
     Z <- trenchInvcpp(trenchres$v)
     invcov <- diag(1, nk*D)/sigmak - kronecker(matrix(1, nk, nk), Z %*% covA)/sigmak^2
-    Kstar <- a*exp(-(matrix(rep(tau, nk * D),  nrow = D, byrow = F) - matrix(rep(tau, nk*D),nrow = D, byrow = T))^2/l)
+    Kstar <- a*exp(-(matrix(rep(tau, nk * D),  nrow = D, byrow = FALSE) - matrix(rep(tau, nk*D),nrow = D, byrow = TRUE))^2/l)
     Kstarstar <- rep(a+sigmak, length(tau))
     M[[j]] <- Kstar %*% invcov %*% as.vector(Orgdata)
     V[[j]] <- sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar)))

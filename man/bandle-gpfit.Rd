@@ -13,21 +13,33 @@ fitGPmaternPC(
   fcol = "markers",
   materncov = TRUE,
   nu = 2,
-  hyppar = c(1, 50, 50)
+  hyppar = matrix(c(1, 50, 50), nrow = 1),
+  plot = TRUE
 )
 
-fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
+fitGPmatern(
+  object = object,
+  fcol = "markers",
+  materncov = TRUE,
+  nu = 2,
+  plot = TRUE
+)
 }
 \arguments{
 \item{object}{A instance of class \code{MSnSet}}
 
 \item{fcol}{feature column to indicate markers. Default is "markers".}
 
-\item{materncov}{\code{logical} indicating whether matern covariance is used}
+\item{materncov}{\code{logical} indicating whether matern covariance is used.}
 
 \item{nu}{matern smoothness parameter. Default is 2.}
 
-\item{hyppar}{The vector of penalised complexity hyperparameters}
+\item{hyppar}{The vector of penalised complexity hyperparameters, you must
+provide a matrix with 3 columns and 1 row. The order is hyperparameters
+on length-scale, amplitude, variance.}
+
+\item{plot}{\code{logical} indicating whether to plot the posterior predictives
+overlayed with the markers. Default is TRUE.}
 }
 \value{
 means and standard deviation of gaussian process fitted to data,
@@ -39,14 +51,43 @@ As well as MAP hyperparamters for the GP. Side effect will plot the posterior
 predictive overlayed with markers.
 
 returns a list of posterior predictive means and standard deviations.
-As well as maximum marginal likelihood for the GP. Side effect will plot the posterior
-predictive overlayed with markers.
+As well as maximum marginal likelihood for the GP. Side effect will plot
+the posterior predictive overlayed with markers.
 }
 \description{
 Helper function to fit GPs with squared exponential convariances,
 maximum marginal likelihood
 
-Function to fit matern GPs to data, side effect will plot posterior predictives
+Function to fit matern GPs to data with penalised complexity priors on the
+hyperparameters, side effect will plot posterior predictives
 
-Function to fit matern GPs to data, side effect will plot posterior predictives
+Function to fit matern GPs to data, side effect will plot posterior
+predictives
+}
+\examples{
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, 
+function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+
 }

@@ -21,6 +21,12 @@ double truncgamma();
 double randinvg(double);
 double aterm(int, double, double);
 
+//' @title sample polya-gamma variates
+//' @param b parameter of PG distribution
+//' @param c parameter of PG distribution
+//' @md
+//' 
+//' @rdname bandle-cpp
 // [[Rcpp::export]]
 NumericVector rcpp_pgdraw(NumericVector b, NumericVector c)
 {

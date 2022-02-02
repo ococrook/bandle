@@ -49,17 +49,32 @@
 ##' covariance. Default is True and matern covariance is used
 ##' @param PC `logical` indicating whether to use a penalised complexity prior.
 ##' Default is TRUE.
-##' @param pcPrior `numeric` of length 3 indicating the lambda paramters for the
-##' penalised complexity prior. Default is `c(0.5, 3, 100)` and the order is 
-##' length-scale, amplitude and variance.
-##' @param nu `integter` indicating the smoothness of the matern prior. Default
+##' @param nu `integer` indicating the smoothness of the matern prior. Default
 ##' is 2.
+##' @param pcPrior `matrix` with 3 columns indicating the lambda paramters for the
+##' penalised complexity prior. Default is null which internally sets
+##' the penalised complexity prior to `c(0.5, 3, 100)` for each organelle and the order is 
+##' length-scale, amplitude and variance. See vignette for more details.
 ##' @param propSd If MH is used to learn posterior hyperparameters then the proposal
 ##' standard deviations. A Gaussian random-walk proposal is used.
 ##' @param numChains `integer` indicating the number of parallel chains to run.
 ##' Defaults to 4.
 ##' @return  `bandle` returns an instance of class `bandleParams`
 ##' @md
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, 
+##' function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- diffLoc(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L)
 ##' 
 ##' @rdname bandle
 diffLoc <- function(objectCond1,
@@ -83,11 +98,35 @@ diffLoc <- function(objectCond1,
                     dirPrior = NULL,
                     maternCov = TRUE,
                     PC = TRUE,
-                    pcPrior = c(0.5, 3, 100),
                     nu = 2,
+                    pcPrior = NULL,
                     propSd = c(0.3, 0.1, 0.05)){
     
     suppressMessages(require(Biobase))
+    
+    # Checks
+    stopifnot("ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet"))
+    stopifnot("ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet"))
+    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
+    stopifnot("numIter must be a numeric"=is(numIter, "numeric"))
+    stopifnot("burnin must be an integer"=is(burnin, "integer"))
+    stopifnot("thin must be an integer"=is(thin, "integer"))
+    stopifnot("burnin must be less than numIter"= burnin < numIter)
+    stopifnot("u must be numeric"=is(u, "numeric"))
+    stopifnot("v must be numeric"=is(v, "numeric"))
+    stopifnot("lambda must be numeric"=is(lambda, "numeric"))
+    stopifnot("hyperIter must be numeric"=is(hyperIter, "numeric"))
+    stopifnot("hyperMean must be numeric"=is(hyperMean, "numeric"))
+    stopifnot("hyperSd must be numeric"=is(hyperSd, "numeric"))
+    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
+    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
+    stopifnot("tau must be numeric" = is(tau, "numeric"))
+    stopifnot("nu must be numeric" = is(nu, "numeric"))
+    stopifnot("propSd must be numeric"=is(propSd, "numeric"))
+    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+    
+    
+    
     
     # Setting seed manually
     if (is.null(seed)) {
@@ -125,12 +164,17 @@ diffLoc <- function(objectCond1,
     
     # Getting data dimensions
     D <- ncol(object_cmb[[1]])
-    K <- length(getMarkerClasses(object_cmb[[1]]))
+    K <- length(getMarkerClasses(object_cmb[[1]], fcol = fcol))
     
+    # Set default pc priors
+    if(is.null(pcPrior)){
+        pcPrior <- matrix(rep(c(0.5, 3, 100),
+                   each = K), ncol = 3)
+    }
     
     # construct empirical Bayes Polya-Gamma prior
     if (is.null(pgPrior)) {
-        pgPrior <- pg_prior(normCond1, normCond2, K = K, pgPrior = NULL)
+        pgPrior <- pg_prior(normCond1, normCond2, K = K, pgPrior = NULL, fcol = fcol)
     }
     
     # Fit GPs to markers
@@ -146,7 +190,7 @@ diffLoc <- function(objectCond1,
     }
     
     # separate data into known and unknown
-    unknown_cmb <- lapply(object_cmb, unknownMSnSet)
+    unknown_cmb <- lapply(object_cmb, function(x) unknownMSnSet(x, fcol = fcol))
     exprsUnknown_cmb <- lapply(unknown_cmb, Biobase::exprs)
     exprsKnown <- lapply(object_cmb, function(x) Biobase::exprs(markerMSnSet(x, fcol = fcol)))
     
@@ -165,16 +209,15 @@ diffLoc <- function(objectCond1,
     allocprob <- lapply(numProtein, function(x) array(0, c(x, numRetained, K)))
     loglikelihoods <- lapply(rep(numProtein, numRepl), function(x) matrix(0, nrow = x, ncol = K))
     
-    
     #random allocation of unknown Proteins, allocations are condition specific
     alloctemp <- lapply(numProtein, function(x) sample.int(n = K, size = x, replace = TRUE))
     for (i in seq.int(numCond)) {
-        object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10)
+        object_cmb[[i]] <- pRoloc::knnClassification(object_cmb[[i]], k = 10, fcol = fcol)
         alloc[[i]][, 1] <- fData(object_cmb[[i]][rownames(unknown_cmb[[i]])])$knn
     }
     # number of proteins allocated to each component
     nkknown <- lapply(object_cmb[c(1, numRepl + 1)], function(x)
-        table(getMarkers(x, verbose = FALSE))[getMarkerClasses(x)])
+        table(getMarkers(x, verbose = FALSE, fcol = fcol))[getMarkerClasses(x, fcol = fcol)])
     
     #number initial allocated to outlier component
     outlier <- vector(mode = "list", length = 2)
@@ -200,12 +243,12 @@ diffLoc <- function(objectCond1,
                          style = 3)
     ._t <- 0
     
-    for(t in 2:numIter){
+    for(t in seq.int(2, numIter)){
     
           
         # Between data allocation tally
-        nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                             factor(alloctemp[[2]], levels = 1:K))
+        nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                             factor(alloctemp[[2]], levels = seq.int(K)))
         
         # Within data allocation tally
         nk <- list(cond1 = rowSums(nk_mat), cond2 = colSums(nk_mat))
@@ -260,11 +303,11 @@ diffLoc <- function(objectCond1,
         sigmasqrt <- lapply(sigmak, sqrt)
         loglikelihoods <- comploglikelist(centereddata, sigmasqrt)
         
-        resAllocCond1 <- proteinAllocation(loglikelihoods = loglikelihoods[1:numRepl],
+        resAllocCond1 <- proteinAllocation(loglikelihoods = loglikelihoods[seq.int(numRepl)],
                                            currentweights = currentweights,
                                            alloctemp = alloctemp,
                                            cond = 1)
-        resAllocCond2 <- proteinAllocation(loglikelihoods = loglikelihoods[(1+numRepl):(numRepl*numCond)],
+        resAllocCond2 <- proteinAllocation(loglikelihoods = loglikelihoods[seq.int(1+numRepl, numRepl*numCond)],
                                            currentweights = currentweights,
                                            alloctemp = alloctemp,
                                            cond = 2)
@@ -290,15 +333,15 @@ diffLoc <- function(objectCond1,
                                               sigma_ = V[[i]],
                                               df_ = 4,
                                               log_ = TRUE,
-                                              isChol_ = F)
+                                              isChol_ = FALSE)
         }
         
-        resOutCond1 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[1:numRepl],
+        resOutCond1 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[seq.int(1, numRepl)],
                                               loglikelihoods = loglikelihoods_cond1,
                                               epsilon = epsilon,
                                               alloctemp = alloctemp,
                                               cond = 1)
-        resOutCond2 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[(1+numRepl):(numRepl*numCond)],
+        resOutCond2 <- outlierAllocationProbs(outlierlikelihood = outlierlikelihood[seq.int((1+numRepl),(numRepl*numCond))],
                                               loglikelihoods = loglikelihoods_cond2,
                                               epsilon = epsilon,
                                               alloctemp = alloctemp,
@@ -320,12 +363,12 @@ diffLoc <- function(objectCond1,
         
         #update hypers
         if((t %% hyperIter) == 0){
-            if (maternCov == FALSE) {  
+            if ( isFALSE(maternCov)) {  
                 if(hyperLearn == "LBFGS"){
                 }else if(hyperLearn == "MH"){
                     # Between data allocation tally
-                    nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                                         factor(alloctemp[[2]], levels = 1:K))
+                    nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                                         factor(alloctemp[[2]], levels = seq.int(K)))
                     
                     # Within data allocation tally
                     nk <- list(cond1 = rowSums(nk_mat), cond2 = colSums(nk_mat)) 
@@ -353,10 +396,10 @@ diffLoc <- function(objectCond1,
                         .hypers[[i]] <- matrix(unlist(componenthypers[[i]]), ncol = 3, byrow = TRUE)
                     }  
                 }
-            } else if ((maternCov == TRUE) & (hyperLearn == "MH")) {
+            } else if (isTRUE(maternCov) & (hyperLearn == "MH")) {
                 # Between data allocation tally
-                nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = 1:K),
-                                                     factor(alloctemp[[2]], levels = 1:K))
+                nk_mat <- diag(nkknown[[1]]) + table(factor(alloctemp[[1]], levels = seq.int(K)),
+                                                     factor(alloctemp[[2]], levels = seq.int(K)))
                 
                 for (i in seq.int(object_cmb)) {
                     for(j in seq.int(K)) {
@@ -367,7 +410,7 @@ diffLoc <- function(objectCond1,
                                            BY = - alloctemp[[l]] * 0,
                                            j = j)
                         
-                        hyperstoupdate <- c(exp(.hypers[[i]][j,1:2]), exp(2 * .hypers[[i]][j,3]))
+                        hyperstoupdate <- c(exp(.hypers[[i]][j, seq.int(2)]), exp(2 * .hypers[[i]][j,3]))
                         
                         .pc_prior <- pcPrior[j, ]
                         newhypers <- metropolisGPmatern(inith = hyperstoupdate,
@@ -380,7 +423,7 @@ diffLoc <- function(objectCond1,
                                                         hyppar = .pc_prior,
                                                         propSd = propSd)$h[ ,2]
                         
-                        componenthypers[[i]][[j]] <- c(log(newhypers[1:2]), log(newhypers[3])/2)
+                        componenthypers[[i]][[j]] <- c(log(newhypers[seq.int(2)]), log(newhypers[3])/2)
                     }
                     # stores current hyperparameters invisibily
                     .hypers[[i]] <- matrix(unlist(componenthypers[[i]]), ncol = 3, byrow = TRUE)

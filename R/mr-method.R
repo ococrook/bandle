@@ -41,14 +41,29 @@ reprodScore <- function(x, y, method = c("pearson")) {
 ##' @param plot Whether to generate an MR plot as a side effect. 
 ##' @return The MR score of the Ithzak et al. 2016/2017
 ##' @md
+##' 
+##' @examples
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
+##' 
+##' 
+##' 
 ##' @rdname method-mr
 mrMethod <- function(objectCond1,
                      objectCond2,
                      plot = TRUE,
                      method = "2017") {
     
-    stopifnot(class(objectCond1[[1]]) == "MSnSet")
-    stopifnot(class(objectCond2[[1]]) == "MSnSet")
+    stopifnot(is(objectCond1[[1]], "MSnSet"))
+    stopifnot(is(objectCond2[[1]], "MSnSet"))
     stopifnot(length(objectCond1) >= 2)
     stopifnot(length(objectCond2) >= 2)
     
@@ -57,7 +72,7 @@ mrMethod <- function(objectCond1,
     
     
     # Compute delta matrices
-    delta <- lapply(1:length(exprsObj1),
+    delta <- lapply(seq.int(length(exprsObj1)),
                     function(n) exprsObj1[[n]] - exprsObj2[[n]])
     
     # Compute robust mahalanobis distance
@@ -84,7 +99,7 @@ mrMethod <- function(objectCond1,
     Mscore <- -log10(summarisedPvalue)
     
     # compute reproducibility sore
-    Rscore1 <- lapply(1:length(exprsObj1),
+    Rscore1 <- lapply(seq.int(length(exprsObj1)),
                      function(x) reprodScore(x = delta[[x]], y = delta[[(x)%%length(objectCond1) + 1]]))
     
     # take smallest score

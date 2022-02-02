@@ -4,16 +4,19 @@ exportPattern("^[[:alpha:]]+")
 import(Biobase)
 import(MSnbase)
 import(pRoloc)
-importFrom("graphics", "arrows", "matplot", "points", "axis", "par")
+import(pRolocdata)
+import(knitr)
+import(BiocStyle)
+importFrom("graphics", "arrows", "matplot", "points", "axis", "par", "hist")
 importFrom("methods", "new")
 importFrom("stats", "cov", "dnorm", "pnorm", "quantile", "rbeta",
-                "rgamma", "rnorm", "runif", "var")
+           "rgamma", "rnorm", "runif", "var")
 importFrom("utils", "setTxtProgressBar", "txtProgressBar")
 importFrom("S4Vectors", "DataFrame")
 importFrom("pRoloc", "getMarkerClasses", "unknownMSnSet",
            "markerMSnSet", "knnClassification", "getMarkers",
            "getStockcol", "plot2D")
-importFrom("MSnbase", "normalise", "combine","exprs")
+importFrom("MSnbase", "normalize", "combine","exprs")
 importFrom("Biobase", "featureNames","fData",
            "fData<-", "exprs", "exprs<-")
 importFrom("lbfgs", "lbfgs")
@@ -22,7 +25,8 @@ importFrom("ggplot2", "ggplot", "aes", "geom_violin",
            "element_blank", "ylab", "ggtitle", "coord_fixed", "geom_contour",
            "stat", "geom_point", "scale_alpha", "scale_color_manual",
            "theme_minimal", "element_rect", "xlab", "scale_x_discrete",
-	   "scale_y_continuous", "geom_label", "geom_text", "after_stat")
+           "scale_y_continuous", "geom_label", "geom_text", "after_stat",
+           "alpha", "scale_type")
 importFrom("dplyr", "%>%", "mutate", "group_by", "summarise", "row_number")
 importFrom("stats", "cor", "p.adjust", "pchisq", "sd", "setNames")
 importFrom("ggalluvial", "geom_flow", "geom_stratum", "GeomAlluvium", 
@@ -33,3 +37,4 @@ importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
            "get.cell.meta.data", "circos.text", "circos.axis", "circos.par", 
            "circos.clear",  "cm_h")
 importFrom("grDevices", "dev.off", "rainbow")
+importFrom("plyr", "id")

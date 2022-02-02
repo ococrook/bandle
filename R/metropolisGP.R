@@ -12,7 +12,7 @@
 ##' @return Returns new hyperparamters and the acceptance rate
 ##' 
 ##' @md
-##' @rdname bandle-mh
+##' @rdname bandle-gp
 metropolisGP <- function(inith,
                          X,
                          tau,
@@ -63,7 +63,7 @@ metropolisGP <- function(inith,
 ##' @param propSd The proposal standard deviation. Default is `c(0.3,0.1,0.1)`. Do not
 ##'  change unless you know what you are doing.
 ##' @md
-##' @rdname bandle-mh
+##' @rdname bandle-gp
 metropolisGPmatern <- function(inith,
                                X,
                                tau,

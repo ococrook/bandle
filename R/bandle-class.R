@@ -65,6 +65,8 @@
 ##' available in the `bandleParams` instance.
 ##' @slot chains Object of class `bandleChains` containing the full MCMC results
 ##' in the `bandleParams` instance
+##' @return An object of class `bandleParams` which stores the main results
+##' for the analysis when using bandle
 ##' 
 ##' @md
 ##' @rdname bandleParams
@@ -242,7 +244,6 @@ setMethod("length", "nicheParams",
 ##'@param object An instance of appropriate class.
 ##'@rdname bandleParams
 summaries <- function(object) {
-    stopifnot(inherits(object, "bandleParams"))
     object@summary@summaries
 }
 
