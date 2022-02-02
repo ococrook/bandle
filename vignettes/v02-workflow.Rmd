@@ -27,6 +27,10 @@ vignette: >
 BiocStyle::markdown()
 ```
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dpi=300,fig.width=7)
+```
+
 ```{r env, message = FALSE, warning = FALSE, echo = FALSE}
 # options(width = 150)
 library("bandle")
@@ -210,12 +214,12 @@ head(pc_prior)
 Now we have generated these complexity priors we can pass them as an
 argument to the `fitGPmaternPC` function. For example,
 
-```{r runhyppar}
+```{r runhyppar, fig.width=7, fig.height=20}
 par(mfrow = c(3,4))
 gpParams <- lapply(thplopit,
                    function(x) fitGPmaternPC(x, 
                                              hyppar = pc_prior,
-                                             plot = FALSE))
+                                             plot = TRUE))
 ```
 
 The distributions and fit looks sensible for each class so we will proceed with
@@ -250,7 +254,7 @@ expected is
 predDirPrior$tailnotAlloc
 ```
 
-```{r, fig.height=3, fig.width=4}
+```{r, fig.height=6, fig.width=6}
 hist(predDirPrior$priornotAlloc, col = getStockcol()[1])
 ```
 
@@ -263,7 +267,7 @@ be a little stricter with the number of differential localisations output by
 which reduces the number of re-localisations.
 
 
-```{r try, fig.height=3, fig.width=4}
+```{r try, fig.height=6, fig.width=6}
 set.seed(1)
 dirPrior = diag(rep(1, K)) + matrix(0.0005, nrow = K, ncol = K)
 predDirPrior <- prior_pred_dir(object = thplopit[[1]],
@@ -369,7 +373,7 @@ the natural logarithm of the number of classes).
 
 We plot the distribution of protein allocations by `bandle` 
 
-```{r barplotalloc}
+```{r barplotalloc, fig.width=8, fig.height=6}
 par(mfrow = c(1, 2), oma = c(6,2,2,2))
 barplot(table(pe1$bandle.allocation), col = getStockcol()[2],
         las = 2, main = "Control: Protein allocation",
@@ -387,7 +391,7 @@ the mean of the distribution) against the protein allocation results we can see
 that not all protein allocations are confident, this is why it is important to
 threshold when deducing a protein's location.
 
-```{r meanbandleprob}
+```{r meanbandleprob, fig.width=8, fig.height=6}
 par(mfrow = c(1, 2), oma = c(6,2,2,2))
 boxplot(pe1$bandle.probability ~ pe1$ bandle.allocation, 
         col = getStockcol()[2], xlab = "",
@@ -573,7 +577,7 @@ length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.95))
 
 On a rank plot we can see the distribution of differential probabilities.
                                                                                                                                                                                                                                                               
-```{r extractdifflocp, fig.height=3, fig.width=4}
+```{r extractdifflocp, fig.height=6, fig.width=7}
 plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
      col = getStockcol()[2], pch = 19, ylab = "Probability",
      xlab = "Rank", main = "Differential localisation rank plot")
@@ -676,7 +680,7 @@ have our set of candidates we can subset `MSnSet` datasets and plot the the
 results.
 
 To subset the data, 
-```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=8}
+```{r alluvial, warning=FALSE, message=FALSE}
 msnset_cands <- list(res_0h[[1]][candidates, ], 
                      res_12h[[1]][candidates, ])
 ```
@@ -703,7 +707,7 @@ location. The class label is taken from the column called
 posterior and outlier probabilities before assigning BANDLE's allocation
 prediction.
 
-```{r plotres}
+```{r plotres, fig.height=10, fig.width=8}
 ## set colours for organelles and unknown
 cols <- c(getStockcol()[seq(mrkCl)], "grey")
 names(cols) <- c(mrkCl, "unknown")
@@ -734,7 +738,7 @@ localisation with these organelles. Several organelles are known to be involved
 in this pathway, the main ones, the ER, Golgi (and plasma membrane). 
 
 Let's subset for these proteins,
-```{r plotlysos}
+```{r plotlysos, fig.height=10, fig.width=8}
 secretory_prots <- unlist(lapply(msnset_cands, function(z) 
     c(which(fData(z)$bandle.allocation.pred.pred == "Golgi Apparatus"),
       which(fData(z)$bandle.allocation.pred.pred == "Endoplasmic Reticulum"),
@@ -771,7 +775,7 @@ In the below code chunk we plot the protein profiles of all proteins that were
 identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do
 the same at 12hrs post LPS with all plasma membrane proteins.
 
-```{r protprof}
+```{r protprof, fig.height=7, fig.width=8}
 par(mfrow = c(2, 1))
 
 ## plot lysosomal profiles
@@ -789,7 +793,7 @@ title("Protein SMIM1 (B2RUZ4) at 12hr-LPS (treatment)")
 
 We can also visualise there on a PCA or t-SNE plot.
 
-```{r plotpcacands, fig.height=2, fig.width=4}
+```{r plotpcacands, fig.height=6, fig.width=9}
 par(mfrow = c(1, 2))
 plot2D(res_0h[[1]], fcol = "bandle.allocation.pred.pred",
        main = "Unstimulated - replicate 1 \n predicted location")

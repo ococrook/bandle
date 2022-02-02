@@ -28,6 +28,10 @@ vignette: >
 BiocStyle::markdown()
 ```
 
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(dpi=200,fig.width=7)
+```
+
 ```{r env, message = FALSE, warning = FALSE, echo = FALSE}
 # options(width = 150)
 library("bandle")
@@ -94,7 +98,7 @@ This experiment used four isotopes across four distinct fractions and thus
 yielded four measurements (features) per protein profile. We visualise the
 data by using principal 
 
-```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=4, fig.height=3}
+```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=7, fig.height=6}
 library("pRolocdata")
 data("tan2009r1")
 plot2D(tan2009r1,
@@ -155,7 +159,7 @@ priors (see `?fitGP`), which works well. However, these can be altered, which is
 demonstrated in the next code chunk
 
 
-```{r fitgps}
+```{r fitgps, fig.width=7, fig.height=18}
 par(mfrow = c(3,4))
 gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x, plot = FALSE))
 ```
@@ -580,13 +584,13 @@ EFDR(diffloc_probs, threshold = 0.90)
 We can visualise the changes in localisation between conditions on an alluvial
 plot using the `plotTranslocations` function
 
-```{r alluvial, warning=FALSE, message=FALSE, fig.height=5, fig.width=3}
+```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=7}
 plotTranslocations(bandleres)
 ```
 
 Or alternatively, on a chord (circos) diagram
 
-```{r chord, warning=FALSE, message=FALSE, fig.height=4, fig.width=4}
+```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
 plotTranslocations(bandleres, type = "chord")
 ```
 
@@ -627,7 +631,7 @@ Now we can plot only these `r length(which(diffloc_probs[order(diffloc_probs, de
 proteins which are deemed to move/differentially localise. We also specify where the prediction results are
 located e.g. `fcol = "bandle.allocation.pred"`.
 
-```{r plottlres, warning=FALSE, fig.height=4, fig.width=4}
+```{r plottlres, warning=FALSE, fig.height=8, fig.width=7}
 mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
 names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
 

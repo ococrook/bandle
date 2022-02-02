@@ -275,14 +275,16 @@ plotTranslocations <- function(params,
         stopifnot(unlist(lapply(params, function(z) inherits(z, "MSnSet"))))
         params <- commonFeatureNames(params) ## keep only intersection between datasets
         params <- list(params[[1]], params[[2]])
-        if (missing(fcol)) stop(paste("Missing fcol, please specify feature columns"))
+        if (missing(fcol)) stop(message("Missing fcol, please specify feature columns"))
         if (length(fcol) == 1) {
             fcol <- rep(fcol, 2)
-            message(paste0(c("------------------------------------------------",
-                             "\nIf length(fcol) == 1 it is assumed that the",
-                             "\nsame fcol is to be used for both datasets",
-                             "\nsetting fcol = c(", fcol[1], ",", fcol[2],")",
-                             "\n----------------------------------------------")))
+            message(
+              c("------------------------------------------------",
+                "\nIf length(fcol) == 1 it is assumed that the",
+                "\nsame fcol is to be used for both datasets",
+                "\nsetting fcol = c(", fcol[1], ",", fcol[2],")",
+                "\n----------------------------------------------")
+            )
         }
         for (i in seq(fcol)) {
             if (!is.null(fcol[i]) && !fcol[i] %in% fvarLabels(params[[i]]))
