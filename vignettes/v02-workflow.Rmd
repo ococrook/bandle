@@ -263,7 +263,7 @@ be a little stricter with the number of differential localisations output by
 which reduces the number of re-localisations.
 
 
-```{r try, fig.height=3, fig.width=4}}
+```{r try, fig.height=3, fig.width=4}
 set.seed(1)
 dirPrior = diag(rep(1, K)) + matrix(0.0005, nrow = K, ncol = K)
 predDirPrior <- prior_pred_dir(object = thplopit[[1]],
