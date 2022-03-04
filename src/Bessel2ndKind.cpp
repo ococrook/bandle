@@ -990,7 +990,7 @@ List centeredData(arma::mat Xknown,
                                          Xunknown, 
                                          BXun,
                                          currenthyper, 
-                                         nk, tau, D = D, j + 1).t();
+                                         nk, tau, D, j + 1).t();
     }
     
     

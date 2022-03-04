@@ -13,7 +13,7 @@ Authors@R: c(person(family = "Crook", given = "Oliver M.",
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
     Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
-    Dynamic Organellar Maps, Dynamic PCP. It provide bioconducor infrastructure
+    Dynamic Organellar Maps, Dynamic PCP. It provides Bioconducor infrastructure
     to analyse these data.
 License: Artistic-2.0
 Encoding: UTF-8

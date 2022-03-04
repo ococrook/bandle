@@ -102,7 +102,7 @@ diffLoc <- function(objectCond1,
                     pcPrior = NULL,
                     propSd = c(0.3, 0.1, 0.05)){
     
-    suppressMessages(require(Biobase))
+    #suppressMessages(require(Biobase))
     
     # Checks
     stopifnot("ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet"))
@@ -130,11 +130,9 @@ diffLoc <- function(objectCond1,
     
     # Setting seed manually
     if (is.null(seed)) {
-        seed <- sample(.Machine$integer.max, 1)
+        message("You haven't provided a seed, you may wish to provide a seed")
     }
-    .seed <- as.integer(seed)  
-    set.seed(.seed)
-    
+
     # Elementary checks
     stopifnot(length(hyperMean)==3)
     stopifnot(length(hyperSd)==3)
