@@ -31,7 +31,7 @@ BiocStyle::markdown()
 knitr::opts_chunk$set(dpi=20,fig.width=7)
 ```
 
-```{r env, message = FALSE, warning = FALSE, echo = FALSE}
+```{r env, message = FALSE, warning = FALSE, echo = TRUE}
 # options(width = 150)
 library("bandle")
 library("ggplot2")

@@ -158,11 +158,11 @@ spatial2D <- function(object,
     # Create appropriate spatial grid
     for (j in getMarkerClasses(object)) {
         idxOrg <- c(probs.lst.df$organelle == j)
-        coords[[j]] <- akima::interp(x = probs.lst.df$x[idxOrg],
+        coords[[j]] <- interp::interp(x = probs.lst.df$x[idxOrg],
                                      y = probs.lst.df$y[idxOrg],
                                      z = probs.lst.df$probability[idxOrg],
                                      extrap=FALSE, linear = TRUE, 
-                                     duplicate = TRUE) 
+                                     duplicate = "mean") 
                                      # interpolate onto appropriate grid
         coords[[j]]$z[is.na(coords[[j]]$z)] <- 0 # NaNs beyond data set to 0
         locations[[j]] <- cbind(rep(coords[[j]]$x, 40), 

@@ -32,7 +32,11 @@ BiocStyle::markdown()
 knitr::opts_chunk$set(dpi=20,fig.width=7)
 ```
 
-```{r env, message = FALSE, warning = FALSE, echo = FALSE}
+
+
+
+
+```{r env, message = FALSE, warning = FALSE, echo = TRUE}
 # options(width = 150)
 library("bandle")
 library("ggplot2")
@@ -42,7 +46,7 @@ library("MSnbase")
 library("pheatmap")
 library("viridis")
 
-setStockcol(paste0(getStockcol(),"90")) # settransparent colours
+setStockcol(paste0(getStockcol(), "90")) # settransparent colours
 ```
 
 # Introduction
@@ -63,6 +67,13 @@ available [@Gilks:1995]. Throughout this vignette we use the term *differentiall
 localised* to pertain to proteins which are assigned to different sub-cellular
 localisations between two conditions. One of the main outputs of BANDLE is the
 probability that a protein is differentially localised between two conditions.
+
+# Installation
+
+The package can be installed with the `BiocManager` package. To
+install `BiocManager` use `install.packages("BiocManager")` and, after that,
+`BiocManager::install("bandle")` to install `bandle`.
+
 
 # The data
 
@@ -96,7 +107,7 @@ early LOPIT experiment performed on Drosophila embryos [@Tan:2009]. The aim of
 this experiment was to apply LOPIT to an organism with heterogeneous cell types.
 This experiment used four isotopes across four distinct fractions and thus
 yielded four measurements (features) per protein profile. We visualise the
-data by using principal 
+data by using principal components analysis.
 
 ```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=7, fig.height=6}
 library("pRolocdata")

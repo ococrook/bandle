@@ -39,7 +39,7 @@ Imports: Rcpp (>= 1.0.4.6),
     grDevices
 Suggests: coda(>= 0.19-4),
     testthat,
-    akima,
+    interp,
     fields,
     pheatmap,
     viridis,
