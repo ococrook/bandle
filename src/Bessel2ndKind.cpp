@@ -843,6 +843,8 @@ arma::mat comploglike(const List &centereddata,
     int j;
     arma::mat likelihoods(N, K);
     
+    Rcpp::checkUserInterrupt();
+    
     for(j = 0; j < K; j++){
         likelihoods.col(j) = componentloglike(centereddata[j], sigmak(j)); 
     }
@@ -863,6 +865,8 @@ List comploglikelist(const List &centereddata,
     int l;
     arma::mat loglikelihood;
     List loglikelihoods(numRep);
+    
+    Rcpp::checkUserInterrupt();
     
     for (l = 0; l < numRep; l++) {
         loglikelihoods[l] = comploglike(centereddata[l], sigmak[l]);
@@ -888,6 +892,8 @@ arma::vec sampleDirichlet(int numSamples,
     NumericVector dirichlet;
     double scale = 1;
     
+    Rcpp::checkUserInterrupt();
+    
     for(j = 0; j < numSamples; j++){
         gamma(j) = rgamma(1, shape(j), scale)(0); 
     }
@@ -910,6 +916,8 @@ arma::vec sampleOutliercpp(arma::mat allocoutlierprob){
     arma::vec u; 
     arma::vec outlier = arma::zeros(N);
     Rcpp::NumericVector allocoutlierprobi;
+    
+    Rcpp::checkUserInterrupt();
     
     for (i = 0; i < N; i++) {
         allocoutlierprobi = allocoutlierprob.row(i);
@@ -942,6 +950,7 @@ arma::vec sampleAlloccpp(arma::mat allocprob) {
     arma::vec probcum;
     Rcpp::LogicalVector loc;
     
+    Rcpp::checkUserInterrupt();
     
     for (i = 0; i < N; i++) {
         allocprobi = allocprob.row(i).t(); 
@@ -982,6 +991,8 @@ List centeredData(arma::mat Xknown,
     int j;
     List centereddata(K);
     arma::vec currenthyper(3);
+    
+    Rcpp::checkUserInterrupt();
     
     for(j = 0; j < K; j++){
         currenthyper = hypers.row(j).t();

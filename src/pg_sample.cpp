@@ -41,6 +41,8 @@ NumericVector rcpp_pgdraw(NumericVector b, NumericVector c)
     bi = b[0];
   }
   
+  Rcpp::checkUserInterrupt();
+  
   // Sample
   for (i = 0; i < n; i++)
   {
