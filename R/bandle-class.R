@@ -241,6 +241,14 @@ setMethod("length", "nicheParams",
 setMethod("length", "nicheParams",
           function(x) length(params(x)))
 
+
+##'@param object An instance of appropriate class.
+##'@rdname bandleParams
+posteriorEstimates <- function(object) {
+    stopifnot(inherits(object, "bandleSummary"))
+    object@posteriorEstimates
+}
+
 ##' @rdname bandleParams
 setMethod("posteriorEstimates", "bandleSummary",
           function(x) x@posteriorEstimates)
