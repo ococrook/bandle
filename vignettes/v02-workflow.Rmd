@@ -342,16 +342,16 @@ We explicitly extract the posterior estimates and protein allocation predictions
 as follows
 
 ```{r getposteriors}
-pe1 <- summaries(bandleres)[[1]]@posteriorEstimates
-pe2 <- summaries(bandleres)[[2]]@posteriorEstimates
+pe1 <- posteriorEstimates(summaries(bandleres)[[1]])
+pe2 <- posteriorEstimates(summaries(bandleres)[[2]])
 
 head(pe1)
 ```
 
 The full joint probability distribution can be found in the `bandle.joint` slot
 e.g. for the control in slot 1 this would be
-`summaries(bandleres)[[1]]@bandle.joint` and the treatment in slot 2 this would
-be `summaries(bandleres)[[2]]@bandle.joint`.
+`bandleJoint(summaries(bandleres)[[1]])` and the treatment in slot 2 this would
+be `bandleJoint(summaries(bandleres)[[2]])`.
 
 Let's look at the posterior estimates and allocation predictions found in `pe1`
 and `pe2`. Each object is a `data.frame` containing the protein allocations and

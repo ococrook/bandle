@@ -266,6 +266,17 @@ params <- function(object) {
     object@params
 }
 
+##'@param object An instance of appropriate class.
+##'@rdname bandleParams
+bandleJoint <- function(object) {
+    stopifnot(inherits(object, "bandleSummary"))
+    object@bandle.joint
+}
+
+##'@rdname bandleParams
+setMethod("bandleJoint", "bandleSummary",
+          function(x) x@bandle.joint)
+
 
 ##' @param x Object to be subset.
 ##' @param i An `integer()`. Should be of length 1 for `[[`.

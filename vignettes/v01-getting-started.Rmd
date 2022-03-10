@@ -342,7 +342,7 @@ str(res[[1]])
 The main one of interest is the `posteriorEstimates` slot,
 
 ```{r postest}
-res[[1]]@posteriorEstimates
+posteriorEstimates(res[[1]])
 ```
 
 This output object is a `data.frame` containing the protein allocations and
@@ -356,8 +356,8 @@ We create two new objects `pe1` and `pe2` in the below code chunk which contain
 the output of the `posteriorEstimates` slot. 
 
 ```{r getposteriors}
-pe1 <- res[[1]]@posteriorEstimates
-pe2 <- res[[2]]@posteriorEstimates
+pe1 <- posteriorEstimates(res[[1]])
+pe2 <- posteriorEstimates(res[[2]])
 ```
 
 One quantity of interest is the protein allocations, which we can plot as a
@@ -392,12 +392,12 @@ The full allocation probabilities are stored in the `tagm.joint` slot. These can
 be visualised in a heatmap
 
 ```{r heatmap_control}
-bjoint_control <- summaries(bandleres)[[1]]@bandle.joint
+bjoint_control <- bandleJoint(summaries(bandleres)[[1]])
 pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
 ```{r heatmap_treatment}
-bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint
+bjoint_treatment <- bandleJoint(summaries(bandleres)[[2]])
 pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
