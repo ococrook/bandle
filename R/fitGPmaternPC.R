@@ -65,7 +65,7 @@ fitGPmaternPC <- function(object = object,
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
     
-    exprs <- t(exprs(object[fData(object)[, fcol] == 
+    exprs <- t(Biobase::exprs(object[fData(object)[, fcol] == 
                               getMarkerClasses(object, fcol = fcol)[j], idx]))
     
     # optimisation step 
@@ -98,7 +98,7 @@ fitGPmaternPC <- function(object = object,
   
   # plotting routines
   for(j in seq.int(K)){
-    Orgdata <- t(exprs(object[fData(object)$markers == 
+    Orgdata <- t(Biobase::exprs(object[fData(object)$markers == 
                                 getMarkerClasses(object, fcol = fcol)[j],idx]))
     if (isTRUE(plot)) {
       matplot(x = idx, Orgdata, col = getStockcol()[j], 
@@ -206,7 +206,7 @@ fitGPmatern <- function(object = object,
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
     
-    exprs <- t(exprs(object[fData(object)[, fcol] == 
+    exprs <- t(Biobase::exprs(object[fData(object)[, fcol] == 
                               getMarkerClasses(object)[j], idx]))
     
     res <- apply(init, 1,function(z){lbfgs(likelihoodGPmatern,
@@ -236,7 +236,7 @@ fitGPmatern <- function(object = object,
   
   # plotting
   for (j in seq.int(K)) {
-    Orgdata <- t(exprs(object[fData(object)$markers == 
+    Orgdata <- t(Biobase::exprs(object[fData(object)$markers == 
                                 getMarkerClasses(object)[j],idx]))
       if (isTRUE(plot)) {
       matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19,

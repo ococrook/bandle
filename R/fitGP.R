@@ -45,7 +45,7 @@ fitGP <- function(object = object,
   # LBFGS routine to get hypers via maximum marginal likelihood
   for (j in seq.int(K)) {
     
-    exprs <- t(exprs(object[fData(object)[, fcol] == getMarkerClasses(object,
+    exprs <- t(Biobase::exprs(object[fData(object)[, fcol] == getMarkerClasses(object,
                                                                       fcol = fcol)[j], idx]))
     
     res <- apply(init, 1, function(z){lbfgs(likelihoodGP,
@@ -73,7 +73,7 @@ fitGP <- function(object = object,
 
   # plotting routine 
   for(j in seq.int(K)){
-    Orgdata <- t(exprs(object[fData(object)$markers == getMarkerClasses(object)[j],idx]))
+    Orgdata <- t(Biobase::exprs(object[fData(object)$markers == getMarkerClasses(object)[j],idx]))
      matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19, type = "b", lty = 1, lwd = 1.5,
              main = paste(getMarkerClasses(object, fcol = fcol)[j]),
             xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
