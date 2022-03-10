@@ -125,7 +125,7 @@ diffLoc <- function(objectCond1,
     stopifnot("propSd must be numeric"=is(propSd, "numeric"))
     stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
     
-    
+    suppressMessages(require(Biobase))
     
     
     # Setting seed manually

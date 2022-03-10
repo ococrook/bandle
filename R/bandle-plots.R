@@ -207,7 +207,6 @@ spatial2D <- function(object,
               plot.title = element_text(hjust = 0.5, size = 20),
               legend.text=element_text(size = 14)) +
         ggtitle(label = "Spatial variation of localisation probabilities") 
-    gg
     return(gg)
 }
 
@@ -457,7 +456,7 @@ plotTranslocations <- function(params,
             }
             labels.par <- match.arg(labels.par, c("repel", "adj"))
         } 
-        q
+        return(q)
     }
     
 }
