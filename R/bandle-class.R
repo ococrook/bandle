@@ -7,8 +7,9 @@
                         slots = c(chains = "list"),
                         validity = function(object) {
                             msg <- validMsg(NULL, NULL)
-                            cls <- sapply(object@chains,
-                                          function(x) inherits(x, "bandleChain"))
+                            cls <- vapply(object@chains,
+                                          function(x) inherits(x, "bandleChain"),
+                                          logical(1))
                             if (!all(cls))
                                 msg <- validMsg(msg, "Not all items are bandleChains.")
                             if (is.null(msg)) TRUE
@@ -38,8 +39,9 @@
                             slots = c(summaries = "list"),
                             validity = function(object) {
                                 msg <- validMsg(NULL, NULL)
-                                cls <- sapply(object@summaries,
-                                              function(x) inherits(x, "bandleSummary"))
+                                cls <- vapply(object@summaries,
+                                              function(x) inherits(x, "bandleSummary")
+                                              logical(1))
                                 if (!all(cls))
                                     msg <- validMsg(msg, "Not all items are bandleSummary(s).")
                                 if (is.null(msg)) TRUE
