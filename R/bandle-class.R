@@ -40,7 +40,7 @@
                             validity = function(object) {
                                 msg <- validMsg(NULL, NULL)
                                 cls <- vapply(object@summaries,
-                                              function(x) inherits(x, "bandleSummary")
+                                              function(x) inherits(x, "bandleSummary"),
                                               logical(1))
                                 if (!all(cls))
                                     msg <- validMsg(msg, "Not all items are bandleSummary(s).")
@@ -148,8 +148,9 @@ setMethod("show", "nicheParam",
                           slots = c(params = "list"),
                           validity = function(object) {
                               msg <- validMsg(NULL, NULL)
-                              cls <- sapply(object@params,
-                                            function(x) inherits(x, "nicheParam"))
+                              cls <- vapply(object@params,
+                                            function(x) inherits(x, "nicheParam"),
+                                            logical(1))
                               if (!all(cls))
                                   msg <- validMsg(msg, "Not all items are nicheParams.")
                               if (is.null(msg)) TRUE
