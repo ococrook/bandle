@@ -129,7 +129,11 @@ binomialDiffLocProb <- function(params,
     nT <- ncol(params@chains@chains[[1]]@niche[[1]])
     
     #Jeffrey's samples
-    res <- t(sapply(diff[prnames], function(x) rbeta(n = nsample, shape1 = x + 1/2, shape2 = nT - x + 1/2)))
+    res <- t(vapply(diff[prnames],
+                    function(x) 
+                        rbeta(n = nsample,
+                              shape1 = x + 1/2,
+                              shape2 = nT - x + 1/2)), numeric(nsample))
     
     rownames(res) <- prnames
     

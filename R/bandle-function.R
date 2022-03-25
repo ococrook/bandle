@@ -114,25 +114,26 @@ bandle <- function(objectCond1,
     
     
     # Checks
-    stopifnot("ObjectCond1 must be a list of MSnSet"=is(objectCond1[[1]], "MSnSet"))
-    stopifnot("ObjectCond2 must be a list of  MSnSet"=is(objectCond2[[1]], "MSnSet"))
-    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
-    stopifnot("numIter must be a numeric"=is(numIter, "numeric"))
-    stopifnot("burnin must be an integer"=is(burnin, "integer"))
-    stopifnot("thin must be an integer"=is(thin, "integer"))
-    stopifnot("burnin must be less than numIter"= burnin < numIter)
-    stopifnot("u must be numeric"=is(u, "numeric"))
-    stopifnot("v must be numeric"=is(v, "numeric"))
-    stopifnot("lambda must be numeric"=is(lambda, "numeric"))
-    stopifnot("hyperIter must be numeric"=is(hyperIter, "numeric"))
-    stopifnot("hyperMean must be numeric"=is(hyperMean, "numeric"))
-    stopifnot("hyperSd must be numeric"=is(hyperSd, "numeric"))
-    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
-    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
-    stopifnot("tau must be numeric" = is(tau, "numeric"))
-    stopifnot("nu must be numeric" = is(nu, "numeric"))
-    stopifnot("propSd must be numeric"=is(propSd, "numeric"))
-    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+    stopifnot(exprs = {
+                "ObjectCond1 must be a list of MSnSet"=is(objectCond1[[1]], "MSnSet")
+                "ObjectCond2 must be a list of  MSnSet"=is(objectCond2[[1]], "MSnSet")
+                "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
+                "numIter must be a numeric"=is(numIter, "numeric")
+                "burnin must be an integer"=is(burnin, "integer")
+                "thin must be an integer"=is(thin, "integer")
+                "burnin must be less than numIter"= burnin < numIter
+                "u must be numeric"=is(u, "numeric")
+                "v must be numeric"=is(v, "numeric")
+                "lambda must be numeric"=is(lambda, "numeric")
+                "hyperIter must be numeric"=is(hyperIter, "numeric")
+                "hyperMean must be numeric"=is(hyperMean, "numeric")
+                "hyperSd must be numeric"=is(hyperSd, "numeric")
+                "must provide 3 values for hyperMean"=length(hyperMean) == 3
+                "must provide 3 values for hyperSd" = length(hyperSd) == 3
+                "tau must be numeric" = is(tau, "numeric")
+                "nu must be numeric" = is(nu, "numeric")
+                "propSd must be numeric"=is(propSd, "numeric")
+                "Must provide 3 values for propSd"=length(propSd) == 3})
     
     # if dirPrior is not NULL
     if(!is.null(dirPrior)){
@@ -144,29 +145,32 @@ bandle <- function(objectCond1,
     
     # valid experiment
     ## same number of rows
-    validrow <- length(unique(sapply(c(objectCond1, objectCond2),
-                                     function(x) nrow(x)))) > 1
+    validrow <- length(unique(vapply(c(objectCond1, objectCond2),
+                                     function(x) nrow(x),
+                                     numeric(1)))) > 1
     if (isTRUE(validrow)){
         stop("Number of rows do not match, you may wish to subset your proteins")
     }
     ## same number of columns
-    validcol <- length(unique(sapply(c(objectCond1, objectCond2),
-                                     function(x) ncol(x)))) > 1
+    validcol <- length(unique(vapply(c(objectCond1, objectCond2),
+                                     function(x) ncol(x),
+                                     numeric(1)))) > 1
     if (isTRUE(validcol)){
         stop("Number of columns do not match, this analysis is not currently
              implemented in bandle. Subset fractions so they match")
     }
-    validrow2 <- var(apply(sapply(c(objectCond1, objectCond2),
+    validrow2 <- var(apply(vapply(c(objectCond1, objectCond2),
                                   function(x) rownames(x)), 1,
-                           function(x) length(unique(x)))) > 0
+                           function(x) length(unique(x),
+                                              numeric(1)))) > 0
     if (isTRUE(validrow2)){
         stop("rownames do not match across experiments. Analysis
              will lead to confusing results. Subset your proteins
              so they match")
     }
     ## valid fcol
-    if (isFALSE(all(sapply(c(objectCond1, objectCond2), function(x)
-        fcol %in% colnames(fData(x)))))){
+    if (isFALSE(all(vapply(c(objectCond1, objectCond2), function(x)
+        fcol %in% colnames(fData(x))), logical(1)))){
         stop("fcol is not in all the datasets. Check fcol is present")
     }
     

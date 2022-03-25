@@ -1,6 +1,5 @@
 useDynLib(bandle, .registration=TRUE)
 importFrom(Rcpp, evalCpp)
-exportPattern("^[[:alpha:]]+")
 
 # require imports
 import(pRolocdata)
@@ -40,3 +39,26 @@ importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
            "circos.clear",  "cm_h")
 importFrom("grDevices", "dev.off", "rainbow")
 importFrom("plyr", "id")
+
+exportClasses(bandleChains,
+              bandleSummary,
+              bandleSummaries,
+              bandleParams,
+              nicheParam,
+              nicheParams,
+              bandleChain)
+
+exportMethods(posteriorEstimates,
+              bandleJoint)
+
+export(diffLoc,
+       mcmc_plot_probs,
+       spatial2D,
+       plotTranslocations,
+       plotConvergence,
+       fitGP, fitGPmaternPC, fitGPmatern, 
+       bandle, bandlePredict, bandleProcess,
+       diffLocalisationProb, bootstrapdiffLocprob,
+       binomialDiffLocProb, EFDR,
+       meanOrganelle, prior_pred_dir,
+       prior_pred_pg, mrMethod, sim_dynamic)

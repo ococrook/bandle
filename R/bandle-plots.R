@@ -1,6 +1,5 @@
 ## Declare globalVariables
-utils::globalVariables(c("x", "y", "z", "value", "Condition", "label", 
-                         "stratum"))
+utils::globalVariables(c("value", "stratum"))
 
 ##' These functions implement plotting functions for bandle objects
 ##' 
@@ -189,7 +188,7 @@ spatial2D <- function(object,
     
     gg <- ggplot(
         data = df.lst,
-        aes(x = x, y = y, z = z, color = organelle)) +
+        aes(x = .data$x, y = .data$y, z = .data$z, color = organelle)) +
         coord_fixed() + 
         geom_contour(breaks = breaks, size = 1.2, aes(alpha = stat(level))) + 
         geom_point(alpha = 0) + 
@@ -410,7 +409,8 @@ plotTranslocations <- function(params,
         }
         
         # plot alluvial diagram
-        q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
+        q <- ggplot(df_expanded, aes(x = .data$Condition, stratum = .data$label,
+                                     alluvium = id, fill = .data$label)) +
             geom_flow(width = 0) +
             scale_fill_manual(values = columncol) +
             scale_color_manual(values = stratcol) +
