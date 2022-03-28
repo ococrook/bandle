@@ -24,7 +24,7 @@
 ##' mcmc1 <- bandleProcess(mcmc1)
 ##' dp <- diffLocalisationProb(mcmc1)
 ##' 
-##' @rdname bandle
+##' @rdname bandle-differentiallocalisation
 diffLocalisationProb <- function(params) {
     
     # Must be a valid bandleParams object
@@ -63,7 +63,7 @@ diffLocalisationProb <- function(params) {
 ##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc1 <- bandleProcess(mcmc1)
 ##' bdp <- bootstrapdiffLocprob(mcmc1)
-##' @rdname bandle
+##' @rdname bandle-differentiallocalisation
 bootstrapdiffLocprob <- function(params,
                                  top = 20,
                                  Bootsample = 5000,
@@ -75,12 +75,14 @@ bootstrapdiffLocprob <- function(params,
     prBootnames <- names(probs[order(probs, decreasing = decreasing)][seq.int(top)])
     rownames(res) <- prBootnames
     
-    for (t in seq.int(Bootsample)){
+    res <- vapply(seq.int(Bootsample), function(x) {
         bootidx <- sample.int(ncol(params@chains@chains[[1]]@niche[[1]]),
                               replace = TRUE)
-        res[,t] <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]][prBootnames, bootidx] - 
+        out <- rowSums(1 * (params@chains@chains[[1]]@niche[[1]][prBootnames, bootidx] - 
                                     params@chains@chains[[1]]@niche[[2]][prBootnames, bootidx] != 0))/length(bootidx)
-    }
+        return(out)
+        }, numeric(top)
+        )
     
     return(res)
 }
@@ -110,7 +112,7 @@ bootstrapdiffLocprob <- function(params,
 ##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc1 <- bandleProcess(mcmc1)
 ##' dp <- binomialDiffLocProb(mcmc1)
-##' @rdname bandle
+##' @rdname bandle-differentiallocalisation
 binomialDiffLocProb <- function(params,
                                 top = 20,
                                 nsample = 5000,
@@ -133,7 +135,7 @@ binomialDiffLocProb <- function(params,
                     function(x) 
                         rbeta(n = nsample,
                               shape1 = x + 1/2,
-                              shape2 = nT - x + 1/2)), numeric(nsample))
+                              shape2 = nT - x + 1/2), numeric(nsample)))
     
     rownames(res) <- prnames
     
@@ -171,7 +173,7 @@ binomialDiffLocProb <- function(params,
 ##' dp <- diffLocalisationProb(mcmc1)
 ##' EFDR(dp, threshold = 0.5)
 ##' 
-##' @rdname bandle
+##' @rdname bandle-EFDR
 EFDR <- function(prob, threshold = 0.90) {
     
     stopifnot("prob must be numeric"=is(prob, "numeric"))
@@ -195,7 +197,7 @@ EFDR <- function(prob, threshold = 0.90) {
 ##' data("tan2009r1")
 ##' meanOrganelle(object = tan2009r1)
 ##' 
-##' @rdname bandle
+##' @rdname bandle-meanOrganelle
 meanOrganelle <- function(object, fcol = "markers"){
     
     stopifnot(is(object, "MSnSet"))
@@ -210,7 +212,7 @@ meanOrganelle <- function(object, fcol = "markers"){
     return(list(M = M, V = V))
 }
 
-##' @title Computes the Kullback-Leiber divergence between Polya-Gamma and 
+##' @title Computes the Kullback-Leibler divergence between Polya-Gamma and 
 ##' Dirichlet priors
 ##' @param sigma the sigma parameter of the Polya-Gamma prior. A positive-definite
 ##' symmetric matrix.
@@ -221,7 +223,7 @@ meanOrganelle <- function(object, fcol = "markers"){
 ##' @examples 
 ##' kldirpg(sigma = diag(c(1,1,1)), mu = c(0,0,0), alpha = 1)
 ##' 
-##' @rdname bandle
+##' @rdname bandle-prior
 kldirpg <- function(sigma = diag(1,1,1),
                     mu = c(0,0,0),
                     alpha = c(1)) {
@@ -253,7 +255,7 @@ kldirpg <- function(sigma = diag(1,1,1),
 ##' @examples 
 ##' kldir(c(1,1), c(3,1))
 ##' 
-##' @rdname bandle
+##' @rdname bandle-prior
 kldir <- function(alpha, beta) {
     
     stopifnot("alpha must be numeric"=is(alpha, "numeric"))
@@ -268,7 +270,7 @@ kldir <- function(alpha, beta) {
 }
 
 ##' @title A function to compute the prior predictive distribution of the 
-##' Dirichet prior.
+##' Dirichlet prior.
 ##' 
 ##' @param object An instance of class `MSnSet`
 ##' @param fcol Feature column indicating the markers. Default is "markers"
@@ -278,7 +280,7 @@ kldir <- function(alpha, beta) {
 ##'  a default Dirichlet prior. This should be a matrix with the same dimensions
 ##'  as the number of subcellular niches. The diagonal terms correspond
 ##'  to the prior probability of not differentially localising. The (i,j)
-##'  term corresponds to prior probabilty of differntially localising between 
+##'  term corresponds to prior probability of differntially localising between 
 ##'  niche i and j. 
 ##' @param q The upper tail value. That is the prior probability of having more 
 ##'  than q differential localisations. Default is 15. 
@@ -293,7 +295,7 @@ kldir <- function(alpha, beta) {
 ##' 
 ##' out <- prior_pred_dir(object = tan2009r1)
 ##' 
-##' @rdname bandle     
+##' @rdname bandle-prior     
 prior_pred_dir <- function(object,
                            fcol = "markers",
                            iter = 5000,
@@ -363,7 +365,7 @@ prior_pred_dir <- function(object,
 ##' objectCond2 = treatment1[[1]])
 ##' 
 ##' 
-##' @rdname bandle     
+##' @rdname bandle-prior     
 prior_pred_pg <- function(objectCond1,
                           objectCond2,
                           fcol = "markers",

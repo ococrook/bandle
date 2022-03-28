@@ -147,22 +147,21 @@ bandle <- function(objectCond1,
     ## same number of rows
     validrow <- length(unique(vapply(c(objectCond1, objectCond2),
                                      function(x) nrow(x),
-                                     numeric(1)))) > 1
+                                     FUN.VALUE = numeric(1)))) > 1
     if (isTRUE(validrow)){
         stop("Number of rows do not match, you may wish to subset your proteins")
     }
     ## same number of columns
     validcol <- length(unique(vapply(c(objectCond1, objectCond2),
                                      function(x) ncol(x),
-                                     numeric(1)))) > 1
+                                     FUN.VALUE = numeric(1)))) > 1
     if (isTRUE(validcol)){
         stop("Number of columns do not match, this analysis is not currently
              implemented in bandle. Subset fractions so they match")
     }
-    validrow2 <- var(apply(vapply(c(objectCond1, objectCond2),
+    validrow2 <- var(apply(sapply(c(objectCond1, objectCond2),
                                   function(x) rownames(x)), 1,
-                           function(x) length(unique(x),
-                                              numeric(1)))) > 0
+                           function(x) length(unique(x)))) > 0
     if (isTRUE(validrow2)){
         stop("rownames do not match across experiments. Analysis
              will lead to confusing results. Subset your proteins
@@ -170,7 +169,7 @@ bandle <- function(objectCond1,
     }
     ## valid fcol
     if (isFALSE(all(vapply(c(objectCond1, objectCond2), function(x)
-        fcol %in% colnames(fData(x))), logical(1)))){
+        fcol %in% colnames(fData(x)), logical(1))))){
         stop("fcol is not in all the datasets. Check fcol is present")
     }
     
@@ -243,7 +242,7 @@ bandle <- function(objectCond1,
     
     return(.out)
 }
-
+##' @title Make predictions from a bandle analysis
 ##' @param objectCond1 A list of instances of class [`MSnbase::MSnSet`]s
 ##' where each is an experimental replicate for the first condition, usually a control
 ##' @param objectCond2 A list of instance of class [`MSnbase::MSnSet`]s 
@@ -266,8 +265,26 @@ bandle <- function(objectCond1,
 ##'     is the natural logarithm of the number of classes). An additional variable
 ##'     indicating the differential localization probability is also added as
 ##'     `bandle.differential.localisation`
+##'     
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc1 <- bandleProcess(mcmc1)
+##' out <- bandlePredict(objectCond1 = control1, objectCond2 = treatment1, params = mcmc1)
 ##' @md
-##' @rdname bandle
+##' @rdname bandle-predict
 bandlePredict <- function(objectCond1,
                           objectCond2,
                           params,
@@ -350,11 +367,30 @@ bandlePredict <- function(objectCond1,
     
     return(.out)
 }
-
+##' @title process bandle results
+##' @param params An object of class `bandleParams`
 ##' @return `bandleProcess` returns an instance of class
 ##'     `bandleParams` with its summary slot populated.
+##'     
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc1 <- bandleProcess(mcmc1)
+##' 
 ##' @md
-##' @rdname bandle
+##' @rdname bandle-process
 bandleProcess <- function(params) {
     
     stopifnot(is(params, "bandleParams"))

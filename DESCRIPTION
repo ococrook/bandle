@@ -36,7 +36,8 @@ Imports: Rcpp (>= 1.0.4.6),
     graphics,
     stats,
     utils,
-    grDevices
+    grDevices,
+    rlang
 Suggests: 
     coda (>= 0.19-4),
     testthat,

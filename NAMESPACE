@@ -39,6 +39,7 @@ importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
            "circos.clear",  "cm_h")
 importFrom("grDevices", "dev.off", "rainbow")
 importFrom("plyr", "id")
+importFrom("rlang", ".data")
 
 exportClasses(bandleChains,
               bandleSummary,
@@ -61,4 +62,7 @@ export(diffLoc,
        diffLocalisationProb, bootstrapdiffLocprob,
        binomialDiffLocProb, EFDR,
        meanOrganelle, prior_pred_dir,
-       prior_pred_pg, mrMethod, sim_dynamic)
+       prior_pred_pg, mrMethod, sim_dynamic,
+       summaries, StatStratum, dmvtCpp, Gumbel,
+       covOrganelle, pg_prior, kldirpg, kldir)
+
