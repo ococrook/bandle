@@ -278,7 +278,7 @@ bandlePredict <- function(objectCond1,
 
     for (j in c(1, 2)){
     
-        object <-  c(objectCond1, objectCond2)[j][[1]]
+        object <- list(objectCond1, objectCond2)[[j]][[1]]
     
         ## Create marker set and size
         markerSet <- markerMSnSet(object, fcol = fcol)
