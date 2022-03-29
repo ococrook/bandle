@@ -81,8 +81,6 @@ test_that("bandle consistency 3", {
 test_that("bandle consistency 4", {
     .numIter <- 5
     set.seed(1)
-    
-    
     gpParams <- lapply(tansim$lopitrep, 
                        function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
     mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
@@ -102,8 +100,6 @@ test_that("bandle consistency 4", {
 test_that("bandle consistency 5", {
     .numIter <- 20
     set.seed(1)
-    
-    
     gpParams <- lapply(tansim$lopitrep, 
                        function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
     mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
@@ -121,5 +117,3 @@ test_that("bandle consistency 5", {
     ans2 <- bandlePredict(objectCond1 = control2, objectCond2 = treatment2, params = mcmc2, fcol = "xx")
     expect_equal(ans2, ans1, check.attributes = FALSE)
 })
-
-
