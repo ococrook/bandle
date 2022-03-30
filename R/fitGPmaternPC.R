@@ -2,7 +2,7 @@
 ##' hyperparameters, side effect will plot posterior predictives
 ##' 
 ##' 
-##' @title Fit matern GP to spatial proteomics data.
+##' @title Fit and plot matern GPs to spatial proteomics data.
 ##' @param object A instance of class `MSnSet`
 ##' @param fcol feature column to indicate markers. Default is "markers".
 ##' @param materncov `logical` indicating whether matern covariance is used,
@@ -11,11 +11,9 @@
 ##' @param hyppar The vector of penalised complexity hyperparameters, you must 
 ##' provide a matrix with 3 columns and 1 row. The order is hyperparameters
 ##' on length-scale, amplitude, variance.
-##' @param plot `logical` indicating whether to plot the posterior predictives
-##' overlayed with markers. Default is TRUE.
-##' @return returns a list of posterior predictive means and standard deviations.
-##'  As well as MAP hyperparamters for the GP. Side effect will plot the posterior
-##'  predictive overlayed with markers.
+##' @return Returns an object of class `gpParams` which stores the posterior
+##' predictive means, standard deviations, variances and also the MAP 
+##' hyperparamters for the GP. 
 ##' @md
 ##' @examples
 ##' library(pRolocdata)
@@ -32,15 +30,15 @@ fitGPmaternPC <- function(object = object,
                           fcol = "markers",
                           materncov = TRUE,
                           nu = 2,
-                          hyppar = matrix(c(1, 50, 50), nrow = 1),
-                          plot = TRUE) {
-    
+                          hyppar = matrix(c(1, 50, 50), nrow = 1)) {
+  
   stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
   stopifnot("matercov must be a logical"=is(materncov, "logical"))
   stopifnot("hyppar must be a matrix"=is(hyppar, "matrix"))
   stopifnot("You must provide a matrix with 3 columns for hyperparmeters"
             =ncol(hyppar) == 3)
-  stopifnot("plot must be a logical"=is(plot, "logical"))
+  if (!is.null(fcol) && !fcol %in% fvarLabels(object))
+    stop("'", fcol, "' not found in feature variables.")
   
   ## storage
   componenthypers <- vector(mode = "list", 
@@ -65,7 +63,7 @@ fitGPmaternPC <- function(object = object,
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
     
-    exprs <- t(Biobase::exprs(object[fData(object)[, fcol] == 
+    exprs <- t(exprs(object[fData(object)[, fcol] == 
                               getMarkerClasses(object, fcol = fcol)[j], idx]))
     
     # optimisation step 
@@ -98,20 +96,8 @@ fitGPmaternPC <- function(object = object,
   
   # plotting routines
   for(j in seq.int(K)){
-    Orgdata <- t(Biobase::exprs(object[fData(object)$markers == 
+    Orgdata <- t(exprs(object[fData(object)$markers == 
                                 getMarkerClasses(object, fcol = fcol)[j],idx]))
-    if (isTRUE(plot)) {
-      matplot(x = idx, Orgdata, col = getStockcol()[j], 
-              pch = 19, type = "b", lty = 1, lwd = 1.5,
-              main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-              xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
-              ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), 
-              cex.axis = 1.5, cex.main = 1.5, 
-              xaxt = "n", axes = FALSE)
-      axis(2)
-      axis(1, at = idx, labels = idx)
-    }
-    
     nk <- table(fData(object)$markers)[getMarkerClasses(object, fcol = fcol)][j]
     S <- matrix(rep(seq.int(length(tau)), length(tau)), nrow = length(tau))
     params <- .hypers
@@ -128,40 +114,85 @@ fitGPmaternPC <- function(object = object,
     Kstar <- do.call(cbind, replicate(nk, covA, simplify = FALSE))
     Kstarstar <- rep(amatern^2 + sigmak, length(tau))
     M[[j]] <- Kstar %*% invcov %*% as.vector(Orgdata)
-    V[[j]] <- sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar)))
+    V[[j]] <- as.matrix(sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar))))
     Var[[j]] <- diag(rep(amatern^2, length(tau))) - Kstar %*% invcov %*% t(Kstar)
-    
-    # plotting
-    if (isTRUE(plot)) {
-      points(seq_along(tau), M[[j]], col = "black", pch = 19, cex = 1.3,
-             type = "b", lwd = 5, lty = 1)
-      arrows(seq_along(tau),
-             M[[j]]-1.96*V[[j]], seq_along(tau),
-             M[[j]]+1.96*V[[j]], length=0.1, 
-             angle=90, code=3, 
-             col = "black", lwd = 3)
-    }
   }
   
-  .res <- list(M = M, sigma = sigma, params = params)
+  .res <- .gpParams(method = "fitGPmaternPC",
+                    M = M, 
+                    V = V, 
+                    sigma = sigma, 
+                    params = params)
   
   return(.res)
   
 }
+
+
+##' Function to plot matern GPs
+##'
+##' @title Plot matern GP to spatial proteomics data.
+##' @param params The output of running `fitGPmatern` which is of class `gpParams`
+##' @param fcol feature column to indicate markers. Default is "markers".
+##' @md
+##' @rdname bandle-gpfit
+##' @return The functions `plotGPmatern` plot the posterior
+##' predictives overlayed with the markers for each subcellular class.
+plotGPmatern <- function(object = object,
+                         params = params,
+                         fcol = "markers") {  
+  
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
+  stopifnot("params is not an instance of class gpParams"=is(params, "gpParams"))
+  if (!is.null(fcol) && !fcol %in% fvarLabels(object))
+    stop("'", fcol, "' not found in feature variables.")
+  
+  # ## size needed
+  K <- length(getMarkerClasses(object, fcol = fcol))
+  M <- params@M
+  V <- params@V
+  
+  # indexing sets
+  idx <- seq.int(D)
+  tau <- seq.int(D)
+  
+  # LBFGS routine to get hypers
+  for (j in seq.int(K)) {
+    
+    exprs <- t(exprs(object[fData(object)[, fcol] == 
+                              getMarkerClasses(object, fcol = fcol)[j], idx]))
+  }
+  
+  # plotting routines
+  for(j in seq.int(K)){
+    Orgdata <- t(exprs(object[fData(object)$markers == 
+                                getMarkerClasses(object, fcol = fcol)[j],idx]))
+    matplot(x = idx, Orgdata, col = getStockcol()[j],
+            pch = 19, type = "b", lty = 1, lwd = 1.5,
+            main = paste(getMarkerClasses(object, fcol = fcol)[j]),
+            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
+            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05),
+            cex.axis = 1.5, cex.main = 1.5,
+            xaxt = "n", axes = FALSE)
+    axis(2)
+    axis(1, at = idx, labels = idx)
+    points(seq_along(tau), M[[j]], col = "black", pch = 19, cex = 1.3,
+           type = "b", lwd = 5, lty = 1)
+    arrows(seq_along(tau),
+           M[[j]]-1.96*V[[j]], seq_along(tau),
+           M[[j]]+1.96*V[[j]], length=0.1,
+           angle=90, code=3,
+           col = "black", lwd = 3)
+  }
+  
+}
+
+
 ##' Function to fit matern GPs to data, side effect will plot posterior 
 ##' predictives
 ##' 
-##' 
 ##' @title Fit matern GP to spatial proteomics data.
-##' @param object A instance of class `MSnSet`
-##' @param fcol feature column to indicate markers. Default is "markers".
 ##' @param materncov `logical` indicating whether matern covariance is used.
-##' @param nu matern smoothness parameter. Default is 2.
-##' @param plot `logical` indicating whether to plot the posterior predictives
-##' overlayed with the markers. Default is TRUE.
-##' @return returns a list of posterior predictive means and standard deviations.
-##'  As well as maximum marginal likelihood for the GP. Side effect will plot
-##'  the posterior predictive overlayed with markers.
 ##' @md
 ##' @examples 
 ##' library(pRolocdata)
@@ -176,13 +207,13 @@ fitGPmaternPC <- function(object = object,
 fitGPmatern <- function(object = object,
                         fcol = "markers",
                         materncov = TRUE,
-                        nu = 2,
-                        plot = TRUE) {
-    
+                        nu = 2) {
+  
   stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
   stopifnot("matercov must be a logical"=is(materncov, "logical"))
-  stopifnot("plot must be a logical"=is(plot, "logical"))
-
+  if (!is.null(fcol) && !fcol %in% fvarLabels(object))
+    stop("'", fcol, "' not found in feature variables.")
+  
   ## storage
   componenthypers <- vector(mode = "list", 
                             length(getMarkerClasses(object, fcol = fcol)))
@@ -206,7 +237,7 @@ fitGPmatern <- function(object = object,
   # LBFGS routine to get hypers
   for (j in seq.int(K)) {
     
-    exprs <- t(Biobase::exprs(object[fData(object)[, fcol] == 
+    exprs <- t(exprs(object[fData(object)[, fcol] == 
                               getMarkerClasses(object)[j], idx]))
     
     res <- apply(init, 1,function(z){lbfgs(likelihoodGPmatern,
@@ -233,22 +264,10 @@ fitGPmatern <- function(object = object,
   V <- vector(mode = "list", K)
   Var <- vector(mode = "list", K)
   
-  
   # plotting
   for (j in seq.int(K)) {
-    Orgdata <- t(Biobase::exprs(object[fData(object)$markers == 
+    Orgdata <- t(exprs(object[fData(object)$markers == 
                                 getMarkerClasses(object)[j],idx]))
-      if (isTRUE(plot)) {
-      matplot(x = idx, Orgdata, col = getStockcol()[j], pch = 19,
-              type = "b", lty = 1, lwd = 1.5,
-              main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-              xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
-              ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05), 
-              cex.axis = 1.5, cex.main = 1.5, 
-              xaxt = "n", axes = FALSE)
-      axis(2)
-      axis(1, at = idx, labels = idx)
-    }
     
     # require statistics
     nk <- table(fData(object)$markers)[getMarkerClasses(object)][j]
@@ -269,19 +288,14 @@ fitGPmatern <- function(object = object,
     M[[j]] <- Kstar %*% invcov %*% as.vector(Orgdata)
     V[[j]] <- sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar)))
     Var[[j]] <- diag(rep(amatern^2, length(tau))) - Kstar %*% invcov %*% t(Kstar)
-    
-    # plotting
-    if (isTRUE(plot)) {
-      points(seq_along(tau), M[[j]], col = "black",
-             pch = 19, cex = 1.3, type = "b", lwd = 5, lty = 1)
-      arrows(seq_along(tau), M[[j]]-1.96*V[[j]],
-             seq_along(tau), M[[j]]+1.96*V[[j]],
-             length=0.1, angle=90, code=3, col = "black", lwd = 3)
-    }
   }
   
   ## output
-  .res <- list(M = M, sigma = sigma, params = params)
+  .res <- .gpParams(method = "fitGPmatern",
+                    M = M, 
+                    V = V,
+                    sigma = sigma, 
+                    params = params)
   
   return(.res)
   
