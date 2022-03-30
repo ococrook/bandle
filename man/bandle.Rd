@@ -89,7 +89,7 @@ chain.  Default is 5.}
 
 \item{lambda}{Controls the variance of the outlier component. Default is 1.}
 
-\item{gpParams}{Object of class gpparams. parameters from prior fitting of GPs
+\item{gpParams}{Object of class \code{gpParams}. parameters from prior fitting of GPs
 to each niche to accelerate inference. Default is NULL.}
 
 \item{hyperIter}{The frequency of MCMC interation to update the hyper-parameters

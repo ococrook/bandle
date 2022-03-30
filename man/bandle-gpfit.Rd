@@ -3,6 +3,7 @@
 \name{fitGP}
 \alias{fitGP}
 \alias{fitGPmaternPC}
+\alias{plotGPmatern}
 \alias{fitGPmatern}
 \title{fit a Gaussian process to spatial proteomics data}
 \usage{
@@ -13,17 +14,12 @@ fitGPmaternPC(
   fcol = "markers",
   materncov = TRUE,
   nu = 2,
-  hyppar = matrix(c(1, 50, 50), nrow = 1),
-  plot = TRUE
+  hyppar = matrix(c(1, 50, 50), nrow = 1)
 )
 
-fitGPmatern(
-  object = object,
-  fcol = "markers",
-  materncov = TRUE,
-  nu = 2,
-  plot = TRUE
-)
+plotGPmatern(object = object, params = params, fcol = "markers")
+
+fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
 }
 \arguments{
 \item{object}{A instance of class \code{MSnSet}}
@@ -38,21 +34,19 @@ fitGPmatern(
 provide a matrix with 3 columns and 1 row. The order is hyperparameters
 on length-scale, amplitude, variance.}
 
-\item{plot}{\code{logical} indicating whether to plot the posterior predictives
-overlayed with the markers. Default is TRUE.}
+\item{params}{The output of running \code{fitGPmatern} which is of class \code{gpParams}}
 }
 \value{
 means and standard deviation of gaussian process fitted to data,
 along with hyperparameters with maximum marginal likelihood fitting. Side
 effect, plot the markers with overlayed Gaussian processes.
 
-returns a list of posterior predictive means and standard deviations.
-As well as MAP hyperparamters for the GP. Side effect will plot the posterior
-predictive overlayed with markers.
+Returns an object of class \code{gpParams} which stores the posterior
+predictive means, standard deviations, variances and also the MAP
+hyperparamters for the GP.
 
-returns a list of posterior predictive means and standard deviations.
-As well as maximum marginal likelihood for the GP. Side effect will plot
-the posterior predictive overlayed with markers.
+The functions \code{plotGPmatern} plot the posterior
+predictives overlayed with the markers for each subcellular class.
 }
 \description{
 Helper function to fit GPs with squared exponential convariances,
@@ -60,6 +54,8 @@ maximum marginal likelihood
 
 Function to fit matern GPs to data with penalised complexity priors on the
 hyperparameters, side effect will plot posterior predictives
+
+Function to plot matern GPs
 
 Function to fit matern GPs to data, side effect will plot posterior
 predictives
