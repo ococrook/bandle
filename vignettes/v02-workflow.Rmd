@@ -186,10 +186,9 @@ gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x, plot = FALSE))
 
 We apply the `fitGPmaternPC` function on to each dataset by using `lapply` over
 the `thplopit` list of data. The posterior predictive means, standard deviations
-and MAP hyperparamters for the GP are returned. As a side effect the posterior
-predictive distributions are overlayed with the marker protein profiles for each
-subcellular class when the argument `plot = TRUE` is used. Here we do not render
-the plots to conform to Biconductor vignette size guidelines.
+and MAP hyperparamters for the GP are returned. If desired we can visualise the
+predictives overlaid onto the marker profiles of the data by using the `plotGPmatern`
+function.
 
 The prior needs to form a `K*3` matrix (where `K` is the number of subcellular
 classes in the data), 
@@ -218,12 +217,21 @@ argument to the `fitGPmaternPC` function. For example,
 par(mfrow = c(3,4))
 gpParams <- lapply(thplopit,
                    function(x) fitGPmaternPC(x, 
-                                             hyppar = pc_prior,
-                                             plot = TRUE))
+                                             hyppar = pc_prior))
 ```
 
-The distributions and fit looks sensible for each class so we will proceed with
+By plotting the predictives using the `plotGPmatern` function we see that
+the distributions and fit looks sensible for each class so we will proceed with
 setting the prior on the weights.
+
+```{r plotgps, fig.height=10, fig.width=8}
+plotGPmatern(thplopit[[1]], gpParams[[1]])
+```
+
+For the interest of keeping the vignette size small in the above chunk we
+plot only the first datasets and its respective predictives. To plot the
+second datatset we would execute `plotGPmatern(thplopit[[i]], gpParams[[i]])`
+where i = 2, and similarly for the third i = 3 and so on.
 
 ## Setting the prior on the weights
 
