@@ -26,7 +26,7 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Parameters from prior fitting of GPs
+##' @param gpParams Parameters from prior fitting of GPs of class `gpParams`.
 ##' to each niche to accelerate inference. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20
@@ -242,6 +242,7 @@ bandle <- function(objectCond1,
     
     return(.out)
 }
+
 ##' @title Make predictions from a bandle analysis
 ##' @param objectCond1 A list of instances of class [`MSnbase::MSnSet`]s
 ##' where each is an experimental replicate for the first condition, usually a control

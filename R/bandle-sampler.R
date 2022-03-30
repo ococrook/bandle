@@ -27,7 +27,7 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Object of class gpparams. parameters from prior fitting of GPs
+##' @param gpParams Object of class `gpParams`. parameters from prior fitting of GPs
 ##' to each niche to accelerate inference. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20
@@ -137,6 +137,14 @@ diffLoc <- function(objectCond1,
     stopifnot(length(hyperMean)==3)
     stopifnot(length(hyperSd)==3)
     stopifnot(sum(hyperSd > 0)==3)
+    
+    # gpParams
+    if (!is.null(gpParams)) {
+      stopifnot("gpParams is not an instance of class gpParams"=is(params, "gpParams"))
+      gpParams <- list(M = gpParams@M, 
+                       sigma = gpParams@sigma, 
+                       params = gpParams@params)
+    }
     
     ## Samples to be retained as a result of burnin and thinning
     toRetain <- seq.int(burnin + 1L, numIter, thin)
