@@ -185,3 +185,32 @@
                              if (is.null(msg)) TRUE
                              else msg
                          })
+
+##' The `gpParams` infrastructure is used to store and process the GP results for
+##' output from using the `fitGP` functions in `bandle`
+##'
+##' Objects of the `gpParams` class are created with the `fitGP`, `fitGPmaternPC` or
+##' `fitGPmatern` functions
+##' 
+##' These objects a list of posterior predictive means and standard deviations. 
+##' As well as maximum marginal likelihood for the GP
+##' 
+##' @title Container for GP results
+##'
+##' @slot method `character` indicating the GP method used
+##' @slot M A `list` of the posterior predictive means for each `K` 
+##' components of GPs fitted to the data
+##' @slot sigma A `numeric` of length `K` standard deviations fitted
+##' to the data
+##' @slot V A `list` of the variance fitted to the data
+##' @slot params A `matrix` `array` of the MAP hyperparameters for the 
+##' GP
+##' @md
+##' @rdname gpParams
+.gpParams <- setClass("gpParams",
+                         slots = c(method = "character",
+                                   M = "list",
+                                   V = "list",
+                                   sigma = "numeric",
+                                   params = "matrix"
+                                   ))
