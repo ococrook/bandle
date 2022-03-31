@@ -3,8 +3,8 @@
 \name{fitGP}
 \alias{fitGP}
 \alias{fitGPmaternPC}
-\alias{plotGPmatern}
 \alias{fitGPmatern}
+\alias{plotGPmatern}
 \title{fit a Gaussian process to spatial proteomics data}
 \usage{
 fitGP(object = object, fcol = "markers")
@@ -17,14 +17,14 @@ fitGPmaternPC(
   hyppar = matrix(c(1, 50, 50), nrow = 1)
 )
 
-plotGPmatern(object = object, params = params, fcol = "markers")
-
 fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
+
+plotGPmatern(object = object, params = params, fcol = "markers")
 }
 \arguments{
 \item{object}{A instance of class \code{MSnSet}}
 
-\item{fcol}{feature column to indicate markers. Default is "markers".}
+\item{fcol}{feature column to indicate markers. Default is \code{"markers"}.}
 
 \item{materncov}{\code{logical} indicating whether matern covariance is used.}
 
@@ -34,7 +34,8 @@ fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
 provide a matrix with 3 columns and 1 row. The order is hyperparameters
 on length-scale, amplitude, variance.}
 
-\item{params}{The output of running \code{fitGPmatern} which is of class \code{gpParams}}
+\item{params}{The output of running \code{fitGPmatern}, \code{fitGPmaternPC}
+or \code{fitGP} which is of class \code{gpParams}}
 }
 \value{
 Returns an object of class \code{gpParams} which stores the posterior
@@ -51,10 +52,10 @@ maximum marginal likelihood
 Function to fit matern GPs to data with penalised complexity priors on the
 hyperparameters, side effect will plot posterior predictives
 
-Function to plot matern GPs
-
 Function to fit matern GPs to data, side effect will plot posterior
 predictives
+
+Function to plot matern GPs
 }
 \examples{
 library(pRolocdata)
@@ -65,6 +66,7 @@ tansim <- sim_dynamic(object = tan2009r1,
                    numDyn = 100L)
 gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
 
+## ====== fitGPmaternPC =====
 library(pRolocdata)
 data("tan2009r1")
 set.seed(1)
@@ -74,6 +76,7 @@ tansim <- sim_dynamic(object = tan2009r1,
 gpParams <- lapply(tansim$lopitrep, 
 function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
 
+## ====== fitGPmatern =====
 library(pRolocdata)
 data("tan2009r1")
 set.seed(1)
@@ -82,4 +85,23 @@ tansim <- sim_dynamic(object = tan2009r1,
                    numDyn = 100L)
 gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
 
+## ====== plotGPmatern =====
+## generate example data
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+## fit a GP
+gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+
+## Overlay posterior predictives onto profiles
+## Dataset1 1
+par(mfrow = c(2, 3))
+plotGPmatern(tansim$lopitrep[[1]], gpParams[[1]])
+
+## Dataset 2, etc.
+par(mfrow = c(2, 3))
+plotGPmatern(tansim$lopitrep[[2]], gpParams[[2]])
 }

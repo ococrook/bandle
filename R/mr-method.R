@@ -4,6 +4,21 @@
 ##' @param delta The difference profile to compute the squared mahalanobis distance
 ##' @return The squared Mahalanobis distance 
 ##' @md
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## compute delta matrix
+##' deltaMatrix <- exprs(control[[1]]) - exprs(treatment[[1]])
+##' res <- bandle:::robustMahalanobis(deltaMatrix)
 ##' @rdname method-mr
 robustMahalanobis <- function(delta) {
     
@@ -19,10 +34,27 @@ robustMahalanobis <- function(delta) {
 } 
 ##' @title Compute the reproducibility score 
 ##' @param x Numeric vector to compute reproducibility score
-##' @param y Numeric vector to compute reprodducibility score
+##' @param y Numeric vector to compute reproducibility score
 ##' @param method Correlation method. Default is Pearson
 ##' @return The R score
 ##' @md
+##' @examples
+##' ##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## compute delta matrix
+##' deltaMatrix1 <- exprs(control[[1]]) - exprs(treatment[[1]])
+##' deltaMatrix2 <- exprs(control[[2]]) - exprs(treatment[[2]])
+##' mr_score <- bandle:::reprodScore(deltaMatrix1, deltaMatrix2)
 ##' @rdname method-mr
 reprodScore <- function(x, y, method = c("pearson")) {
     
@@ -53,9 +85,6 @@ reprodScore <- function(x, y, method = c("pearson")) {
 ##' control1 <- d1[1:3]
 ##' treatment1 <- d1[4:6]
 ##' mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
-##' 
-##' 
-##' 
 ##' @rdname method-mr
 mrMethod <- function(objectCond1,
                      objectCond2,

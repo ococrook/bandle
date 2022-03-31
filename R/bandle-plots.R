@@ -47,7 +47,7 @@ mcmc_plot_probs <- function(params,
     stopifnot(is(fname, "character"))
     Organelle <- Probability <- NULL
     
-    ch <- chains(params)[[n]]
+    ch <- params@chains[[n]]
     dfr <- as.data.frame(ch@nicheProb[[cond]][fname, , ])
     dfr_long <- data.frame(Organelle = rep(names(dfr), each = nrow(dfr)),
                            Probability = unlist(dfr, use.names = FALSE),
@@ -90,8 +90,42 @@ mcmc_plot_probs <- function(params,
 ##' @return  returns a named vector of differential localisation probabilities
 ##' @md
 ##'
+##' @examples 
+##'  \dontrun{
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process the results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## plot the results
+##' spatial2D(control[[1]], bandleres)
+##' }
 ##' @rdname bandle-plots-spatial
-
 spatial2D <- function(object,
                       params, 
                       fcol = "markers",
@@ -114,7 +148,7 @@ spatial2D <- function(object,
     }
     
     ## Compute mean probabilities 
-    ch <- chains(params)[[n]]
+    ch <- params@chains[[n]]
     probs <- apply(ch@nicheProb[[cond]], c(1, 3), mean)
     
     ## create allocation matrix for markers
@@ -237,6 +271,41 @@ spatial2D <- function(object,
 ##' @return Returns a directional circos/chord diagram showing the translocation
 ##'   of proteins between conditions. If \code{type = "alluvial"} ouput is a
 ##'   \code{ggplot} object.
+##' @examples
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process the results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## plot the results
+##' plotTranslocations(bandleres)
+##' plotTranslocations(bandleres, type = "chord")
 ##' @rdname bandle-plots-translocations
 
 plotTranslocations <- function(params,
@@ -457,7 +526,40 @@ plotTranslocations <- function(params,
 ##' of chains
 ##' @md
 ##' 
-##'  
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process bandle results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## Convergence plots
+##' par(mfrow = c(1, 2))
+##' plotConvergence(bandleres)  
 ##' @rdname bandle-plots-convergence
 plotConvergence <- function(params){
     
@@ -487,6 +589,39 @@ plotConvergence <- function(params){
 ##'   to set different labels for each dataset. If only one label is specified,
 ##'   and the \code{character} is of length 1 then this single label will be
 ##'   used to identify the annotation column in both datasets.
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process bandle results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## Tabulate results
+##' plotTable(bandleres)  
 ##' @return Returns a summary table of translocations of proteins between conditions. 
 ##' @rdname bandle-plots-translocations-table
 plotTable <- function(params,

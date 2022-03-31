@@ -16,6 +16,7 @@
 ##' hyperparamters for the GP. 
 ##' @md
 ##' @examples
+##'## ====== fitGPmaternPC =====
 ##' library(pRolocdata)
 ##' data("tan2009r1")
 ##' set.seed(1)
@@ -128,67 +129,6 @@ fitGPmaternPC <- function(object = object,
   
 }
 
-
-##' Function to plot matern GPs
-##'
-##' @title Plot matern GP to spatial proteomics data.
-##' @param params The output of running `fitGPmatern` which is of class `gpParams`
-##' @param fcol feature column to indicate markers. Default is "markers".
-##' @md
-##' @rdname bandle-gpfit
-##' @return The functions `plotGPmatern` plot the posterior
-##' predictives overlayed with the markers for each subcellular class.
-plotGPmatern <- function(object = object,
-                         params = params,
-                         fcol = "markers") {  
-  
-  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
-  stopifnot("params is not an instance of class gpParams"=is(params, "gpParams"))
-  if (!is.null(fcol) && !fcol %in% fvarLabels(object))
-    stop("'", fcol, "' not found in feature variables.")
-  
-  # ## size needed
-  K <- length(getMarkerClasses(object, fcol = fcol))
-  M <- params@M
-  V <- params@V
-  D <- ncol(object)
-  
-  # indexing sets
-  idx <- seq.int(D)
-  tau <- seq.int(D)
-  
-  # LBFGS routine to get hypers
-  for (j in seq.int(K)) {
-    
-    exprs <- t(exprs(object[fData(object)[, fcol] == 
-                              getMarkerClasses(object, fcol = fcol)[j], idx]))
-  }
-  
-  # plotting routines
-  for(j in seq.int(K)){
-    Orgdata <- t(exprs(object[fData(object)$markers == 
-                                getMarkerClasses(object, fcol = fcol)[j],idx]))
-    matplot(x = idx, Orgdata, col = getStockcol()[j],
-            pch = 19, type = "b", lty = 1, lwd = 1.5,
-            main = paste(getMarkerClasses(object, fcol = fcol)[j]),
-            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
-            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05),
-            cex.axis = 1.5, cex.main = 1.5,
-            xaxt = "n", axes = FALSE)
-    axis(2)
-    axis(1, at = idx, labels = idx)
-    points(seq_along(tau), M[[j]], col = "black", pch = 19, cex = 1.3,
-           type = "b", lwd = 5, lty = 1)
-    arrows(seq_along(tau),
-           M[[j]]-1.96*V[[j]], seq_along(tau),
-           M[[j]]+1.96*V[[j]], length=0.1,
-           angle=90, code=3,
-           col = "black", lwd = 3)
-  }
-  
-}
-
-
 ##' Function to fit matern GPs to data, side effect will plot posterior 
 ##' predictives
 ##' 
@@ -196,6 +136,7 @@ plotGPmatern <- function(object = object,
 ##' @param materncov `logical` indicating whether matern covariance is used.
 ##' @md
 ##' @examples 
+##' ## ====== fitGPmatern =====
 ##' library(pRolocdata)
 ##' data("tan2009r1")
 ##' set.seed(1)
@@ -299,5 +240,86 @@ fitGPmatern <- function(object = object,
                     params = params)
   
   return(.res)
+  
+}
+
+
+##' Function to plot matern GPs
+##'
+##' @title Plot matern GP to spatial proteomics data.
+##' @param params The output of running `fitGPmatern`, `fitGPmaternPC` 
+##' or `fitGP` which is of class `gpParams`
+##' @param fcol feature column to indicate markers. Default is `"markers"`.
+##' @md
+##' @examples
+##' ## ====== plotGPmatern =====
+##' ## generate example data
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' ## fit a GP
+##' gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+##' 
+##' ## Overlay posterior predictives onto profiles
+##' ## Dataset1 1
+##' par(mfrow = c(2, 3))
+##' plotGPmatern(tansim$lopitrep[[1]], gpParams[[1]])
+##' 
+##' ## Dataset 2, etc.
+##' par(mfrow = c(2, 3))
+##' plotGPmatern(tansim$lopitrep[[2]], gpParams[[2]])
+##' @rdname bandle-gpfit
+##' @return The functions `plotGPmatern` plot the posterior
+##' predictives overlayed with the markers for each subcellular class.
+plotGPmatern <- function(object = object,
+                         params = params,
+                         fcol = "markers") {  
+  
+  stopifnot("object is not an instance of class MSnSet"=is(object, "MSnSet"))
+  stopifnot("params is not an instance of class gpParams"=is(params, "gpParams"))
+  if (!is.null(fcol) && !fcol %in% fvarLabels(object))
+    stop("'", fcol, "' not found in feature variables.")
+  
+  # ## size needed
+  K <- length(getMarkerClasses(object, fcol = fcol))
+  M <- params@M
+  V <- params@V
+  D <- ncol(object)
+  
+  # indexing sets
+  idx <- seq.int(D)
+  tau <- seq.int(D)
+  
+  # LBFGS routine to get hypers
+  for (j in seq.int(K)) {
+    
+    exprs <- t(exprs(object[fData(object)[, fcol] == 
+                              getMarkerClasses(object, fcol = fcol)[j], idx]))
+  }
+  
+  # plotting routines
+  for(j in seq.int(K)){
+    Orgdata <- t(exprs(object[fData(object)$markers == 
+                                getMarkerClasses(object, fcol = fcol)[j],idx]))
+    matplot(x = idx, Orgdata, col = getStockcol()[j],
+            pch = 19, type = "b", lty = 1, lwd = 1.5,
+            main = paste(getMarkerClasses(object, fcol = fcol)[j]),
+            xlab = "Fraction", ylab = "Normalised Abundance", cex.main = 2,
+            ylim = c(min(Orgdata) - 0.05, max(Orgdata) + 0.05),
+            cex.axis = 1.5, cex.main = 1.5,
+            xaxt = "n", axes = FALSE)
+    axis(2)
+    axis(1, at = idx, labels = idx)
+    points(seq_along(tau), M[[j]], col = "black", pch = 19, cex = 1.3,
+           type = "b", lwd = 5, lty = 1)
+    arrows(seq_along(tau),
+           M[[j]]-1.96*V[[j]], seq_along(tau),
+           M[[j]]+1.96*V[[j]], length=0.1,
+           angle=90, code=3,
+           col = "black", lwd = 3)
+  }
   
 }

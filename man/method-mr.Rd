@@ -17,7 +17,7 @@ mrMethod(objectCond1, objectCond2, plot = TRUE, method = "2017")
 
 \item{x}{Numeric vector to compute reproducibility score}
 
-\item{y}{Numeric vector to compute reprodducibility score}
+\item{y}{Numeric vector to compute reproducibility score}
 
 \item{method}{Correlation method. Default is Pearson}
 
@@ -40,6 +40,36 @@ The MR score of the Ithzak et al. 2016/2017
 These function implement the MR method of Itzhak et al
 }
 \examples{
+## Generate some example data
+library("pRolocdata")
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                      numRep = 4L,
+                      numDyn = 100L)
+data <- tansim$lopitrep
+control <- data[1:2]
+treatment <- data[3:4]
+
+## compute delta matrix
+deltaMatrix <- exprs(control[[1]]) - exprs(treatment[[1]])
+res <- bandle:::robustMahalanobis(deltaMatrix)
+##' @examples 
+## Generate some example data
+library("pRolocdata")
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                      numRep = 4L,
+                      numDyn = 100L)
+data <- tansim$lopitrep
+control <- data[1:2]
+treatment <- data[3:4]
+
+## compute delta matrix
+deltaMatrix1 <- exprs(control[[1]]) - exprs(treatment[[1]])
+deltaMatrix2 <- exprs(control[[2]]) - exprs(treatment[[2]])
+mr_score <- bandle:::reprodScore(deltaMatrix1, deltaMatrix2)
 library(pRolocdata)
 data("tan2009r1")
 set.seed(1)
@@ -50,7 +80,4 @@ d1 <- tansim$lopitrep
 control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
-
-
-
 }

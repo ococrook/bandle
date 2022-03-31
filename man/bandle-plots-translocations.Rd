@@ -62,3 +62,38 @@ Produces a chord diagram (circos plot) or an alluvial plot (also known as a
 Sankey diagram) to show changes in location between two conditions or
 datasets.
 }
+\examples{
+## Generate some example data
+library("pRolocdata")
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                      numRep = 4L,
+                      numDyn = 100L)
+data <- tansim$lopitrep
+control <- data[1:2]
+treatment <- data[3:4]
+
+## fit GP params
+gpParams <- lapply(tansim$lopitrep, function(x) 
+fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+
+## run bandle
+res <- bandle(objectCond1 = control,
+              objectCond2 = treatment, 
+              gpParams = gpParams,
+              fcol = "markers",  
+              numIter = 10L, 
+              burnin = 1L, 
+              thin = 2L,
+              numChains = 2, 
+              BPPARAM = SerialParam(RNGseed = 1),
+              seed = 1)
+               
+## Process the results
+bandleres <- bandleProcess(res)
+
+## plot the results
+plotTranslocations(bandleres)
+plotTranslocations(bandleres, type = "chord")
+}
