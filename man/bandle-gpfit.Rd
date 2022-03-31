@@ -37,10 +37,6 @@ on length-scale, amplitude, variance.}
 \item{params}{The output of running \code{fitGPmatern} which is of class \code{gpParams}}
 }
 \value{
-means and standard deviation of gaussian process fitted to data,
-along with hyperparameters with maximum marginal likelihood fitting. Side
-effect, plot the markers with overlayed Gaussian processes.
-
 Returns an object of class \code{gpParams} which stores the posterior
 predictive means, standard deviations, variances and also the MAP
 hyperparamters for the GP.
@@ -49,7 +45,7 @@ The functions \code{plotGPmatern} plot the posterior
 predictives overlayed with the markers for each subcellular class.
 }
 \description{
-Helper function to fit GPs with squared exponential convariances,
+Helper function to fit GPs with squared exponential co-variances,
 maximum marginal likelihood
 
 Function to fit matern GPs to data with penalised complexity priors on the

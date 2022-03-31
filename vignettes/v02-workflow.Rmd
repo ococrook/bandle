@@ -41,6 +41,7 @@ library("pheatmap")
 library("viridis")
 library("dplyr")
 
+setStockcol(NULL)
 setStockcol(paste0(getStockcol(),"90")) # make colours transparent
 ```
 
@@ -180,8 +181,7 @@ complexity priors (see `?fitGP`), which work well.
 
 
 ```{r fitgps}
-par(mfrow = c(3,4))
-gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x, plot = FALSE))
+gpParams <- lapply(thplopit, function(x) fitGPmaternPC(x))
 ```
 
 We apply the `fitGPmaternPC` function on to each dataset by using `lapply` over
@@ -213,11 +213,9 @@ head(pc_prior)
 Now we have generated these complexity priors we can pass them as an
 argument to the `fitGPmaternPC` function. For example,
 
-```{r runhyppar, fig.width=9, fig.height=16}
-par(mfrow = c(3,4))
+```{r runhyppar}
 gpParams <- lapply(thplopit,
-                   function(x) fitGPmaternPC(x, 
-                                             hyppar = pc_prior))
+                   function(x) fitGPmaternPC(x, hyppar = pc_prior))
 ```
 
 By plotting the predictives using the `plotGPmatern` function we see that
@@ -225,12 +223,13 @@ the distributions and fit looks sensible for each class so we will proceed with
 setting the prior on the weights.
 
 ```{r plotgps, fig.height=10, fig.width=8}
+par(mfrow = c(3, 4))
 plotGPmatern(thplopit[[1]], gpParams[[1]])
 ```
 
-For the interest of keeping the vignette size small in the above chunk we
-plot only the first datasets and its respective predictives. To plot the
-second datatset we would execute `plotGPmatern(thplopit[[i]], gpParams[[i]])`
+For the interest of keeping the vignette size small, in the above chunk we
+plot only the first dataset and its respective predictive. To plot the
+second dataset we would execute `plotGPmatern(thplopit[[i]], gpParams[[i]])`
 where i = 2, and similarly for the third i = 3 and so on.
 
 ## Setting the prior on the weights
@@ -315,7 +314,8 @@ bandleres <- bandle(objectCond1 = control,
                     gpParams = gpParams,
                     pcPrior = pc_prior,
                     numChains = 1,     # usually >=4
-                    dirPrior = dirPrior)
+                    dirPrior = dirPrior,
+                    seed = 1)
 ```
 
 A `bandleParams` object is produced
@@ -382,7 +382,7 @@ the natural logarithm of the number of classes).
 We plot the distribution of protein allocations by `bandle` 
 
 ```{r barplotalloc, fig.width=9, fig.height=6}
-par(mfrow = c(1, 2), oma = c(6,2,2,2))
+par(mfrow = c(1, 2), oma = c(6, 2, 2, 2))
 barplot(table(pe1$bandle.allocation), col = getStockcol()[2],
         las = 2, main = "Control: Protein allocation",
         ylab = "Number of proteins")
@@ -400,7 +400,7 @@ that not all protein allocations are confident, this is why it is important to
 threshold when deducing a protein's location.
 
 ```{r meanbandleprob, fig.width=9, fig.height=6}
-par(mfrow = c(1, 2), oma = c(6,2,2,2))
+par(mfrow = c(1, 2), oma = c(6, 2, 2, 2))
 boxplot(pe1$bandle.probability ~ pe1$ bandle.allocation, 
         col = getStockcol()[2], xlab = "",
         ylab = "BANDLE probability (mean)",
@@ -727,14 +727,10 @@ alluvial <- plotTranslocations(msnset_cands,
 alluvial + ggtitle("Differential localisations following 12h-LPS stimulation")
 ```
 
-To view a table of the translocations, we can call the argument `table = TRUE`,
+To view a table of the translocations, we can call the function `plotTable`,
 
 ```{r tbllocs}
-tbl <- plotTranslocations(msnset_cands, 
-                               fcol = "bandle.allocation.pred.pred", 
-                               col = cols, 
-                               table = TRUE)
-tbl
+(tbl <- plotTable(msnset_cands, fcol = "bandle.allocation.pred.pred"))
 ```
 
 Although this example analysis is limited compared to that of @thplopit, we do

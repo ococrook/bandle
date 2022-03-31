@@ -5,18 +5,7 @@
 \title{Generates a table for visualising changes in
 localisation between two conditions/datasets}
 \usage{
-plotTable(
-  params,
-  all = FALSE,
-  fcol,
-  col,
-  labels = TRUE,
-  labels.par = "adj",
-  cex = 1,
-  spacer = 4,
-  table = TRUE,
-  ...
-)
+plotTable(params, all = FALSE, fcol)
 }
 \arguments{
 \item{params}{An instance of class \code{bandleParams} or an instance of
@@ -31,31 +20,9 @@ those that have changed in location between conditions. Default is
 to set different labels for each dataset. If only one label is specified,
 and the \code{character} is of length 1 then this single label will be
 used to identify the annotation column in both datasets.}
-
-\item{col}{A list of colours to define the classes in the data. If not
-defined then the default \code{pRoloc} colours in \code{getStockCol()} are
-used.}
-
-\item{labels}{Logical indicating whether to display class/organelle labels
-for the chord segments or alluvial stratum. Default is \code{TRUE}.}
-
-\item{labels.par}{If \code{type} is \code{"alluvial"}. Label style can be
-specified as one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.}
-
-\item{cex}{Text size. Default is 1.}
-
-\item{spacer}{A \code{numeric}. Default is 4. Controls the white space around the
-circos plotting region.}
-
-\item{table}{Logical. Print a summary table of translocations between
-subcellular classes. Default is \code{FALSE}.}
-
-\item{...}{Additional arguments passed to the \code{chordDiagram} function.}
 }
 \value{
-Returns a directional circos/chord diagram showing the translocation
-of proteins between conditions. If \code{type = "alluvial"} ouput is a
-\code{ggplot} object.
+Returns a summary table of translocations of proteins between conditions.
 }
 \description{
 Produces a table summarising differential localisation results

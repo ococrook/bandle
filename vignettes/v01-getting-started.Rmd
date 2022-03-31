@@ -608,14 +608,6 @@ Or alternatively, on a chord (circos) diagram
 plotTranslocations(bandleres, type = "chord")
 ```
 
-Lastly, we can also pass the argument `table = TRUE` to the `plotTranslocations`
-function to display a summary table of the number of proteins that have changed
-in location between conditions
-
-```{r summarytable, warning=FALSE, message=FALSE}
-(sum.res <- plotTranslocations(bandleres, table = TRUE))
-```
-
 ### Important consideration 
 These visualisations are showing the change in class label between the two
 conditions (as assigned by `bandle` i.e. the result stored in
@@ -646,16 +638,21 @@ proteins which are deemed to move/differentially localise. We also specify where
 located e.g. `fcol = "bandle.allocation.pred"`.
 
 ```{r plottlres, warning=FALSE, fig.height=8, fig.width=7}
+## specify colour palette
 mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
 names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
 
-plotTranslocations(list(res_dl_control, res_dl_treatment), 
-                   fcol = "bandle.allocation.pred", col = mycols)
+## Create a list of the datasets for plotTranslocations
+res <- list(res_dl_control, res_dl_treatment)
+
+plotTranslocations(res, fcol = "bandle.allocation.pred", col = mycols)
 ```
 
+We can also use the function `plotTable` to display a summary table of the
+number of proteins that have changed in location between conditions.
+
 ```{r summaryfinal, warning=FALSE, message=FALSE}
-(final.res <- plotTranslocations(params = list(res_dl_control, res_dl_treatment), 
-                                 fcol = "bandle.allocation.pred", table = TRUE))
+(tbl <- plotTable(res, fcol = "bandle.allocation.pred"))
 ```
 
 # Assessing convergence
@@ -691,7 +688,6 @@ should produce convergence. This is not done here for brevity of the vignette.
 par(mfrow = c(2,2))
 out <- plotConvergence(bandleres)
 ```
-
 
 
 # Description of `bandle` parameters
