@@ -128,7 +128,11 @@ covOrganelle <- function(object, fcol = "markers"){
 ##' 
 ##' 
 ##' @rdname bandle-internal
-pg_prior <- function(object_cond1, object_cond2, K, pgPrior = NULL, fcol = "markers") {
+pg_prior <- function(object_cond1, 
+                     object_cond2, 
+                     K, 
+                     pgPrior = NULL, 
+                     fcol = "markers") {
     
     if (is.null(pgPrior)) {
         mu_prior <- rep(-7, K^2)

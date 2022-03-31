@@ -105,7 +105,8 @@ diffLoc <- function(objectCond1,
     #suppressMessages(require(Biobase))
     
     # Checks
-    stopifnot(exprs = {"ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet")
+    stopifnot(exprs = {
+              "ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet")
               "ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet")
               "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
               "numIter must be a numeric"=is(numIter, "numeric")
@@ -137,14 +138,6 @@ diffLoc <- function(objectCond1,
     stopifnot(length(hyperMean)==3)
     stopifnot(length(hyperSd)==3)
     stopifnot(sum(hyperSd > 0)==3)
-    
-    # gpParams
-    if (!is.null(gpParams)) {
-      stopifnot("gpParams is not an instance of class gpParams"=is(params, "gpParams"))
-      gpParams <- list(M = gpParams@M, 
-                       sigma = gpParams@sigma, 
-                       params = gpParams@params)
-    }
     
     ## Samples to be retained as a result of burnin and thinning
     toRetain <- seq.int(burnin + 1L, numIter, thin)
@@ -195,6 +188,14 @@ diffLoc <- function(objectCond1,
         res <- gpParams
     }
     
+    # check gpParams and convert to a list from gpParams object
+    stopifnot("The parameters are not an instance of class gpParams"= 
+                all(vapply(res, is, "gpParams") == "gpParams"))
+    ## easiest thing here is to convert from gpParams object to a list for bandle
+    ## Note: we can amend bandle to work with gpParams objects at a later date if needed
+    # res <-  lapply(res, function(z) list(M = z@M, sigma = z@sigma, params = z@params))
+    
+    
     # separate data into known and unknown
     unknown_cmb <- lapply(object_cmb, function(x) unknownMSnSet(x, fcol = fcol))
     exprsUnknown_cmb <- lapply(unknown_cmb, Biobase::exprs)
@@ -237,7 +238,7 @@ diffLoc <- function(objectCond1,
     .hypers <- vector(mode = "list", length = length(object_cmb))
     
     for (i in seq.int(object_cmb)) {
-        hypers[[i]][[1]] <- res[[i]]$params
+        hypers[[i]][[1]] <- res[[i]]@params
         .hypers[[i]] <- hypers[[i]][[1]]
     }
     # intialise polya-gamma auxiliary variables

@@ -26,8 +26,8 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Parameters from prior fitting of GPs of class `gpParams`.
-##' to each niche to accelerate inference. Default is NULL.
+##' @param gpParams Parameters from prior fitting of GPs to each niche to accelerate 
+##' inference. If used, must be of class `gpParams`. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20
 ##' @param hyperMean The prior mean of the log normal prior of the GP parameters.
@@ -141,8 +141,15 @@ bandle <- function(objectCond1,
         stopifnot("dirPrior must have dimensions equal to the number of
                   niches"=dim(dirPrior)==c(K, K))
     }
+  
+    # if gpParams if not NULL
+    if(!is.null(gpParams)){
+      nP <- length(gpParams)
+      nD <- length(objectCond1) + length(objectCond2)
+      stopifnot("gpParams object must be the same length as the total numer of
+                  datasets"= nP == nD)
+    }
 
-    
     # valid experiment
     ## same number of rows
     validrow <- length(unique(vapply(c(objectCond1, objectCond2),
@@ -172,8 +179,6 @@ bandle <- function(objectCond1,
         fcol %in% colnames(fData(x)), logical(1))))){
         stop("fcol is not in all the datasets. Check fcol is present")
     }
-    
-    
     
     ## chains run in parallel, repeating number of iterations
     .res <- BiocParallel::bplapply(rep(numIter, numChains),
@@ -222,7 +227,6 @@ bandle <- function(objectCond1,
     
     # name objects
     colnames(pcPrior) <- c("length-scale", "amplitude", "sigma")
-    
     
     ## Construct class bandleChains
     .ans <- .bandleChains(chains = .res)
@@ -544,6 +548,3 @@ bandleProcess <- function(params) {
     
     return(params)
 }
-
-
-

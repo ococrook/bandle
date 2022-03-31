@@ -1,12 +1,9 @@
-##' Helper function to fit GPs with squared exponential convariances,
+##' Helper function to fit GPs with squared exponential co-variances,
 ##' maximum marginal likelihood
 ##' 
 ##' @title fit a Gaussian process to spatial proteomics data
 ##' @param object A instance of class `MSnset`
 ##' @param fcol A feature column indicating markers. Default is markers.
-##' @return means and standard deviation of gaussian process fitted to data,
-##'  along with hyperparameters with maximum marginal likelihood fitting. Side
-##'  effect, plot the markers with overlayed Gaussian processes.
 ##' @md
 ##' @examples 
 ##' library(pRolocdata)
@@ -99,7 +96,7 @@ fitGP <- function(object = object,
     Kstar <- a*exp(-(matrix(rep(tau, nk * D),  nrow = D, byrow = FALSE) - matrix(rep(tau, nk*D),nrow = D, byrow = TRUE))^2/l)
     Kstarstar <- rep(a+sigmak, length(tau))
     M[[j]] <- Kstar %*% invcov %*% as.vector(Orgdata)
-    V[[j]] <- sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar)))
+    V[[j]] <- as.matrix(sqrt(diag(diag(Kstarstar, length(tau)) - Kstar %*% invcov %*% t(Kstar))))
     Var[[j]] <- diag(rep(a, length(tau))) - Kstar %*% invcov %*% t(Kstar)
     
     # plotting terms
@@ -111,7 +108,11 @@ fitGP <- function(object = object,
   }
 
   # output
-  .res <- list(M = M, sigma = sigma, params = params)
+  .res <- .gpParams(method = "fitGP",
+                    M = M, 
+                    V = V, 
+                    sigma = sigma, 
+                    params = params)
 
   return(.res)
   
