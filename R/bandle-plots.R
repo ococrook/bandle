@@ -487,39 +487,13 @@ plotConvergence <- function(params){
 ##'   to set different labels for each dataset. If only one label is specified,
 ##'   and the \code{character} is of length 1 then this single label will be
 ##'   used to identify the annotation column in both datasets.
-##' @param col A list of colours to define the classes in the data. If not
-##'   defined then the default \code{pRoloc} colours in \code{getStockCol()} are
-##'   used.
-##' @param labels Logical indicating whether to display class/organelle labels
-##'   for the chord segments or alluvial stratum. Default is \code{TRUE}.
-##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be
-##'   specified as one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
-##' @param spacer A `numeric`. Default is 4. Controls the white space around the
-##'   circos plotting region.
-##' @param cex Text size. Default is 1.
-##' @param table Logical. Print a summary table of translocations between
-##'   subcellular classes. Default is \code{FALSE}.
-##' @param ... Additional arguments passed to the `chordDiagram` function.
-##' @return Returns a directional circos/chord diagram showing the translocation
-##'   of proteins between conditions. If \code{type = "alluvial"} ouput is a
-##'   \code{ggplot} object.
+##' @return Returns a summary table of translocations of proteins between conditions. 
 ##' @rdname bandle-plots-translocations-table
 plotTable <- function(params,
                       all = FALSE,
-                      fcol,
-                      col,
-                      labels = TRUE,
-                      labels.par = "adj", 
-                      cex = 1,
-                      spacer = 4,
-                      table = TRUE,
-                      ...) {
+                      fcol) {
     
     stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
-    Condition <- x <- y <- z <- stratum <- value <- grid.col <- NULL
-    
-    
-    # check method is one of chord or alluvial
 
     # get results from params
     if (inherits(params, "bandleParams")) {
@@ -539,7 +513,7 @@ plotTable <- function(params,
                 c("------------------------------------------------",
                   "\nIf length(fcol) == 1 it is assumed that the",
                   "\nsame fcol is to be used for both datasets",
-                  "\nsetting fcol = c(", fcol[1], ",", fcol[2],")",
+                  "\nsetting fcol = c(", fcol[1], ", ", fcol[2],")",
                   "\n----------------------------------------------")
             )
         }
