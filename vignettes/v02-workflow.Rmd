@@ -223,7 +223,7 @@ the distributions and fit looks sensible for each class so we will proceed with
 setting the prior on the weights.
 
 ```{r plotgps, fig.height=10, fig.width=8}
-par(mfrow = c(3, 4))
+par(mfrow = c(4, 3))
 plotGPmatern(thplopit[[1]], gpParams[[1]])
 ```
 
