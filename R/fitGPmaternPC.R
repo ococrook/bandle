@@ -151,6 +151,7 @@ plotGPmatern <- function(object = object,
   K <- length(getMarkerClasses(object, fcol = fcol))
   M <- params@M
   V <- params@V
+  D <- ncol(object)
   
   # indexing sets
   idx <- seq.int(D)
