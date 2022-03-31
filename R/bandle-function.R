@@ -26,8 +26,8 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Parameters from prior fitting of GPs
-##' to each niche to accelerate inference. Default is NULL.
+##' @param gpParams Parameters from prior fitting of GPs to each niche to accelerate 
+##' inference. If used, must be of class `gpParams`. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20
 ##' @param hyperMean The prior mean of the log normal prior of the GP parameters.
@@ -114,25 +114,26 @@ bandle <- function(objectCond1,
     
     
     # Checks
-    stopifnot("ObjectCond1 must be a list of MSnSet"=is(objectCond1[[1]], "MSnSet"))
-    stopifnot("ObjectCond2 must be a list of  MSnSet"=is(objectCond2[[1]], "MSnSet"))
-    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
-    stopifnot("numIter must be a numeric"=is(numIter, "numeric"))
-    stopifnot("burnin must be an integer"=is(burnin, "integer"))
-    stopifnot("thin must be an integer"=is(thin, "integer"))
-    stopifnot("burnin must be less than numIter"= burnin < numIter)
-    stopifnot("u must be numeric"=is(u, "numeric"))
-    stopifnot("v must be numeric"=is(v, "numeric"))
-    stopifnot("lambda must be numeric"=is(lambda, "numeric"))
-    stopifnot("hyperIter must be numeric"=is(hyperIter, "numeric"))
-    stopifnot("hyperMean must be numeric"=is(hyperMean, "numeric"))
-    stopifnot("hyperSd must be numeric"=is(hyperSd, "numeric"))
-    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
-    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
-    stopifnot("tau must be numeric" = is(tau, "numeric"))
-    stopifnot("nu must be numeric" = is(nu, "numeric"))
-    stopifnot("propSd must be numeric"=is(propSd, "numeric"))
-    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+    stopifnot(exprs = {
+                "ObjectCond1 must be a list of MSnSet"=is(objectCond1[[1]], "MSnSet")
+                "ObjectCond2 must be a list of  MSnSet"=is(objectCond2[[1]], "MSnSet")
+                "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
+                "numIter must be a numeric"=is(numIter, "numeric")
+                "burnin must be an integer"=is(burnin, "integer")
+                "thin must be an integer"=is(thin, "integer")
+                "burnin must be less than numIter"= burnin < numIter
+                "u must be numeric"=is(u, "numeric")
+                "v must be numeric"=is(v, "numeric")
+                "lambda must be numeric"=is(lambda, "numeric")
+                "hyperIter must be numeric"=is(hyperIter, "numeric")
+                "hyperMean must be numeric"=is(hyperMean, "numeric")
+                "hyperSd must be numeric"=is(hyperSd, "numeric")
+                "must provide 3 values for hyperMean"=length(hyperMean) == 3
+                "must provide 3 values for hyperSd" = length(hyperSd) == 3
+                "tau must be numeric" = is(tau, "numeric")
+                "nu must be numeric" = is(nu, "numeric")
+                "propSd must be numeric"=is(propSd, "numeric")
+                "Must provide 3 values for propSd"=length(propSd) == 3})
     
     # if dirPrior is not NULL
     if(!is.null(dirPrior)){
@@ -140,18 +141,27 @@ bandle <- function(objectCond1,
         stopifnot("dirPrior must have dimensions equal to the number of
                   niches"=dim(dirPrior)==c(K, K))
     }
+  
+    # if gpParams if not NULL
+    if(!is.null(gpParams)){
+      nP <- length(gpParams)
+      nD <- length(objectCond1) + length(objectCond2)
+      stopifnot("gpParams object must be the same length as the total numer of
+                  datasets"= nP == nD)
+    }
 
-    
     # valid experiment
     ## same number of rows
-    validrow <- length(unique(sapply(c(objectCond1, objectCond2),
-                                     function(x) nrow(x)))) > 1
+    validrow <- length(unique(vapply(c(objectCond1, objectCond2),
+                                     function(x) nrow(x),
+                                     FUN.VALUE = numeric(1)))) > 1
     if (isTRUE(validrow)){
         stop("Number of rows do not match, you may wish to subset your proteins")
     }
     ## same number of columns
-    validcol <- length(unique(sapply(c(objectCond1, objectCond2),
-                                     function(x) ncol(x)))) > 1
+    validcol <- length(unique(vapply(c(objectCond1, objectCond2),
+                                     function(x) ncol(x),
+                                     FUN.VALUE = numeric(1)))) > 1
     if (isTRUE(validcol)){
         stop("Number of columns do not match, this analysis is not currently
              implemented in bandle. Subset fractions so they match")
@@ -165,12 +175,10 @@ bandle <- function(objectCond1,
              so they match")
     }
     ## valid fcol
-    if (isFALSE(all(sapply(c(objectCond1, objectCond2), function(x)
-        fcol %in% colnames(fData(x)))))){
+    if (isFALSE(all(vapply(c(objectCond1, objectCond2), function(x)
+        fcol %in% colnames(fData(x)), logical(1))))){
         stop("fcol is not in all the datasets. Check fcol is present")
     }
-    
-    
     
     ## chains run in parallel, repeating number of iterations
     .res <- BiocParallel::bplapply(rep(numIter, numChains),
@@ -220,7 +228,6 @@ bandle <- function(objectCond1,
     # name objects
     colnames(pcPrior) <- c("length-scale", "amplitude", "sigma")
     
-    
     ## Construct class bandleChains
     .ans <- .bandleChains(chains = .res)
     
@@ -240,6 +247,7 @@ bandle <- function(objectCond1,
     return(.out)
 }
 
+##' @title Make predictions from a bandle analysis
 ##' @param objectCond1 A list of instances of class [`MSnbase::MSnSet`]s
 ##' where each is an experimental replicate for the first condition, usually a control
 ##' @param objectCond2 A list of instance of class [`MSnbase::MSnSet`]s 
@@ -262,8 +270,26 @@ bandle <- function(objectCond1,
 ##'     is the natural logarithm of the number of classes). An additional variable
 ##'     indicating the differential localization probability is also added as
 ##'     `bandle.differential.localisation`
+##'     
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc1 <- bandleProcess(mcmc1)
+##' out <- bandlePredict(objectCond1 = control1, objectCond2 = treatment1, params = mcmc1)
 ##' @md
-##' @rdname bandle
+##' @rdname bandle-predict
 bandlePredict <- function(objectCond1,
                           objectCond2,
                           params,
@@ -346,11 +372,30 @@ bandlePredict <- function(objectCond1,
     
     return(.out)
 }
-
+##' @title process bandle results
+##' @param params An object of class `bandleParams`
 ##' @return `bandleProcess` returns an instance of class
 ##'     `bandleParams` with its summary slot populated.
+##'     
+##' @examples 
+##' library(pRolocdata)
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                     numRep = 6L,
+##'                    numDyn = 100L)
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' d1 <- tansim$lopitrep
+##' control1 <- d1[1:3]
+##' treatment1 <- d1[4:6]
+##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
+##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
+##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##' mcmc1 <- bandleProcess(mcmc1)
+##' 
 ##' @md
-##' @rdname bandle
+##' @rdname bandle-process
 bandleProcess <- function(params) {
     
     stopifnot(is(params, "bandleParams"))
@@ -503,6 +548,3 @@ bandleProcess <- function(params) {
     
     return(params)
 }
-
-
-

@@ -2,7 +2,7 @@ Package: bandle
 Type: Package
 Title: An R package to for the Bayesian analysis of differential subcellular
     localisation experiments
-Version: 0.99.3
+Version: 0.99.4
 Authors@R: c(person(family = "Crook", given = "Oliver M.",
 		                email = "oliver.crook@stats.ox.ac.uk",
 		                comment = c(ORCID = "0000-0001-5669-8506"),
@@ -13,7 +13,7 @@ Authors@R: c(person(family = "Crook", given = "Oliver M.",
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
     Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
-    Dynamic Organellar Maps, Dynamic PCP. It provide bioconducor infrastructure
+    Dynamic Organellar Maps, Dynamic PCP. It provides Bioconductor infrastructure
     to analyse these data.
 License: Artistic-2.0
 Encoding: UTF-8
@@ -36,14 +36,17 @@ Imports: Rcpp (>= 1.0.4.6),
     graphics,
     stats,
     utils,
-    grDevices
-Suggests: coda(>= 0.19-4),
+    grDevices,
+    rlang
+Suggests: 
+    coda (>= 0.19-4),
     testthat,
-    akima,
+    interp,
     fields,
     pheatmap,
     viridis,
-    rmarkdown
+    rmarkdown,
+    spelling
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)
@@ -52,3 +55,4 @@ biocViews: Bayesian, Classification, Clustering, ImmunoOncology,
     QualityControl,DataImport, Proteomics, MassSpectrometry
 BugReports: https://github.com/ococrook/bandle/issues
 URL: http://github.com/ococrook/bandle
+Language: en-US

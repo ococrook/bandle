@@ -29,10 +29,10 @@ BiocStyle::markdown()
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dpi=20,fig.width=7)
+knitr::opts_chunk$set(dpi=30,fig.width=7)
 ```
 
-```{r env, message = FALSE, warning = FALSE, echo = FALSE}
+```{r env, message = FALSE, warning = FALSE, echo = TRUE}
 # options(width = 150)
 library("bandle")
 library("ggplot2")
@@ -42,7 +42,7 @@ library("MSnbase")
 library("pheatmap")
 library("viridis")
 
-setStockcol(paste0(getStockcol(),"90")) # settransparent colours
+setStockcol(paste0(getStockcol(), "90")) # settransparent colours
 ```
 
 # Introduction
@@ -63,6 +63,13 @@ available [@Gilks:1995]. Throughout this vignette we use the term *differentiall
 localised* to pertain to proteins which are assigned to different sub-cellular
 localisations between two conditions. One of the main outputs of BANDLE is the
 probability that a protein is differentially localised between two conditions.
+
+# Installation
+
+The package can be installed with the `BiocManager` package. To
+install `BiocManager` use `install.packages("BiocManager")` and, after that,
+`BiocManager::install("bandle")` to install `bandle`.
+
 
 # The data
 
@@ -96,7 +103,7 @@ early LOPIT experiment performed on Drosophila embryos [@Tan:2009]. The aim of
 this experiment was to apply LOPIT to an organism with heterogeneous cell types.
 This experiment used four isotopes across four distinct fractions and thus
 yielded four measurements (features) per protein profile. We visualise the
-data by using principal 
+data by using principal components analysis.
 
 ```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=7, fig.height=6}
 library("pRolocdata")
@@ -159,18 +166,25 @@ priors (see `?fitGP`), which works well. However, these can be altered, which is
 demonstrated in the next code chunk
 
 
-```{r fitgps, fig.width=7, fig.height=18}
-par(mfrow = c(3,4))
-gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x, plot = FALSE))
+```{r fitgps, fig.height=10, fig.width=8}
+par(mfrow = c(4, 3))
+gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
 ```
 
 We apply the `fitGPmaternPC` function to each datasets by calling `lapply` over
 the `tansim$lopitrep` list of datasets. The output of `fitGPmaternPC` returns a
 list of posterior predictive means and standard deviations. As well as MAP
-hyperparamters for the GP. As a side effect a profile plot is produced for each
-class in each replicate condition where the posterior predictive distributions
-are overlayed with markers protein profiles (set `plot = FALSE` if you do not
-want these plotted).
+hyperparamters for the GP. 
+
+The `plotGPmatern` function can be used to plot the profiles for each
+class in each replicate condition with the posterior predictive distributions
+are overlayed with markers protein profiles.
+
+For example, to plot the predictive distributions of the first dataset,
+```{r plotgps, fig.height=10, fig.width=8}
+par(mfrow = c(4, 3))
+plotGPmatern(tansim$lopitrep[[1]], params = gpParams[[1]])
+```
 
 The prior needs to form a `K*3` matrix. `K` corresponds to the number of
 subcellular classes in the data, and 3 columns for (1) the prior, (2)
@@ -190,13 +204,12 @@ Now we have generated these complexity priors we can pass them as an
 argument to the `fitGPmaternPC` function. For example,
 
 ```{r runhyppar}
-par(mfrow = c(3,4))
 gpParams <- lapply(tansim$lopitrep,
                    function(x) fitGPmaternPC(x, hyppar = pc_prior))
 ```
 
-By looking at the plot of posterior predictives we can see the GP fit
-looks sensible.
+By looking at the plot of posterior predictives using the `gpParams` we can see
+the GP fit looks sensible.
 
 ## Setting the prior on the weights
 
@@ -331,7 +344,7 @@ str(res[[1]])
 The main one of interest is the `posteriorEstimates` slot,
 
 ```{r postest}
-res[[1]]@posteriorEstimates
+posteriorEstimates(res[[1]])
 ```
 
 This output object is a `data.frame` containing the protein allocations and
@@ -345,8 +358,8 @@ We create two new objects `pe1` and `pe2` in the below code chunk which contain
 the output of the `posteriorEstimates` slot. 
 
 ```{r getposteriors}
-pe1 <- res[[1]]@posteriorEstimates
-pe2 <- res[[2]]@posteriorEstimates
+pe1 <- posteriorEstimates(res[[1]])
+pe2 <- posteriorEstimates(res[[2]])
 ```
 
 One quantity of interest is the protein allocations, which we can plot as a
@@ -381,12 +394,12 @@ The full allocation probabilities are stored in the `tagm.joint` slot. These can
 be visualised in a heatmap
 
 ```{r heatmap_control}
-bjoint_control <- summaries(bandleres)[[1]]@bandle.joint
+bjoint_control <- bandleJoint(summaries(bandleres)[[1]])
 pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
 ```{r heatmap_treatment}
-bjoint_treatment <- summaries(bandleres)[[2]]@bandle.joint
+bjoint_treatment <- bandleJoint(summaries(bandleres)[[2]])
 pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
 ```
 
@@ -594,14 +607,6 @@ Or alternatively, on a chord (circos) diagram
 plotTranslocations(bandleres, type = "chord")
 ```
 
-Lastly, we can also pass the argument `table = TRUE` to the `plotTranslocations`
-function to display a summary table of the number of proteins that have changed
-in location between conditions
-
-```{r summarytable, warning=FALSE, message=FALSE}
-(sum.res <- plotTranslocations(bandleres, table = TRUE))
-```
-
 ### Important consideration 
 These visualisations are showing the change in class label between the two
 conditions (as assigned by `bandle` i.e. the result stored in
@@ -632,16 +637,21 @@ proteins which are deemed to move/differentially localise. We also specify where
 located e.g. `fcol = "bandle.allocation.pred"`.
 
 ```{r plottlres, warning=FALSE, fig.height=8, fig.width=7}
+## specify colour palette
 mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
 names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
 
-plotTranslocations(list(res_dl_control, res_dl_treatment), 
-                   fcol = "bandle.allocation.pred", col = mycols)
+## Create a list of the datasets for plotTranslocations
+res <- list(res_dl_control, res_dl_treatment)
+
+plotTranslocations(res, fcol = "bandle.allocation.pred", col = mycols)
 ```
 
+We can also use the function `plotTable` to display a summary table of the
+number of proteins that have changed in location between conditions.
+
 ```{r summaryfinal, warning=FALSE, message=FALSE}
-(final.res <- plotTranslocations(params = list(res_dl_control, res_dl_treatment), 
-                                 fcol = "bandle.allocation.pred", table = TRUE))
+(tbl <- plotTable(res, fcol = "bandle.allocation.pred"))
 ```
 
 # Assessing convergence
@@ -674,10 +684,9 @@ the skew. Running the algorithm for more iterations (typically 10,000)
 should produce convergence. This is not done here for brevity of the vignette.
 
 ```{r, convergence, fig.height=8}
-par(mfrow = c(2,2))
+par(mfrow = c(2, 2))
 out <- plotConvergence(bandleres)
 ```
-
 
 
 # Description of `bandle` parameters

@@ -4,6 +4,7 @@
 \alias{fitGP}
 \alias{fitGPmaternPC}
 \alias{fitGPmatern}
+\alias{plotGPmatern}
 \title{fit a Gaussian process to spatial proteomics data}
 \usage{
 fitGP(object = object, fcol = "markers")
@@ -13,22 +14,17 @@ fitGPmaternPC(
   fcol = "markers",
   materncov = TRUE,
   nu = 2,
-  hyppar = matrix(c(1, 50, 50), nrow = 1),
-  plot = TRUE
+  hyppar = matrix(c(1, 50, 50), nrow = 1)
 )
 
-fitGPmatern(
-  object = object,
-  fcol = "markers",
-  materncov = TRUE,
-  nu = 2,
-  plot = TRUE
-)
+fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
+
+plotGPmatern(object = object, params = params, fcol = "markers")
 }
 \arguments{
 \item{object}{A instance of class \code{MSnSet}}
 
-\item{fcol}{feature column to indicate markers. Default is "markers".}
+\item{fcol}{feature column to indicate markers. Default is \code{"markers"}.}
 
 \item{materncov}{\code{logical} indicating whether matern covariance is used.}
 
@@ -38,24 +34,19 @@ fitGPmatern(
 provide a matrix with 3 columns and 1 row. The order is hyperparameters
 on length-scale, amplitude, variance.}
 
-\item{plot}{\code{logical} indicating whether to plot the posterior predictives
-overlayed with the markers. Default is TRUE.}
+\item{params}{The output of running \code{fitGPmatern}, \code{fitGPmaternPC}
+or \code{fitGP} which is of class \code{gpParams}}
 }
 \value{
-means and standard deviation of gaussian process fitted to data,
-along with hyperparameters with maximum marginal likelihood fitting. Side
-effect, plot the markers with overlayed Gaussian processes.
+Returns an object of class \code{gpParams} which stores the posterior
+predictive means, standard deviations, variances and also the MAP
+hyperparamters for the GP.
 
-returns a list of posterior predictive means and standard deviations.
-As well as MAP hyperparamters for the GP. Side effect will plot the posterior
-predictive overlayed with markers.
-
-returns a list of posterior predictive means and standard deviations.
-As well as maximum marginal likelihood for the GP. Side effect will plot
-the posterior predictive overlayed with markers.
+The functions \code{plotGPmatern} plot the posterior
+predictives overlayed with the markers for each subcellular class.
 }
 \description{
-Helper function to fit GPs with squared exponential convariances,
+Helper function to fit GPs with squared exponential co-variances,
 maximum marginal likelihood
 
 Function to fit matern GPs to data with penalised complexity priors on the
@@ -63,6 +54,8 @@ hyperparameters, side effect will plot posterior predictives
 
 Function to fit matern GPs to data, side effect will plot posterior
 predictives
+
+Function to plot matern GPs
 }
 \examples{
 library(pRolocdata)
@@ -73,6 +66,7 @@ tansim <- sim_dynamic(object = tan2009r1,
                    numDyn = 100L)
 gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
 
+## ====== fitGPmaternPC =====
 library(pRolocdata)
 data("tan2009r1")
 set.seed(1)
@@ -82,6 +76,7 @@ tansim <- sim_dynamic(object = tan2009r1,
 gpParams <- lapply(tansim$lopitrep, 
 function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
 
+## ====== fitGPmatern =====
 library(pRolocdata)
 data("tan2009r1")
 set.seed(1)
@@ -90,4 +85,23 @@ tansim <- sim_dynamic(object = tan2009r1,
                    numDyn = 100L)
 gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
 
+## ====== plotGPmatern =====
+## generate example data
+library(pRolocdata)
+data("tan2009r1")
+set.seed(1)
+tansim <- sim_dynamic(object = tan2009r1, 
+                    numRep = 6L,
+                   numDyn = 100L)
+## fit a GP
+gpParams <- lapply(tansim$lopitrep, function(x) fitGP(x))
+
+## Overlay posterior predictives onto profiles
+## Dataset1 1
+par(mfrow = c(2, 3))
+plotGPmatern(tansim$lopitrep[[1]], gpParams[[1]])
+
+## Dataset 2, etc.
+par(mfrow = c(2, 3))
+plotGPmatern(tansim$lopitrep[[2]], gpParams[[2]])
 }

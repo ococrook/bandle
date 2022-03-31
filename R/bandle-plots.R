@@ -1,7 +1,3 @@
-## Declare globalVariables
-utils::globalVariables(c("x", "y", "z", "value", "Condition", "label", 
-                         "stratum"))
-
 ##' These functions implement plotting functions for bandle objects
 ##' 
 ##' 
@@ -38,7 +34,7 @@ utils::globalVariables(c("x", "y", "z", "value", "Condition", "label",
 ##'  numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc_plot_probs(params = mcmc1, fname = rownames(tan2009r1)[1])
 ##' 
-##' @rdname bandle-plots
+##' @rdname bandle-plots-prob
 mcmc_plot_probs <- function(params,
                             fname,
                             cond = 1,
@@ -51,7 +47,7 @@ mcmc_plot_probs <- function(params,
     stopifnot(is(fname, "character"))
     Organelle <- Probability <- NULL
     
-    ch <- chains(params)[[n]]
+    ch <- params@chains[[n]]
     dfr <- as.data.frame(ch@nicheProb[[cond]][fname, , ])
     dfr_long <- data.frame(Organelle = rep(names(dfr), each = nrow(dfr)),
                            Probability = unlist(dfr, use.names = FALSE),
@@ -94,8 +90,42 @@ mcmc_plot_probs <- function(params,
 ##' @return  returns a named vector of differential localisation probabilities
 ##' @md
 ##'
-##' @rdname bandle-plots
-
+##' @examples 
+##'  \dontrun{
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process the results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## plot the results
+##' spatial2D(control[[1]], bandleres)
+##' }
+##' @rdname bandle-plots-spatial
 spatial2D <- function(object,
                       params, 
                       fcol = "markers",
@@ -118,7 +148,7 @@ spatial2D <- function(object,
     }
     
     ## Compute mean probabilities 
-    ch <- chains(params)[[n]]
+    ch <- params@chains[[n]]
     probs <- apply(ch@nicheProb[[cond]], c(1, 3), mean)
     
     ## create allocation matrix for markers
@@ -158,11 +188,11 @@ spatial2D <- function(object,
     # Create appropriate spatial grid
     for (j in getMarkerClasses(object)) {
         idxOrg <- c(probs.lst.df$organelle == j)
-        coords[[j]] <- akima::interp(x = probs.lst.df$x[idxOrg],
+        coords[[j]] <- interp::interp(x = probs.lst.df$x[idxOrg],
                                      y = probs.lst.df$y[idxOrg],
                                      z = probs.lst.df$probability[idxOrg],
                                      extrap=FALSE, linear = TRUE, 
-                                     duplicate = TRUE) 
+                                     duplicate = "mean") 
                                      # interpolate onto appropriate grid
         coords[[j]]$z[is.na(coords[[j]]$z)] <- 0 # NaNs beyond data set to 0
         locations[[j]] <- cbind(rep(coords[[j]]$x, 40), 
@@ -189,7 +219,7 @@ spatial2D <- function(object,
     
     gg <- ggplot(
         data = df.lst,
-        aes(x = x, y = y, z = z, color = organelle)) +
+        aes(x = .data$x, y = .data$y, z = .data$z, color = organelle)) +
         coord_fixed() + 
         geom_contour(breaks = breaks, size = 1.2, aes(alpha = stat(level))) + 
         geom_point(alpha = 0) + 
@@ -207,7 +237,6 @@ spatial2D <- function(object,
               plot.title = element_text(hjust = 0.5, size = 20),
               legend.text=element_text(size = 14)) +
         ggtitle(label = "Spatial variation of localisation probabilities") 
-    gg
     return(gg)
 }
 
@@ -238,13 +267,46 @@ spatial2D <- function(object,
 ##' @param spacer A `numeric`. Default is 4. Controls the white space around the
 ##'   circos plotting region.
 ##' @param cex Text size. Default is 1.
-##' @param table Logical. Print a summary table of translocations between
-##'   subcellular classes. Default is \code{FALSE}.
 ##' @param ... Additional arguments passed to the `chordDiagram` function.
 ##' @return Returns a directional circos/chord diagram showing the translocation
 ##'   of proteins between conditions. If \code{type = "alluvial"} ouput is a
 ##'   \code{ggplot} object.
-##' @rdname bandle-plots
+##' @examples
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process the results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## plot the results
+##' plotTranslocations(bandleres)
+##' plotTranslocations(bandleres, type = "chord")
+##' @rdname bandle-plots-translocations
 
 plotTranslocations <- function(params,
                                type = "alluvial",
@@ -255,10 +317,10 @@ plotTranslocations <- function(params,
                                labels.par = "adj", 
                                cex = 1,
                                spacer = 4,
-                               table = FALSE,
                                ...) {
     
     stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
+    Condition <- x <- y <- z <- stratum <- value <- NULL
 
     # check method is one of chord or alluvial
     type <- match.arg(type, c("alluvial", "chord"))
@@ -404,14 +466,9 @@ plotTranslocations <- function(params,
             mutate(id = row_number()) %>%
             pivot_longer(-c(value, id), names_to = "Condition", values_to = "label")
         
-        # return table
-        if (table == TRUE) {
-            return(df = df)
-            stop("Returning translocation data.frame")
-        }
-        
         # plot alluvial diagram
-        q <- ggplot(df_expanded, aes(x = Condition, stratum = label, alluvium = id, fill = label)) +
+        q <- ggplot(df_expanded, aes(x = .data$Condition, stratum = .data$label,
+                                     alluvium = id, fill = .data$label)) +
             geom_flow(width = 0) +
             scale_fill_manual(values = columncol) +
             scale_color_manual(values = stratcol) +
@@ -457,7 +514,7 @@ plotTranslocations <- function(params,
             }
             labels.par <- match.arg(labels.par, c("repel", "adj"))
         } 
-        q
+        return(q)
     }
     
 }
@@ -469,8 +526,41 @@ plotTranslocations <- function(params,
 ##' of chains
 ##' @md
 ##' 
-##'  
-##' @rdname bandle-plots
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process bandle results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## Convergence plots
+##' par(mfrow = c(1, 2))
+##' plotConvergence(bandleres)  
+##' @rdname bandle-plots-convergence
 plotConvergence <- function(params){
     
     stopifnot("params must be an object of
@@ -486,3 +576,126 @@ plotConvergence <- function(params){
     return(toplot)
 }
 
+##' Produces a table summarising differential localisation results
+##' @title Generates a table for visualising changes in
+##'   localisation between two conditions/datasets
+##' @param params An instance of class \code{bandleParams} or an instance of
+##'   class \code{MSnSetList} of length 2.
+##' @param all A logical specifying whether to count all proteins or only show
+##'   those that have changed in location between conditions. Default is
+##'   `FALSE`.
+##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then
+##'   \code{fcol} must be defined. This is a \code{character} vector of length 2
+##'   to set different labels for each dataset. If only one label is specified,
+##'   and the \code{character} is of length 1 then this single label will be
+##'   used to identify the annotation column in both datasets.
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1, 
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x) 
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment, 
+##'               gpParams = gpParams,
+##'               fcol = "markers",  
+##'               numIter = 10L, 
+##'               burnin = 1L, 
+##'               thin = 2L,
+##'               numChains = 2, 
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##'                
+##' ## Process bandle results
+##' bandleres <- bandleProcess(res)
+##' 
+##' ## Tabulate results
+##' plotTable(bandleres)  
+##' @return Returns a summary table of translocations of proteins between conditions. 
+##' @rdname bandle-plots-translocations-table
+plotTable <- function(params,
+                      all = FALSE,
+                      fcol) {
+    
+    stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
+    Condition <- x <- y <- z <- stratum <- value <- grid.col <- NULL
+  
+    # get results from params
+    if (inherits(params, "bandleParams")) {
+        res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
+        res2 <- summaries(params)[[2]]@posteriorEstimates$bandle.allocation
+        cl1 <- colnames(summaries(params)[[1]]@bandle.joint)
+        cl2 <- colnames(summaries(params)[[2]]@bandle.joint)
+    }
+    if (inherits(params, "list")) {
+        stopifnot(unlist(lapply(params, function(z) inherits(z, "MSnSet"))))
+        params <- commonFeatureNames(params) ## keep only intersection between datasets
+        params <- list(params[[1]], params[[2]])
+        if (missing(fcol)) stop(message("Missing fcol, please specify feature columns"))
+        if (length(fcol) == 1) {
+            fcol <- rep(fcol, 2)
+            message(
+                c("------------------------------------------------",
+                  "\nIf length(fcol) == 1 it is assumed that the",
+                  "\nsame fcol is to be used for both datasets",
+                  "\nsetting fcol = c(", fcol[1], ", ", fcol[2],")",
+                  "\n----------------------------------------------")
+            )
+        }
+        for (i in seq(fcol)) {
+            if (!is.null(fcol[i]) && !fcol[i] %in% fvarLabels(params[[i]]))
+                stop("No fcol found in MSnSet, please specify a valid fcol ",
+                     immediate. = TRUE)
+        }
+        res1 <- fData(params[[1]])[, fcol[1]]
+        res2 <- fData(params[[2]])[, fcol[2]]
+        cl1 <- names(table(res1))
+        cl2 <- names(table(res2))
+    }
+    fct.lev <- union(cl1, cl2)
+    res1_lev <- factor(res1, fct.lev)
+    res2_lev <- factor(res2, fct.lev)
+    
+    # create data frame of translocations
+    dat <- data.frame(x = res1_lev, y = res2_lev)
+    dat$z <- 1
+    datdf <- dat %>% group_by(x, y, .drop = FALSE) %>%
+        dplyr:::summarise(count=sum(z), .groups = "keep")
+    if (!all) {
+        torm <- which(datdf$x == datdf$y)
+        datdf <- datdf[-torm, ]
+    }
+    df <- as.data.frame(datdf)
+    
+        # remove zero counts
+        torm <- which(df$count == 0)
+        df <- df[-torm, ]
+        
+        # set colours for alluvial plot (this is a little tricky as a specific 
+        # ordering is required for ggalluvial)
+        names(df) <- c("Condition1", "Condition2", "value")
+        levs1 <- levels(df$Condition1) 
+        levs2 <- levels(df$Condition2)
+        # levs1 <- levs1[table(df$Condition1)!=0]
+        # levs2 <- levs2[table(df$Condition2)!=0]
+        res1 <- unique(df$Condition1)
+        res2 <- unique(df$Condition2)
+        cond1_col <- grid.col[levs1[levs1 %in% res1]]
+        cond2_col <- grid.col[levs2[levs2 %in% res2]]
+        columncol <- c(cond1_col, cond2_col)
+        stratcol <- c(rev(cond1_col), rev(cond2_col))
+
+        # return table
+        return(df = df)
+}

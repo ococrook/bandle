@@ -33,8 +33,19 @@ https://linkinghub.elsevier.com/retrieve/pii/S1535-9476(22)00002-0
 
 # Installation requirements
 
-Users will require a working version of R, currently at least version >4. It is recommend to use RStudio. The package can then be installed using the `devtools` package. The package should take a few minutes to install on a regular desktop or laptop. The package will need to be loaded using `library(bandle)`
+Users will require a working version of R, currently at least version >4. It is recommend to use RStudio. The package can then be installed using the Bioconductor or `devtools` package. The package should take a few minutes to install on a regular desktop or laptop. The package will need to be loaded using `library(bandle)`
 
+stable Bioconductor release install:
+
+```{r,}
+## unless BiocManager is already installed
+install.packages("BiocManager")
+## then
+BiocManager::install("bandle")
+```
+
+
+Unstable package version install:
 ```{r,}
 devtools::install_github("ococrook/bandle")
 ```

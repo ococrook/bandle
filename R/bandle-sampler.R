@@ -27,7 +27,7 @@
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
 ##' @param v The prior shape parameter for Beta(u, v). Default is 10.
 ##' @param lambda Controls the variance of the outlier component. Default is 1.
-##' @param gpParams Object of class gpparams. parameters from prior fitting of GPs
+##' @param gpParams Object of class `gpParams`. parameters from prior fitting of GPs
 ##' to each niche to accelerate inference. Default is NULL.
 ##' @param hyperIter The frequency of MCMC interation to update the hyper-parameters
 ##' default is 20
@@ -102,39 +102,38 @@ diffLoc <- function(objectCond1,
                     pcPrior = NULL,
                     propSd = c(0.3, 0.1, 0.05)){
     
-    suppressMessages(require(Biobase))
+    #suppressMessages(require(Biobase))
     
     # Checks
-    stopifnot("ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet"))
-    stopifnot("ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet"))
-    stopifnot("hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS"))
-    stopifnot("numIter must be a numeric"=is(numIter, "numeric"))
-    stopifnot("burnin must be an integer"=is(burnin, "integer"))
-    stopifnot("thin must be an integer"=is(thin, "integer"))
-    stopifnot("burnin must be less than numIter"= burnin < numIter)
-    stopifnot("u must be numeric"=is(u, "numeric"))
-    stopifnot("v must be numeric"=is(v, "numeric"))
-    stopifnot("lambda must be numeric"=is(lambda, "numeric"))
-    stopifnot("hyperIter must be numeric"=is(hyperIter, "numeric"))
-    stopifnot("hyperMean must be numeric"=is(hyperMean, "numeric"))
-    stopifnot("hyperSd must be numeric"=is(hyperSd, "numeric"))
-    stopifnot("must provide 3 values for hyperMean"=length(hyperMean) == 3)
-    stopifnot("must provide 3 values for hyperSd" = length(hyperSd) == 3)
-    stopifnot("tau must be numeric" = is(tau, "numeric"))
-    stopifnot("nu must be numeric" = is(nu, "numeric"))
-    stopifnot("propSd must be numeric"=is(propSd, "numeric"))
-    stopifnot("Must provide 3 values for propSd"=length(propSd) == 3)
+    stopifnot(exprs = {
+              "ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet")
+              "ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet")
+              "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
+              "numIter must be a numeric"=is(numIter, "numeric")
+              "burnin must be an integer"=is(burnin, "integer")
+              "thin must be an integer"=is(thin, "integer")
+              "burnin must be less than numIter"= burnin < numIter
+              "u must be numeric"=is(u, "numeric")
+              "v must be numeric"=is(v, "numeric")
+              "lambda must be numeric"=is(lambda, "numeric")
+              "hyperIter must be numeric"=is(hyperIter, "numeric")
+              "hyperMean must be numeric"=is(hyperMean, "numeric")
+              "hyperSd must be numeric"=is(hyperSd, "numeric")
+              "must provide 3 values for hyperMean"=length(hyperMean) == 3
+              "must provide 3 values for hyperSd" = length(hyperSd) == 3
+              "tau must be numeric" = is(tau, "numeric")
+              "nu must be numeric" = is(nu, "numeric")
+              "propSd must be numeric"=is(propSd, "numeric")
+              "Must provide 3 values for propSd"=length(propSd) == 3})
     
-    
+    suppressMessages(require(Biobase))
     
     
     # Setting seed manually
     if (is.null(seed)) {
-        seed <- sample(.Machine$integer.max, 1)
+        message("You haven't provided a seed, you may wish to provide a seed")
     }
-    .seed <- as.integer(seed)  
-    set.seed(.seed)
-    
+
     # Elementary checks
     stopifnot(length(hyperMean)==3)
     stopifnot(length(hyperSd)==3)
@@ -189,6 +188,14 @@ diffLoc <- function(objectCond1,
         res <- gpParams
     }
     
+    # check gpParams and convert to a list from gpParams object
+    stopifnot("The parameters are not an instance of class gpParams"= 
+                all(vapply(res, is, "gpParams") == "gpParams"))
+    ## easiest thing here is to convert from gpParams object to a list for bandle
+    ## Note: we can amend bandle to work with gpParams objects at a later date if needed
+    # res <-  lapply(res, function(z) list(M = z@M, sigma = z@sigma, params = z@params))
+    
+    
     # separate data into known and unknown
     unknown_cmb <- lapply(object_cmb, function(x) unknownMSnSet(x, fcol = fcol))
     exprsUnknown_cmb <- lapply(unknown_cmb, Biobase::exprs)
@@ -231,7 +238,7 @@ diffLoc <- function(objectCond1,
     .hypers <- vector(mode = "list", length = length(object_cmb))
     
     for (i in seq.int(object_cmb)) {
-        hypers[[i]][[1]] <- res[[i]]$params
+        hypers[[i]][[1]] <- res[[i]]@params
         .hypers[[i]] <- hypers[[i]][[1]]
     }
     # intialise polya-gamma auxiliary variables

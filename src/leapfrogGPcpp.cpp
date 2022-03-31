@@ -145,6 +145,8 @@ List LeapfrogGPcpp(arma::mat Xk,
   arma::vec gradprior(3);
   gradprior(0) = x(0); gradprior(1) = 2*x(1); gradprior(2) = 2*x(2);
 
+  Rcpp::checkUserInterrupt();
+  
 for (int t=0; t < L; t++){
   //half step for momenta
   p = p - delta * (gradientGPcpp(Xk, tau, x , nk, D) + gradprior)/2 ;
