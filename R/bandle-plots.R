@@ -494,7 +494,8 @@ plotTable <- function(params,
                       fcol) {
     
     stopifnot(inherits(params, "bandleParams") | inherits(params, "list"))
-
+    Condition <- x <- y <- z <- stratum <- value <- grid.col <- NULL
+  
     # get results from params
     if (inherits(params, "bandleParams")) {
         res1 <- summaries(params)[[1]]@posteriorEstimates$bandle.allocation
