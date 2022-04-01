@@ -271,7 +271,6 @@ spatial2D <- function(object,
 ##' @return Returns a directional circos/chord diagram showing the translocation
 ##'   of proteins between conditions. If \code{type = "alluvial"} ouput is a
 ##'   \code{ggplot} object.
-##' @examples
 ##' @examples 
 ##' ## Generate some example data
 ##' library("pRolocdata")
