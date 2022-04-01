@@ -4,19 +4,19 @@ library("pRolocdata")
 data("tan2009r1")
 set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1, 
-                      numRep = 6L,
+                      numRep = 4L,
                       numDyn = 100L)
 d2 <- d1 <- tansim$lopitrep
-control2 <- control1 <- d1[1:3]
-treatment2 <- treatment1 <- d1[4:6]
+control2 <- control1 <- d1[1:2]
+treatment2 <- treatment1 <- d1[3:4]
 i <- which(fvarLabels(d1[[1]]) == "markers")
 stopifnot(length(i) == 1)
 fvarLabels(control2[[1]])[i] <- "xx"
 fvarLabels(control2[[2]])[i] <- "xx"
-fvarLabels(control2[[3]])[i] <- "xx"
+# fvarLabels(control2[[3]])[i] <- "xx"
 fvarLabels(treatment2[[1]])[i] <- "xx"
 fvarLabels(treatment2[[2]])[i] <- "xx"
-fvarLabels(treatment2[[3]])[i] <- "xx"
+# fvarLabels(treatment2[[3]])[i] <- "xx"
 
 .times <- 2
 .seed <- 1
