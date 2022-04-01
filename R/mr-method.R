@@ -32,6 +32,7 @@ robustMahalanobis <- function(delta) {
     
     return(sqMan)
 } 
+
 ##' @title Compute the reproducibility score 
 ##' @param x Numeric vector to compute reproducibility score
 ##' @param y Numeric vector to compute reproducibility score
@@ -65,12 +66,12 @@ reprodScore <- function(x, y, method = c("pearson")) {
     
     return(Rscore)
 }
+
 ##' @title Apply the MR method to spatial proteomics data
 ##' @param objectCond1 A list of [`MSnbase::MSnSet`]s where each is an experimental
 ##' replicate for the first condition, usually a control
 ##' @param objectCond2 A list of [`MSnbase::MSnSet`]s where each is an experimental
 ##' replicate for the second condition, usually a treatment
-##' @param plot Whether to generate an MR plot as a side effect. 
 ##' @return The MR score of the Ithzak et al. 2016/2017
 ##' @md
 ##' 
@@ -85,10 +86,11 @@ reprodScore <- function(x, y, method = c("pearson")) {
 ##' control1 <- d1[1:3]
 ##' treatment1 <- d1[4:6]
 ##' mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
+##' plot(mr1$Mscore, mr1$Rscore, pch = 21, 
+##'      xlab = "MScore", ylab = "RScore")
 ##' @rdname method-mr
 mrMethod <- function(objectCond1,
                      objectCond2,
-                     plot = TRUE,
                      method = "2017") {
     
     stopifnot(is(objectCond1[[1]], "MSnSet"))
@@ -137,9 +139,9 @@ mrMethod <- function(objectCond1,
     # add Names
     names(Rscore) <- names(Mscore) <- rownames(objectCond1)
     
-    if (plot == TRUE) {
-        plot(Mscore, Rscore, pch = 19)
-    }
+    # if (plot == TRUE) {
+    #     plot(Mscore, Rscore, pch = 19)
+    # }
     
     ## Compute ROC, with normalized scores
     MRscore <- ((Rscore - mean(Rscore[!is.infinite(Rscore)]))/sd(Rscore[!is.infinite(Rscore)])) * ((Mscore - mean(Mscore[!is.infinite(Mscore)]))/sd(Mscore[!is.infinite(Mscore)]))

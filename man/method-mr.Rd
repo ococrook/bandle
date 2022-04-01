@@ -10,7 +10,7 @@ robustMahalanobis(delta)
 
 reprodScore(x, y, method = c("pearson"))
 
-mrMethod(objectCond1, objectCond2, plot = TRUE, method = "2017")
+mrMethod(objectCond1, objectCond2, method = "2017")
 }
 \arguments{
 \item{delta}{The difference profile to compute the squared mahalanobis distance}
@@ -26,8 +26,6 @@ replicate for the first condition, usually a control}
 
 \item{objectCond2}{A list of \code{\link[MSnbase:MSnSet-class]{MSnbase::MSnSet}}s where each is an experimental
 replicate for the second condition, usually a treatment}
-
-\item{plot}{Whether to generate an MR plot as a side effect.}
 }
 \value{
 The squared Mahalanobis distance
@@ -80,4 +78,6 @@ d1 <- tansim$lopitrep
 control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mr1 <- mrMethod(objectCond1 = control1, objectCond2 = treatment1)
+plot(mr1$Mscore, mr1$Rscore, pch = 21, 
+     xlab = "MScore", ylab = "RScore")
 }
