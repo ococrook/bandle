@@ -1,4 +1,12 @@
-# bandle 0.99.2
+# bandle 0.99.6
+
+## version 0.99.6
+
+- fix pointer to self in compiled code
+
+## version 0.99.5
+
+- remove timeout issues
 
 ## version 0.99.4
 

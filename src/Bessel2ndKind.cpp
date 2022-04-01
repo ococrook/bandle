@@ -795,7 +795,7 @@ List centeredDatamatern(arma::mat Xknown,
                                                Xunknown, 
                                                BXun,
                                                currenthyper, 
-                                               nk, tau, D = D, j + 1, nu).t();
+                                               nk, tau, D, j + 1, nu).t();
     }
     
     
