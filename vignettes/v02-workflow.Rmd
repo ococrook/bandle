@@ -308,7 +308,7 @@ treatment <- list(thplopit[[3]], thplopit[[4]])
 
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
-                    numIter = 20,       # usually 10,000
+                    numIter = 50,       # usually 10,000
                     burnin = 5L,        # usually 5,000
                     thin = 1L,          # usually 20
                     gpParams = gpParams,
