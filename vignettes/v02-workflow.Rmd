@@ -28,7 +28,7 @@ BiocStyle::markdown()
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dpi=30,fig.width=7)
+knitr::opts_chunk$set(dpi=25,fig.width=7)
 ```
 
 ```{r env, message = FALSE, warning = FALSE, echo = TRUE}
@@ -308,7 +308,7 @@ treatment <- list(thplopit[[3]], thplopit[[4]])
 
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
-                    numIter = 50,      # usually 10,000
+                    numIter = 20,       # usually 10,000
                     burnin = 5L,        # usually 5,000
                     thin = 1L,          # usually 20
                     gpParams = gpParams,
