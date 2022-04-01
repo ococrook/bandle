@@ -1,10 +1,14 @@
 library(pRolocdata)
 data("tan2009r1")
+data("tan2009r2")
 set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1, 
-                    numRep = 6L,
-                   numDyn = 100L)
-d1 <- tansim$lopitrep
+                      numRep = 3L,
+                      numDyn = 100L)
+tansim2 <- sim_dynamic(object = tan2009r1, 
+                      numRep = 3L,
+                      numDyn = 100L)
+d1 <- c(tansim$lopitrep, tansim2$lopitrep)
 
 test_that("mr Method", {
     
