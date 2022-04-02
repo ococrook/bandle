@@ -1,4 +1,9 @@
-# bandle 0.99.6
+# bandle 0.99.7
+
+## version 0.99.7
+
+- speed up package compiling
+- fixing compiling issues
 
 ## version 0.99.6
 

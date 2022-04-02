@@ -81,8 +81,8 @@
 ##' treatment1 <- d1[4:6]
 ##' mcmc1 <- bandle(objectCond1 = control1,
 ##'  objectCond2 = treatment1, gpParams = gpParams,
-##'  fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-##'  numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##'  fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
+##'  numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 ##' 
 ##' @rdname bandle
 bandle <- function(objectCond1,
@@ -284,8 +284,8 @@ bandle <- function(objectCond1,
 ##' control1 <- d1[1:3]
 ##' treatment1 <- d1[4:6]
 ##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
-##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##'                                      fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
+##'                                      numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc1 <- bandleProcess(mcmc1)
 ##' out <- bandlePredict(objectCond1 = control1, objectCond2 = treatment1, params = mcmc1)
 ##' @md
@@ -390,8 +390,8 @@ bandlePredict <- function(objectCond1,
 ##' control1 <- d1[1:3]
 ##' treatment1 <- d1[4:6]
 ##' mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
-##'                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-##'                                      numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##'                                      fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
+##'                                      numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc1 <- bandleProcess(mcmc1)
 ##' 
 ##' @md

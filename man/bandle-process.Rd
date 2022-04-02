@@ -29,8 +29,8 @@ d1 <- tansim$lopitrep
 control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
-                                     fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+                                     fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
+                                     numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 mcmc1 <- bandleProcess(mcmc1)
 
 }

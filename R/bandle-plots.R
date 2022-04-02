@@ -30,7 +30,7 @@
 ##' treatment1 <- d1[4:6]
 ##' mcmc1 <- bandle(objectCond1 = control1,
 ##'  objectCond2 = treatment1, gpParams = gpParams,
-##'  fcol = "markers", numIter = 25L, burnin = 1L, thin = 2L,
+##'  fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
 ##'  numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc_plot_probs(params = mcmc1, fname = rownames(tan2009r1)[1])
 ##' 
@@ -58,7 +58,7 @@ mcmc_plot_probs <- function(params,
                       width = Probability) +
         geom_violin(aes(fill = Organelle), scale = scale, bw = bw)
     gg2 <- gg2 + theme_bw() +
-        scale_fill_manual(values = pRoloc::getStockcol()[seq_len(nrow(dfr))]) +
+        scale_fill_manual(values = pRoloc::getStockcol()[seq_len(ncol(dfr))]) +
         theme(text = element_text(size=15),
               axis.text.x = element_text(angle = 45, hjust = 1),
               axis.title.x = element_blank())
@@ -112,7 +112,7 @@ mcmc_plot_probs <- function(params,
 ##'               objectCond2 = treatment, 
 ##'               gpParams = gpParams,
 ##'               fcol = "markers",  
-##'               numIter = 10L, 
+##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
 ##'               numChains = 2, 
@@ -292,7 +292,7 @@ spatial2D <- function(object,
 ##'               objectCond2 = treatment, 
 ##'               gpParams = gpParams,
 ##'               fcol = "markers",  
-##'               numIter = 10L, 
+##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
 ##'               numChains = 2, 
@@ -546,7 +546,7 @@ plotTranslocations <- function(params,
 ##'               objectCond2 = treatment, 
 ##'               gpParams = gpParams,
 ##'               fcol = "markers",  
-##'               numIter = 10L, 
+##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
 ##'               numChains = 2, 
@@ -609,7 +609,7 @@ plotConvergence <- function(params){
 ##'               objectCond2 = treatment, 
 ##'               gpParams = gpParams,
 ##'               fcol = "markers",  
-##'               numIter = 10L, 
+##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
 ##'               numChains = 2, 

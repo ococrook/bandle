@@ -2,7 +2,7 @@ Package: bandle
 Type: Package
 Title: An R package to for the Bayesian analysis of differential subcellular
     localisation experiments
-Version: 0.99.6
+Version: 0.99.7
 Authors@R: c(person(family = "Crook", given = "Oliver M.",
 		                email = "oliver.crook@stats.ox.ac.uk",
 		                comment = c(ORCID = "0000-0001-5669-8506"),

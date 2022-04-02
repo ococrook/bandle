@@ -1,3 +1,4 @@
+#define BOOST_DISABLE_ASSERTS
 #include <RcppArmadillo.h>
 #include <boost/math/special_functions/bessel.hpp>
 // [[Rcpp::depends(RcppArmadillo)]]
