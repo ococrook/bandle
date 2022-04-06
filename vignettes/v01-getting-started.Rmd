@@ -66,9 +66,13 @@ probability that a protein is differentially localised between two conditions.
 
 # Installation
 
-The package can be installed with the `BiocManager` package. To
-install `BiocManager` use `install.packages("BiocManager")` and, after that,
-`BiocManager::install("bandle")` to install `bandle`.
+The package can be installed with the `BiocManager` package:
+
+```{r, eval=FALSE}
+if (!requireNamespace("BiocManager", quietly=TRUE))
+    install.packages("BiocManager")
+BiocManager::install("bandle")
+```
 
 
 # The data
