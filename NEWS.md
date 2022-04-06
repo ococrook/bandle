@@ -1,5 +1,9 @@
 # bandle 0.99.7
 
+## version 0.99.8
+
+- minor bioc changes 
+
 ## version 0.99.7
 
 - speed up package compiling
