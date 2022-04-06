@@ -102,8 +102,6 @@ diffLoc <- function(objectCond1,
                     pcPrior = NULL,
                     propSd = c(0.3, 0.1, 0.05)){
     
-    #suppressMessages(require(Biobase))
-    
     # Checks
     stopifnot(exprs = {
               "ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet")
@@ -126,6 +124,10 @@ diffLoc <- function(objectCond1,
               "propSd must be numeric"=is(propSd, "numeric")
               "Must provide 3 values for propSd"=length(propSd) == 3})
     
+    # This is required because `biocparrallel` is currently not exporting 
+    # exprs from Biobase when using `SnowParams()`. This generates a 
+    # warning in the build that is currently unavoidable. Removeal will
+    # cause a failure on windows machines. 
     suppressMessages(require(Biobase))
     
     

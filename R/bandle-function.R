@@ -166,8 +166,9 @@ bandle <- function(objectCond1,
         stop("Number of columns do not match, this analysis is not currently
              implemented in bandle. Subset fractions so they match")
     }
-    validrow2 <- var(apply(sapply(c(objectCond1, objectCond2),
-                                  function(x) rownames(x)), 1,
+    validrow2 <- var(apply(vapply(c(objectCond1, objectCond2),
+                                  function(x) rownames(x),
+                                  character(nrow(objectCond1[[1]]))), 1,
                            function(x) length(unique(x)))) > 0
     if (isTRUE(validrow2)){
         stop("rownames do not match across experiments. Analysis
