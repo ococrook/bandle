@@ -31,7 +31,7 @@
 ##' mcmc1 <- bandle(objectCond1 = control1,
 ##'  objectCond2 = treatment1, gpParams = gpParams,
 ##'  fcol = "markers", numIter = 5L, burnin = 1L, thin = 2L,
-##'  numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+##'  numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 ##' mcmc_plot_probs(params = mcmc1, fname = rownames(tan2009r1)[1])
 ##' 
 ##' @rdname bandle-plots-prob
@@ -115,7 +115,7 @@ mcmc_plot_probs <- function(params,
 ##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
-##'               numChains = 2, 
+##'               numChains = 1, 
 ##'               BPPARAM = SerialParam(RNGseed = 1),
 ##'               seed = 1)
 ##'                
@@ -295,7 +295,7 @@ spatial2D <- function(object,
 ##'               numIter = 5L, 
 ##'               burnin = 1L, 
 ##'               thin = 2L,
-##'               numChains = 2, 
+##'               numChains = 1, 
 ##'               BPPARAM = SerialParam(RNGseed = 1),
 ##'               seed = 1)
 ##'                
