@@ -9,7 +9,8 @@ Authors@R: c(person(family = "Crook", given = "Oliver M.",
 		                role = c("aut", "cre")),
 		         person(family = "Breckels", given = "Lisa",
 		                email = "lms79@cam.ac.uk",
-		                role = c("aut")))
+		                comment = c(ORCID = "0000-0001-8918-7171"),
+                                role = c("aut")))
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
     Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
