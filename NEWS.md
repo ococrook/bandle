@@ -1,11 +1,14 @@
-# bandle 0.99.10
+# bandle 0.99.11
 
 ## version 0.99.11
 
+- update readme for pkgdown
 ## version 0.99.10
 
+- add ORCID for Lisa
 ## version 0.99.9
 
+- reduced chains to speed up build
 ## version 0.99.8
 
 - minor bioc changes 
