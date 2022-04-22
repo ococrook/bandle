@@ -32,7 +32,23 @@ We do not advise you install the unstable version unless you know what you are d
 
 # Basic ideas and concepts
 
-The `bandle` package is designed  start with replicated MS spatial proteomics data in `MSnSets` and perform a workflow (see Vignettes section).
+The [`bandle` package](https://bioconductor.org/packages/bandle) implements the [BANDLE method](https://www.biorxiv.org/content/10.1101/2021.01.04.425239v3) for the analysis of comparitive/dynamic mass spectrometry based proteomics experiments. Data from form such experiments most commonly yield a matrix of measurements where we have proteins/peptides/peptide spectrum matches (PSMs) along the rows, and samples/fractions along the columns. In comparitive/dynamic experiments where we expect re-localisation upon some stimulus to sub-cellular environment, the data analysis is more challenging The BANDLE method takes two (replicated) datasets as input and uses these data to compute the probability that a protein differentially localises upon cellular perturbation, as well quantifying the uncertainty in these estimates.
+
+To use bandle the data must be stored as a **list** of **MSnSet** instances, as implemented in the Bioconductor [`MSnbase`](https://bioconductor.org/packages/release/bioc/html/MSnbase.html) package. Please see the relevant vignettes in MSnbase for constructing these data containers.
+
+# Vignettes
+
+There are currently two vignettes that accompany the package. The first vignette [v01-getting-started](https://ococrook.github.io/bandle/articles/v01-getting-started.html) provides an introduction to the `bandle` package and follows a short theortical example of how to perform differential localisation analysis of quantitative proteomics data using the BANDLE model (Crook et al. 2022 doi: https://doi.org/10.1101/2021.01.04.425239). Explanation and general recommendations of the input parameters are provided in this vignette.
+
+The second vignette [v02-workflow](https://ococrook.github.io/bandle/articles/v02-workflow.html) is a more comprehensive workflow which follows a real-life use case applying the BANDLE methods and workflow to the analysis of data generated from spatial proteomics of a human THP-1 monocyte system.
+
+These vignettes can be found through the Bioconductor landing page for [`bandle`](https://bioconductor.org/packages/bandle), here in the repo and also the *Articles* tab of the accompanying [web page](https://ococrook.github.io/bandle).
+
+Notes on run time: A small dataset can take around an hour to run; for large dataset we recommend a a compute server. The longest the analysis has taken has been a couple of hours on a single compute node. The demo take a few minutes to run.
+
+# Documentation
+
+Documentation to run the main functions can be found in the vignette or by typing `?bandle` in the console after loading the package. 
 
 We recommend reading our other workflow manuscripts:
 
@@ -54,22 +70,6 @@ For manuscripts that apply bandle, see:
 https://www.biorxiv.org/content/10.1101/2022.01.24.477541v1
 https://linkinghub.elsevier.com/retrieve/pii/S1535-9476(22)00002-0
 
-
-
-# Vignettes
-
-There are currently two vignettes that accompany the package. The first vignette [v01-getting-started](https://ococrook.github.io/bandle/articles/v01-getting-started.html) provides an introduction to the `bandle` package and follows a short theortical example of how to perform differential localisation analysis of quantitative proteomics data using the BANDLE model (Crook et al. 2022 doi: https://doi.org/10.1101/2021.01.04.425239). Explanation and general recommendations of the input parameters are provided here.
-
-The second vignette [v02-workflow](https://ococrook.github.io/bandle/articles/v02-workflow.html) is a more comprehensive workflow which follows a real-life use case applying the methods and workflow to the analysis of the human THP-1 monocyte system.
-
-These vignettes can be found through the Bioconductor landing page for `bandle`, here in the repo and also the *Articles* tab of the accompanying web page.
-
-Notes on run time: A small dataset can take around an hour to run; for large dataset we recommend a a compute server. The longest the analysis has taken has been a couple of hours on a single compute node. The demo take a few minutes to run.
-
-# Documentation
-
-Documentation to run the main functions can be found in the vignette or by typing `?bandle` in the console after loading the package. 
-
 # Contribution
 
 Contributions are welcome, please open issue so we can discuss any contribution in advance.
@@ -77,4 +77,3 @@ Contributions are welcome, please open issue so we can discuss any contribution 
 # Feature requests
 
 This package is actively being developed and maintained, please open Github issue if you would like to request or discuss a particular feature.
-
