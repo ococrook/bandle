@@ -1,5 +1,8 @@
 # bandle 0.99.11
 
+## version 0.99.12
+- update README
+
 ## version 0.99.11
 
 - update readme for pkgdown
