@@ -2,6 +2,7 @@
 
 ## version 0.99.12
 - update README
+- fixed typos in landing page
 
 ## version 0.99.11
 
