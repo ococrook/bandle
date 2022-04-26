@@ -379,26 +379,26 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">##              bandle.allocation bandle.probability bandle.outlier</span>
 <span class="co">##                    &lt;character&gt;          &lt;numeric&gt;      &lt;numeric&gt;</span>
 <span class="co">## A0AVT1                 Cytosol           1.000000              0</span>
-<span class="co">## A0FGR8-2       Golgi Apparatus           0.977121              0</span>
+<span class="co">## A0FGR8-2       Golgi Apparatus           0.569065              0</span>
 <span class="co">## A0JNW5                 Nucleus           1.000000              1</span>
 <span class="co">## A0MZ66-3               Cytosol           1.000000              0</span>
 <span class="co">## A0PJW6              Peroxisome           1.000000              0</span>
-<span class="co">## A1L0T0   Endoplasmic Reticulum           0.999999              0</span>
+<span class="co">## A1L0T0   Endoplasmic Reticulum           0.999969              0</span>
 <span class="co">##          bandle.probability.lowerquantile bandle.probability.upperquantile</span>
 <span class="co">##                                 &lt;numeric&gt;                        &lt;numeric&gt;</span>
-<span class="co">## A0AVT1                           1.000000                          1.00000</span>
-<span class="co">## A0FGR8-2                         0.932814                          0.99877</span>
-<span class="co">## A0JNW5                           1.000000                          1.00000</span>
-<span class="co">## A0MZ66-3                         1.000000                          1.00000</span>
-<span class="co">## A0PJW6                           1.000000                          1.00000</span>
-<span class="co">## A1L0T0                           0.999993                          1.00000</span>
+<span class="co">## A0AVT1                           1.000000                         1.000000</span>
+<span class="co">## A0FGR8-2                         0.177044                         0.980802</span>
+<span class="co">## A0JNW5                           0.999999                         1.000000</span>
+<span class="co">## A0MZ66-3                         1.000000                         1.000000</span>
+<span class="co">## A0PJW6                           1.000000                         1.000000</span>
+<span class="co">## A1L0T0                           0.999819                         1.000000</span>
 <span class="co">##          bandle.mean.shannon bandle.differential.localisation</span>
 <span class="co">##                    &lt;numeric&gt;                        &lt;numeric&gt;</span>
 <span class="co">## A0AVT1           0.00000e+00                         0.000000</span>
-<span class="co">## A0FGR8-2         0.00000e+00                         0.977778</span>
-<span class="co">## A0JNW5           4.20584e-09                         0.000000</span>
+<span class="co">## A0FGR8-2         0.00000e+00                         0.466667</span>
+<span class="co">## A0JNW5           4.58425e-07                         0.000000</span>
 <span class="co">## A0MZ66-3         0.00000e+00                         0.000000</span>
-<span class="co">## A0PJW6           0.00000e+00                         0.822222</span>
+<span class="co">## A0PJW6           0.00000e+00                         0.800000</span>
 <span class="co">## A1L0T0           0.00000e+00                         0.000000</span></code></pre>
 <p>The full joint probability distribution can be found in the <code>bandle.joint</code> slot e.g. for the control in slot 1 this would be <code>bandleJoint(summaries(bandleres)[[1]])</code> and the treatment in slot 2 this would be <code>bandleJoint(summaries(bandleres)[[2]])</code>.</p>
 <p>Let’s look at the posterior estimates and allocation predictions found in <code>pe1</code> and <code>pe2</code>. Each object is a <code>data.frame</code> containing the protein allocations and associated localisation probabilities for each condition. The 7 columns are</p>
@@ -467,13 +467,13 @@ document.addEventListener("DOMContentLoaded", function() {
                               t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   277                   209                   510 </span>
+<span class="co">##                   314                   201                   504 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   165                   206                   282 </span>
+<span class="co">##                   170                   109                   274 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   398                   110                   653 </span>
+<span class="co">##                   395                   107                   651 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   163                   251                   503</span></code></pre>
+<span class="co">##                   141                   256                   605</span></code></pre>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">getPredictions</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
                                fcol <span class="op">=</span> <span class="st">"bandle.allocation"</span>,
@@ -482,13 +482,13 @@ document.addEventListener("DOMContentLoaded", function() {
                                t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   144                   229                   443 </span>
+<span class="co">##                   170                   227                   462 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   283                   296                   197 </span>
+<span class="co">##                   282                   295                   174 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   361                   126                   768 </span>
+<span class="co">##                   359                   117                   741 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   202                   363                   315</span></code></pre>
+<span class="co">##                   199                   368                   333</span></code></pre>
 <p>A table of predictions is printed as a side effect when running <code>getPredictions</code> function.</p>
 <p>In addition to thresholding on the <code>bandle.probability</code> we can threshold based on the <code>bandle.outlier</code> i.e. the probability of being an outlier. A high value indicates that the protein is unlikely to belong to any annotated class (and is hence considered an outlier). We wish to assign proteins to a subcellular niche if they have a high <code>bandle.probability</code> and also a low <code>bandle.outlier</code> probability. This is a nice way to ensure we keep the most high confidence localisations.</p>
 <p>In the below code chunk we use first create a new column called <code>bandle.outlier.t</code> in the feature data which is <code>1 - outlier probability</code>. This allows us then to use <code>getPredictions</code> once again and keep only proteins which meet both the 0.99 threshold on the <code>bandle.probability</code> and the <code>bandle.outlier</code>.</p>
@@ -506,13 +506,13 @@ document.addEventListener("DOMContentLoaded", function() {
                               t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                    87                   143                   332 </span>
+<span class="co">##                    89                   141                   313 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   162                   107                   225 </span>
+<span class="co">##                   167                    58                   208 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   356                    61                   103 </span>
+<span class="co">##                   353                    65                   107 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   134                   223                  1794</span></code></pre>
+<span class="co">##                   122                   232                  1872</span></code></pre>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">getPredictions</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
                                fcol <span class="op">=</span> <span class="st">"bandle.allocation.pred"</span>,
@@ -521,13 +521,13 @@ document.addEventListener("DOMContentLoaded", function() {
                                t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   110                   175                   277 </span>
+<span class="co">##                   118                   173                   287 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   249                   219                   162 </span>
+<span class="co">##                   251                   220                   149 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   346                    99                   133 </span>
+<span class="co">##                   345                    91                   135 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   183                   307                  1467</span></code></pre>
+<span class="co">##                   185                   310                  1463</span></code></pre>
 <p>Let’s append the results to the second replicate (by default they are appended to the first only, as already mentioned above). This allows us to plot each dataset and the results using <code>plot2D</code>.</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Add results to second replicate at 0h</span>
@@ -571,10 +571,10 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>The differential localisation probability tells us which proteins are most likely to <em>differentially localise</em>, that exhibit a change in their steady-state subcellular location. Quantifying changes in protein subcellular location between experimental conditions is challenging and Crook et al <span class="citation">(Crook et al. 2021)</span> have used a Bayesian approach to compute the probability that a protein differentially localises upon cellular perturbation, as well quantifying the uncertainty in these estimates. The differential localisation probability is found in the <code>bandle.differential.localisation</code> column of the <code>bandleParams</code> output.</p>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffloc_probs</span> <span class="op">&lt;-</span> <span class="va">pe1</span><span class="op">$</span><span class="va">bandle.differential.localisation</span></code></pre></div>
-<p>If we take a 5% FDR and examine how many proteins get a differential probability greater than 0.95 we find there are 679 proteins above this threshold.</p>
+<p>If we take a 5% FDR and examine how many proteins get a differential probability greater than 0.95 we find there are 631 proteins above this threshold.</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 747</span></code></pre>
+<pre><code><span class="co">## [1] 696</span></code></pre>
 <p>On a rank plot we can see the distribution of differential probabilities.</p>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/plot-methods.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>,
@@ -599,7 +599,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">candidates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">qt</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">candidates</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "A1L170-2" "B7ZBB8"   "O15479"   "O43427"   "O43464"   "O43670-4"</span></code></pre>
+<pre><code><span class="co">## [1] "A1L170-2" "B2RUZ4"   "O15439"   "O43181"   "O43314"   "O43493"</span></code></pre>
 <div class="section level4">
 <h4 id="add-the-results-to-the-msnset">Add the results to the MSnSet<a class="anchor" aria-label="anchor" href="#add-the-results-to-the-msnset"></a>
 </h4>
@@ -668,13 +668,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co"># order by highest differential localisation estimate</span>
 <span class="va">df_cands</span> <span class="op">&lt;-</span> <span class="va">df_cands</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">dl.estimate</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##          dl.estimate 0hr_location          12h_location</span>
-<span class="co">## P46379-3   0.9584272      unknown               unknown</span>
-<span class="co">## Q8WWI1-3   0.9576311      unknown               unknown</span>
-<span class="co">## Q8WVX3-2   0.9572997      unknown               unknown</span>
-<span class="co">## Q14165     0.9572947      unknown Endoplasmic Reticulum</span>
-<span class="co">## Q96QD8     0.9570807     Lysosome       Plasma Membrane</span>
-<span class="co">## Q7L592     0.9569022 Mitochondria            Peroxisome</span></code></pre>
+<pre><code><span class="co">##        dl.estimate 0hr_location    12h_location</span>
+<span class="co">## P48960   0.9584272     Lysosome Plasma Membrane</span>
+<span class="co">## Q96GA3   0.9576311      unknown         unknown</span>
+<span class="co">## Q96FN4   0.9572997      unknown         unknown</span>
+<span class="co">## Q4G0F5   0.9572947      unknown         unknown</span>
+<span class="co">## Q9BY77   0.9570807      unknown       Nucleolus</span>
+<span class="co">## Q8IVM0   0.9569022      unknown         unknown</span></code></pre>
 <div class="section level3">
 <h3 id="alluvial-plots">Alluvial plots<a class="anchor" aria-label="anchor" href="#alluvial-plots"></a>
 </h3>
@@ -713,30 +713,31 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## same fcol is to be used for both datasets</span>
 <span class="co">## setting fcol = c(bandle.allocation.pred.pred, bandle.allocation.pred.pred)</span>
 <span class="co">## ----------------------------------------------</span></code></pre>
-<pre><code><span class="co">##                Condition1            Condition2 value</span>
-<span class="co">## 7               Chromatin            Peroxisome     1</span>
-<span class="co">## 19                Cytosol               unknown     4</span>
-<span class="co">## 23  Endoplasmic Reticulum       Golgi Apparatus     4</span>
-<span class="co">## 33        Golgi Apparatus Endoplasmic Reticulum     2</span>
-<span class="co">## 39        Golgi Apparatus               unknown     1</span>
-<span class="co">## 44               Lysosome       Golgi Apparatus     5</span>
-<span class="co">## 48               Lysosome       Plasma Membrane    12</span>
-<span class="co">## 57           Mitochondria            Peroxisome     8</span>
-<span class="co">## 59           Mitochondria               unknown     4</span>
-<span class="co">## 69              Nucleolus               unknown     1</span>
-<span class="co">## 76             Peroxisome          Mitochondria     5</span>
-<span class="co">## 79             Peroxisome               unknown     2</span>
-<span class="co">## 85        Plasma Membrane              Lysosome     1</span>
-<span class="co">## 89        Plasma Membrane               unknown     3</span>
-<span class="co">## 91                unknown             Chromatin     2</span>
-<span class="co">## 92                unknown               Cytosol     1</span>
-<span class="co">## 93                unknown Endoplasmic Reticulum     9</span>
-<span class="co">## 94                unknown       Golgi Apparatus     1</span>
-<span class="co">## 95                unknown              Lysosome     1</span>
-<span class="co">## 97                unknown             Nucleolus     5</span>
-<span class="co">## 98                unknown            Peroxisome     9</span>
-<span class="co">## 99                unknown       Plasma Membrane     6</span>
-<span class="co">## 100               unknown      40S/60S Ribosome     2</span></code></pre>
+<pre><code><span class="co">##               Condition1            Condition2 value</span>
+<span class="co">## 8                Cytosol               unknown     3</span>
+<span class="co">## 12 Endoplasmic Reticulum       Golgi Apparatus     2</span>
+<span class="co">## 18 Endoplasmic Reticulum               unknown     1</span>
+<span class="co">## 28       Golgi Apparatus               unknown     1</span>
+<span class="co">## 33              Lysosome       Golgi Apparatus     5</span>
+<span class="co">## 37              Lysosome       Plasma Membrane    13</span>
+<span class="co">## 38              Lysosome               unknown     3</span>
+<span class="co">## 42          Mitochondria Endoplasmic Reticulum     1</span>
+<span class="co">## 46          Mitochondria            Peroxisome     8</span>
+<span class="co">## 58             Nucleolus               unknown     1</span>
+<span class="co">## 59             Nucleolus      40S/60S Ribosome     1</span>
+<span class="co">## 65            Peroxisome          Mitochondria     7</span>
+<span class="co">## 68            Peroxisome               unknown     1</span>
+<span class="co">## 74       Plasma Membrane              Lysosome     1</span>
+<span class="co">## 78       Plasma Membrane               unknown     4</span>
+<span class="co">## 81               unknown               Cytosol     1</span>
+<span class="co">## 82               unknown Endoplasmic Reticulum     5</span>
+<span class="co">## 83               unknown       Golgi Apparatus     2</span>
+<span class="co">## 84               unknown              Lysosome     1</span>
+<span class="co">## 85               unknown          Mitochondria     3</span>
+<span class="co">## 86               unknown             Nucleolus     1</span>
+<span class="co">## 87               unknown            Peroxisome     8</span>
+<span class="co">## 88               unknown       Plasma Membrane     7</span>
+<span class="co">## 90               unknown             Chromatin     3</span></code></pre>
 <p>Although this example analysis is limited compared to that of <span class="citation">Claire M. Mulvey et al. (2021)</span>, we do see similar trends inline with the results seen in the paper. For examples, we see a large number of proteins translocating between organelles that are involved in the secretory pathway. We can further examine these cases by subsetting the datasets once again and only plotting proteins that involve localisation with these organelles. Several organelles are known to be involved in this pathway, the main ones, the ER, Golgi (and plasma membrane).</p>
 <p>Let’s subset for these proteins,</p>
 <div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
@@ -753,7 +754,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="va">secretory_alluvial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-plots-translocations.html">plotTranslocations</a></span><span class="op">(</span><span class="va">msnset_secret</span>, 
                                          fcol <span class="op">=</span> <span class="st">"bandle.allocation.pred.pred"</span>, 
                                          col <span class="op">=</span> <span class="va">cols</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## 45 features in common</span></code></pre>
+<pre><code><span class="co">## 46 features in common</span></code></pre>
 <pre><code><span class="co">## ------------------------------------------------</span>
 <span class="co">## If length(fcol) == 1 it is assumed that the</span>
 <span class="co">## same fcol is to be used for both datasets</span>
@@ -769,13 +770,13 @@ document.addEventListener("DOMContentLoaded", function() {
 <p>In the next section we see how to plot proteins of interest.Our differential localisation candidates can be found in <code>df_cands</code>,</p>
 <div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##          dl.estimate 0hr_location          12h_location</span>
-<span class="co">## P46379-3   0.9584272      unknown               unknown</span>
-<span class="co">## Q8WWI1-3   0.9576311      unknown               unknown</span>
-<span class="co">## Q8WVX3-2   0.9572997      unknown               unknown</span>
-<span class="co">## Q14165     0.9572947      unknown Endoplasmic Reticulum</span>
-<span class="co">## Q96QD8     0.9570807     Lysosome       Plasma Membrane</span>
-<span class="co">## Q7L592     0.9569022 Mitochondria            Peroxisome</span></code></pre>
+<pre><code><span class="co">##        dl.estimate 0hr_location    12h_location</span>
+<span class="co">## P48960   0.9584272     Lysosome Plasma Membrane</span>
+<span class="co">## Q96GA3   0.9576311      unknown         unknown</span>
+<span class="co">## Q96FN4   0.9572997      unknown         unknown</span>
+<span class="co">## Q4G0F5   0.9572947      unknown         unknown</span>
+<span class="co">## Q9BY77   0.9570807      unknown       Nucleolus</span>
+<span class="co">## Q8IVM0   0.9569022      unknown         unknown</span></code></pre>
 <p>Let’s take the first protein as an example; protein with accession B2RUZ4. It has a high differential localisation score and it’s steady state localisation in the control is predicted to be lysosomal and in the treatment condition at 12 hours-LPS it is predicted to localise to the plasma membrane. This fits with the information we see on Uniprot which tells us it is Small integral membrane protein 1 (SMIM1).</p>
 <p>In the below code chunk we plot the protein profiles of all proteins that were identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do the same at 12hrs post LPS with all plasma membrane proteins.</p>
 <div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
