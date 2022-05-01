@@ -1,6 +1,6 @@
 Package: bandle
 Type: Package
-Title: An R package to for the Bayesian analysis of differential subcellular
+Title: An R package for the Bayesian analysis of differential subcellular
     localisation experiments
 Version: 0.99.12
 Authors@R: c(person(family = "Crook", given = "Oliver M.",
@@ -13,7 +13,7 @@ Authors@R: c(person(family = "Crook", given = "Oliver M.",
                                 role = c("aut")))
 Description: The Bandle package enables the analysis and visualisation of
     differential localisation experiments using mass-spectrometry data.
-    Experimental method supported include dynamic LOPIT-DC, hyperLOPIT, 
+    Experimental methods supported include dynamic LOPIT-DC, hyperLOPIT, 
     Dynamic Organellar Maps, Dynamic PCP. It provides Bioconductor infrastructure
     to analyse these data.
 License: Artistic-2.0
