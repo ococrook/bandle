@@ -1,4 +1,8 @@
-# bandle 0.99.12
+# bandle 1.1.0
+
+## version 1.1.0
+- fix typos
+- upstream changes from bioconductor
 
 ## version 0.99.12
 - update README
