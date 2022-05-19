@@ -1,8 +1,14 @@
-# bandle 1.1.0
+# bandle 1.1
+
+## bandle 1.1.1
+- use gh actions to build site
 
 ## version 1.1.0
 - fix typos
 - upstream changes from bioconductor
+
+# version 1.0
+- Bioconductor 3.15 release
 
 ## version 0.99.12
 - update README
