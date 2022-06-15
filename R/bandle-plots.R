@@ -567,7 +567,7 @@ plotConvergence <- function(params){
     
     n <- as.numeric(seq(params@chains@chains[[1]]@n))
     out <- vapply(params@chains@chains, 
-                  function(x) colSums(x@outlier$cond11), n)
+                  function(x) colSums(x@outlier$cond1), n)
     toplot <- apply(out, 1, rank)
     for(i in seq.int(nrow(toplot))){
         hist(toplot[i,], main = "convergence rank plot", xlab = "rank", 

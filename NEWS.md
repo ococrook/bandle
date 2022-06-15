@@ -1,5 +1,8 @@
 # bandle 1.1
 
+## bandle 1.1.2
+- fix bug in plotConvergence function
+
 ## bandle 1.1.1
 - use gh actions to build site
 
