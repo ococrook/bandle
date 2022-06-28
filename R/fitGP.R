@@ -1,7 +1,7 @@
-##' Helper function to fit GPs with squared exponential co-variances,
-##' maximum marginal likelihood
+##' The \code{fitGP} function is a helper function to fit GPs with squared
+##' exponential co-variances, maximum marginal likelihood
 ##' 
-##' @title fit a Gaussian process to spatial proteomics data
+##' @title Fit a Gaussian process to spatial proteomics data
 ##' @param object A instance of class `MSnset`
 ##' @param fcol A feature column indicating markers. Default is markers.
 ##' @md

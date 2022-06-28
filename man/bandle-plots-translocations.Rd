@@ -86,7 +86,7 @@ res <- bandle(objectCond1 = control,
               numIter = 5L, 
               burnin = 1L, 
               thin = 2L,
-              numChains = 2, 
+              numChains = 1, 
               BPPARAM = SerialParam(RNGseed = 1),
               seed = 1)
                

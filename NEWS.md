@@ -1,5 +1,9 @@
 # bandle 1.1
 
+## bandle 1.1.3
+- add more details in the documentation on how to fitGPs 
+and pass hyppar to fitGPmaternPC
+
 ## bandle 1.1.2
 - fix bug in plotConvergence function
 

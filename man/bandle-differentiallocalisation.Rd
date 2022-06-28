@@ -48,7 +48,7 @@ control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+                                     numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 mcmc1 <- bandleProcess(mcmc1)
 dp <- diffLocalisationProb(mcmc1)
 
@@ -65,7 +65,7 @@ control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+                                     numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 mcmc1 <- bandleProcess(mcmc1)
 bdp <- bootstrapdiffLocprob(mcmc1)
 library(pRolocdata)
@@ -81,7 +81,7 @@ control1 <- d1[1:3]
 treatment1 <- d1[4:6]
 mcmc1 <- bandle(objectCond1 = control1, objectCond2 = treatment1, gpParams = gpParams,
                                      fcol = "markers", numIter = 10L, burnin = 1L, thin = 2L,
-                                     numChains = 2, BPPARAM = SerialParam(RNGseed = 1))
+                                     numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
 mcmc1 <- bandleProcess(mcmc1)
 dp <- binomialDiffLocProb(mcmc1)
 }

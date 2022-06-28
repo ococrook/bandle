@@ -5,7 +5,7 @@
 \alias{fitGPmaternPC}
 \alias{fitGPmatern}
 \alias{plotGPmatern}
-\title{fit a Gaussian process to spatial proteomics data}
+\title{Fit a Gaussian process to spatial proteomics data}
 \usage{
 fitGP(object = object, fcol = "markers")
 
@@ -14,7 +14,7 @@ fitGPmaternPC(
   fcol = "markers",
   materncov = TRUE,
   nu = 2,
-  hyppar = matrix(c(1, 50, 50), nrow = 1)
+  hyppar = matrix(c(10, 60, 250), nrow = 1)
 )
 
 fitGPmatern(object = object, fcol = "markers", materncov = TRUE, nu = 2)
@@ -46,16 +46,36 @@ The functions \code{plotGPmatern} plot the posterior
 predictives overlayed with the markers for each subcellular class.
 }
 \description{
-Helper function to fit GPs with squared exponential co-variances,
-maximum marginal likelihood
+The \code{fitGP} function is a helper function to fit GPs with squared
+exponential co-variances, maximum marginal likelihood
 
-Function to fit matern GPs to data with penalised complexity priors on the
-hyperparameters, side effect will plot posterior predictives
+The \code{fitGPmaternPC} function is a helper function to fit matern GPs to
+data with penalised complexity priors on the hyperparameters.
 
-Function to fit matern GPs to data, side effect will plot posterior
-predictives
+The \code{fitGPmatern} function fits matern GPs to data.
 
-Function to plot matern GPs
+The \code{plotGPmatern} function plots matern GPs
+}
+\details{
+This set of functions allow users to fit GPs to their data. The
+\code{fitGPmaternPC} function allows users to pass a vector of penalised
+complexity hyperparameters using the \code{hyppar} argument. You must
+provide a matrix with 3 columns and 1 row. The order of these 3 columns
+represent the hyperparameters length-scale, amplitude, variance. We have
+found that the \code{matrix(c(10, 60, 250), nrow = 1)} worked well for the
+spatial proteomics datasets tested in Crook et al (2021). This was visually
+assessed by passing these values and visualising the GP fit using the
+\code{plotGPmatern} function (please see vignette for an example of the
+output). Generally, (1) increasing the lengthscale parameter (the first
+column of the \code{hyppar} matrix)  increases the spread of the covariance
+i.e. the similarity between points, (2) increasing the amplitude parameter
+(the second column of the \code{hyppar} matrix) increases the maximum value
+of the covariance and lastly (3) decreasing the variance (third column of
+the \code{hyppar} matrix) reduces the smoothness of the function to allow
+for local variations. We strongly recommend users start with the recommended
+parameters and change and assess them as necessary for their dataset by
+visually evaluating the fit of the GPs using the \code{plotGPmatern}
+function. Please see the vignettes for more details and examples.
 }
 \examples{
 library(pRolocdata)
@@ -73,8 +93,11 @@ set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1, 
                     numRep = 6L,
                    numDyn = 100L)
+## Please note that \code{hyppar} should be chosen carefully and tested
+## by checking the GP fit with the \code{\link{plotGPmatern}} function
+## (please see details above)
 gpParams <- lapply(tansim$lopitrep, 
-function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+function(x) fitGPmaternPC(x, hyppar = matrix(c(10, 60, 100), nrow = 1)))
 
 ## ====== fitGPmatern =====
 library(pRolocdata)
