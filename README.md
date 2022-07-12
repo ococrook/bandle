@@ -29,6 +29,16 @@ devtools::install_github("ococrook/bandle")
 
 We do not advise you install the unstable version unless you know what you are doing as not all pre-release features may be tested or documented.
 
+## Installation troubleshooting
+
+Please make sure you are running the latest version of R. Non-standard library
+dependencies may be missing on certain operating systems, for example, on Linux
+and Mac OS, libxml2-dev, zlib1g-dev, libnetcdf-dev etc. may not be installed as
+standard and are required to install `bandle` and dependent packages. Users may
+need to install these if not present on their OS using for example if uisng 
+Linux/Ubuntu, `sudo apt install libxml2-dev`, or directly from binaries e.g.
+`sudo apt install r-cran-xml2`.
+
 
 # Basic ideas and concepts
 

@@ -5,6 +5,10 @@
 fitGPs and pass hyppar to fitGPmaternPC
 - updated typos in vignettes and removed calls to 
 unecessary libraries 
+- added installation troubleshooting section to 
+README to advise users of potential missing
+binary libraries
+
 
 ## bandle 1.1.2
 - fix bug in plotConvergence function
