@@ -35,8 +35,8 @@ Please make sure you are running the latest version of R. Non-standard library
 dependencies may be missing on certain operating systems, for example, on Linux
 and Mac OS, libxml2-dev, zlib1g-dev, libnetcdf-dev etc. may not be installed as
 standard and are required to install `bandle` and dependent packages. Users may
-need to install these if not present on their OS using for example if uisng 
-Linux/Ubuntu, `sudo apt install libxml2-dev`, or directly from binaries e.g.
+need to install these if not present on their OS. For example, if using 
+Linux/Ubuntu, `sudo apt install libxml2-dev`, or directly from binary e.g.
 `sudo apt install r-cran-xml2`.
 
 
