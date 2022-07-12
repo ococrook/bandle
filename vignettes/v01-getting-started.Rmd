@@ -518,8 +518,9 @@ differential localisation probability as it is stored in the
 `pe2`, in the above sections.
 
 The differential localisation probability tells us which proteins are most
-likely to *differentially localise*. We can for example, take a 1% FDR and
-examine how many proteins get a differential probability greater than 0.99.
+likely to *differentially localise*. We can for example, examine how many
+proteins get a differential probability greater than 0.99 to look for
+the most confident differentially localised candidates.
 
 ```{r numtransloc}
 diffloc_probs <- pe1$bandle.differential.localisation
