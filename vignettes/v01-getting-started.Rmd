@@ -32,19 +32,6 @@ BiocStyle::markdown()
 knitr::opts_chunk$set(dpi=25,fig.width=7)
 ```
 
-```{r env, message = FALSE, warning = FALSE, echo = TRUE}
-# options(width = 150)
-library("bandle")
-library("ggplot2")
-library("pRoloc")
-library("pRolocdata")
-library("MSnbase")
-library("pheatmap")
-library("viridis")
-
-setStockcol(paste0(getStockcol(), "90")) # settransparent colours
-```
-
 # Introduction
 
 Bayesian ANalysis of Differential Localisation Experiments (BANDLE) is an
@@ -74,6 +61,18 @@ if (!requireNamespace("BiocManager", quietly=TRUE))
 BiocManager::install("bandle")
 ```
 
+and then loaded,
+
+```{r ldpkg, message=FALSE}
+library("bandle")
+```
+
+For visualisation we also load the packages,
+
+```{r ldpkg2, message=FALSE}
+library("pheatmap")
+library("viridis")
+```
 
 # The data
 
@@ -112,6 +111,12 @@ data by using principal components analysis.
 ```{r loadpkgdat, message=FALSE, warning=FALSE, fig.width=7, fig.height=6}
 library("pRolocdata")
 data("tan2009r1")
+
+## Let's set the stock colours of the classes to plot to be transparent
+setStockcol(NULL)
+setStockcol(paste0(getStockcol(), "90")) 
+
+## Plot the data using plot2D from pRoloc
 plot2D(tan2009r1,
        main = "An example spatial proteomics datasets", 
        grid = FALSE)
@@ -172,7 +177,8 @@ demonstrated in the next code chunk
 
 ```{r fitgps, fig.height=10, fig.width=8}
 par(mfrow = c(4, 3))
-gpParams <- lapply(tansim$lopitrep, function(x) fitGPmaternPC(x))
+gpParams <- lapply(tansim$lopitrep, function(x) 
+  fitGPmaternPC(x, hyppar = matrix(c(10, 60, 250), nrow = 1)))
 ```
 
 We apply the `fitGPmaternPC` function to each datasets by calling `lapply` over
@@ -180,9 +186,15 @@ the `tansim$lopitrep` list of datasets. The output of `fitGPmaternPC` returns a
 list of posterior predictive means and standard deviations. As well as MAP
 hyperparamters for the GP. 
 
+Note here we the use the default `hyppar = matrix(c(10, 60, 250), nrow = 1)` as
+a starting point for fitting the GPs to the marker profile distributions. In the
+@bandle manuscript we found that these values worked well for smaller spatial
+proteomics datasets. This was visually assessed by passing these values and
+visualising the GP fit using the `plotGPmatern` function.
+
 The `plotGPmatern` function can be used to plot the profiles for each
 class in each replicate condition with the posterior predictive distributions
-are overlayed with markers protein profiles.
+overlayed with the markers protein profiles.
 
 For example, to plot the predictive distributions of the first dataset,
 ```{r plotgps, fig.height=10, fig.width=8}
@@ -193,8 +205,11 @@ plotGPmatern(tansim$lopitrep[[1]], params = gpParams[[1]])
 The prior needs to form a `K*3` matrix. `K` corresponds to the number of
 subcellular classes in the data, and 3 columns for (1) the prior, (2)
 length-scale amplitude and (3) standard deviation parameters (see `hyppar` in
-`?fitGP`). Increasing these values, increases the shrinkage. For more details
-see the manuscript by @bandle.
+`?fitGPmaternPC`). Increasing these values, increases the shrinkage. For more
+details see the manuscript by @bandle. We strongly recommend users start with
+the recommended `hyppar` parameters and change and assess them as necessary for
+their dataset by visually evaluating the fit of the GPs using the `plotGPmatern`
+function.
 
 ```{r sethyppar}
 K <- length(getMarkerClasses(tansim$lopitrep[[1]], fcol = "markers"))
@@ -203,6 +218,7 @@ pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250),
                                        each = K), ncol = 3)
 
 ```
+
 
 Now we have generated these complexity priors we can pass them as an
 argument to the `fitGPmaternPC` function. For example,

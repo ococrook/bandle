@@ -31,20 +31,6 @@ BiocStyle::markdown()
 knitr::opts_chunk$set(dpi=25,fig.width=7)
 ```
 
-```{r env, message = FALSE, warning = FALSE, echo = TRUE}
-# options(width = 150)
-library("bandle")
-library("ggplot2")
-library("pRoloc")
-library("MSnbase")
-library("pheatmap")
-library("viridis")
-library("dplyr")
-
-setStockcol(NULL)
-setStockcol(paste0(getStockcol(),"90")) # make colours transparent
-```
-
 # Introduction
 
 In this vignette we use a real-life biological use-case to demonstrate how to
@@ -78,7 +64,7 @@ replicates of the unstimulated and 2 replicates of the 12h-LPS stimulated
 samples. Please note to adhere to Bioconductor vignette build times we only load
 2 of the 3 replicates for each condition to demonstrate the BANDLE workflow.
 
-```{r loaddata}
+```{r loaddata, message=FALSE}
 library("pRolocdata")
 data("thpLOPIT_unstimulated_rep1_mulvey2021")
 data("thpLOPIT_unstimulated_rep3_mulvey2021")
@@ -105,8 +91,18 @@ sample information, and these can be accessed using the functions `exprs`,
 
 ## Preparing the data
 
+First, let us load the `bandle` package along with some other R packages needed
+for visualisation and data manipulation,
+
+```{r ldpkg, message=FALSE}
+library("bandle")
+library("pheatmap")
+library("viridis")
+library("dplyr")
+library("ggplot2")
+```
+
 To run `bandle` there are a few minimal requirements that the data must fulfill.
-Data are required to have: 
 
 - the same number of channels across conditions and replicates
 - the same proteins across conditions and replicates
@@ -147,6 +143,10 @@ We can visualise the data using the `plot2D` function from `pRoloc`
 ## create a character vector of title names for the plots
 plot_id <- c("Unstimulated 1st rep", "Unstimulated 2nd rep",
              "12h-LPS 1st rep", "12h-LPS 2nd rep")
+
+## Let's set the stock colours of the classes to plot to be transparent
+setStockcol(NULL)
+setStockcol(paste0(getStockcol(), "90"))
 
 ## plot the data
 par(mfrow = c(2,2))
@@ -197,15 +197,28 @@ classes in the data),
 (mrkCl <- getMarkerClasses(thplopit[[1]], fcol = "markers"))
 ```
 
-So for this data we require a `11*3` matrix. Three columns are needed, one for
-the prior, one for length-scale amplitude and finally one for the standard
-deviation parameters (see `hyppar` in `?fitGP`). For more details see the
-manuscript by @bandle.
+So for this data we require a `11*3` matrix. Three columns are needed which
+represent the hyperparameters length-scale, amplitude, variance. We have found
+that the `matrix(c(10, 60, 250), nrow = 1)` worked well for the smaller datasets
+with a few hundred proteins, as tested in @bandle. Here, we found that
+`matrix(c(1, 60, 100)` worked well. This is a bigger dataset with several
+thousand proteins and many more subcellular classes. This was visually assessed
+by passing these values and visualising the GP fit using the `plotGPmatern`
+function. Generally, (1) increasing the lengthscale parameter (the first column
+of the hyppar matrix) increases the spread of the covariance i.e. the similarity
+between points, (2) increasing the amplitude parameter (the second column of the
+hyppar matrix) increases the maximum value of the covariance and lastly (3)
+decreasing the variance (third column of the hyppar matrix) reduces the
+smoothness of the function to allow for local variations. We strongly recommend
+users start with the recommended parameters and change and assess them as
+necessary for their dataset by visually evaluating the fit of the GPs using the
+`plotGPmatern` function.
+
 
 ```{r sethyppar}
 K <- length(mrkCl)
 pc_prior <- matrix(NA, ncol = 3, K)
-pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250),
+pc_prior[seq.int(1:K), ] <- matrix(rep(c(1, 60, 100),
                                        each = K), ncol = 3)
 head(pc_prior)
 ```
@@ -698,12 +711,16 @@ We can visualise this as a `data.frame` too for ease,
 ```{r dataframeres}
 # construct data.frame
 df_cands <- data.frame(
-    fData(msnset_cands[[1]])[, c("dl.estimate", "bandle.allocation.pred.pred")],
+    fData(msnset_cands[[1]])[, c("bandle.differential.localisation", 
+                                 "dl.estimate",
+                                 "bandle.allocation.pred.pred")],
     fData(msnset_cands[[2]])[, "bandle.allocation.pred.pred"])
-colnames(df_cands) <- c("dl.estimate", "0hr_location", "12h_location")
+
+colnames(df_cands) <- c("bandle.differential.localisation", "dl.estimate", 
+                        "0hr_location", "12h_location")
 
 # order by highest differential localisation estimate
-df_cands <- df_cands %>% arrange(desc(dl.estimate))
+df_cands <- df_cands %>% arrange(desc(bandle.differential.localisation))
 head(df_cands)
 ```
 
