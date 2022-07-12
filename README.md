@@ -32,12 +32,12 @@ We do not advise you install the unstable version unless you know what you are d
 ## Installation troubleshooting
 
 Please make sure you are running the latest version of R. Non-standard library
-dependencies may be missing on certain operating systems, for example, on Linux
-and Mac OS, libxml2-dev, zlib1g-dev, libnetcdf-dev etc. may not be installed as
-standard and are required to install `bandle` and dependent packages. Users may
-need to install these if not present on their OS. For example, if using 
-Linux/Ubuntu, `sudo apt install libxml2-dev`, or directly from binary e.g.
-`sudo apt install r-cran-xml2`.
+dependencies may be missing on some operating systems, for example, using 
+Linux/Ubuntu in a Docker container may requrie the installation of 
+libxml2-dev, zlib1g-dev, libnetcdf-dev and other libraries. These are 
+required to install `bandle` and dependent R packages. These can be installed, 
+for example if using Linux/Ubuntu using `sudo apt install libxml2-dev` 
+or directly from binary e.g. `sudo apt install r-cran-xml2`.
 
 
 # Basic ideas and concepts
