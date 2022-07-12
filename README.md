@@ -4,7 +4,7 @@
 # The `bandle` package
 
 
-The [**bandle**](https://ococrook.github.io/bandle/) (Bayesian Analysis of Differential Localisation Experiments) package is R/Bioconductor package for analysis differential localisation experiments, include storage, computation, statistics and visulisations. 
+The [**bandle**](https://ococrook.github.io/bandle/) (Bayesian Analysis of Differential Localisation Experiments) package is an R/Bioconductor package for analysing differential localisation experiments, include storage, computation, statistics and visulisations. 
 
 
 # Installation requirements
@@ -72,7 +72,7 @@ https://linkinghub.elsevier.com/retrieve/pii/S1535-9476(22)00002-0
 
 # Contribution
 
-Contributions are welcome, please open issue so we can discuss any contribution in advance.
+Contributions are welcome, please open an issue so we can discuss any contribution in advance.
 
 # Feature requests
 
