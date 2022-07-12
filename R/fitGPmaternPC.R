@@ -42,8 +42,8 @@
 ##' tansim <- sim_dynamic(object = tan2009r1, 
 ##'                     numRep = 6L,
 ##'                    numDyn = 100L)
-##' ## Please note that \code{hyppar} should be chosen carefully and tested
-##' ## by checking the GP fit with the \code{\link{plotGPmatern}} function
+##' ## Please note that hyppar should be chosen carefully and tested
+##' ## by checking the GP fit with the plotGPmatern function
 ##' ## (please see details above)
 ##' gpParams <- lapply(tansim$lopitrep, 
 ##' function(x) fitGPmaternPC(x, hyppar = matrix(c(10, 60, 100), nrow = 1)))
