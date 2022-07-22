@@ -18,7 +18,7 @@ Leapfrog routine"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -27,7 +27,7 @@ Leapfrog routine"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -133,114 +133,219 @@ Leapfrog routine"><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax
     <h2>Arguments</h2>
     <dl><dt>x</dt>
 <dd><p>position</p></dd>
+
+
 <dt>v</dt>
 <dd><p>argument of trench algorithm</p></dd>
+
+
 <dt>nu</dt>
 <dd><p>smoothness parameter of matern covariance</p></dd>
+
+
 <dt>a</dt>
 <dd><p>amplitude</p></dd>
+
+
 <dt>rho</dt>
 <dd><p>length-scale</p></dd>
+
+
 <dt>tau</dt>
 <dd><p>indexing term</p></dd>
+
+
 <dt>D</dt>
 <dd><p>number of samples</p></dd>
+
+
 <dt>c</dt>
 <dd><p>parameter of PG distribution</p></dd>
+
+
 <dt>Y</dt>
 <dd><p>pointer to data to be subset. X and Y will be joined</p></dd>
+
+
 <dt>Z</dt>
 <dd><p>special matrix from trench algorithm (see Crook et al arxiv 2019)</p></dd>
+
+
 <dt>A</dt>
 <dd><p>special matrix from trench algorithm (see Crook et al arxiv 2019)</p></dd>
+
+
 <dt>logcovDet</dt>
 <dd><p>log determine of the covariancematrix</p></dd>
+
+
 <dt>sigmak</dt>
 <dd><p>variance term</p></dd>
+
+
 <dt>nk</dt>
 <dd><p>number of observations</p></dd>
+
+
 <dt>Y2</dt>
 <dd><p>vectorised data (see Crook et al arxiv 2019)</p></dd>
+
+
 <dt>Xk</dt>
 <dd><p>The data</p></dd>
+
+
 <dt>h</dt>
 <dd><p>vector of hyperparamters</p></dd>
+
+
 <dt>materncov</dt>
 <dd><p>logical indicating whether to use matern or gaussian
 covariance. Defaults to Guassian covariance</p></dd>
+
+
 <dt>drvrhomatern</dt>
 <dd><p>deterivate of matern covariance wrt to rho</p></dd>
+
+
 <dt>amatern</dt>
 <dd><p>deterivate of matern covariance wrt to amplitude</p></dd>
+
+
 <dt>lambda</dt>
 <dd><p>parameters of penalised complexity prior</p></dd>
+
+
 <dt>p</dt>
 <dd><p>momentum</p></dd>
+
+
 <dt>m</dt>
 <dd><p>mass</p></dd>
+
+
 <dt>L</dt>
 <dd><p>iterations</p></dd>
+
+
 <dt>delta</dt>
 <dd><p>stepsize</p></dd>
+
+
 <dt>X</dt>
 <dd><p>data</p></dd>
+
+
 <dt>BX</dt>
 <dd><p>indexing set to make component</p></dd>
+
+
 <dt>BY</dt>
 <dd><p>pointer to subsetting matrix</p></dd>
+
+
 <dt>j</dt>
 <dd><p>indicator of localisations i.e. niche j</p></dd>
+
+
 <dt>Xknown</dt>
 <dd><p>data with known localisations</p></dd>
+
+
 <dt>Xunknown</dt>
 <dd><p>data with unknown localisations</p></dd>
+
+
 <dt>BXun</dt>
 <dd><p>indexing set for unknown localisations</p></dd>
+
+
 <dt>hypers</dt>
 <dd><p>vector of hyperparameters</p></dd>
+
+
 <dt>K</dt>
 <dd><p>number of components</p></dd>
+
+
 <dt>centereddata</dt>
 <dd><p>pointer to centered data</p></dd>
+
+
 <dt>numSamples</dt>
 <dd><p>The number of samples desired</p></dd>
+
+
 <dt>alpha</dt>
 <dd><p>The concentration parameter</p></dd>
+
+
 <dt>allocoutlierprob</dt>
 <dd><p>The probabilities of being allocated to the outlier
 component</p></dd>
+
+
 <dt>allocprob</dt>
 <dd><p>probability of being allocated to particular component</p></dd>
+
+
 <dt>mu</dt>
 <dd><p>mean</p></dd>
+
+
 <dt>sigma</dt>
 <dd><p>variance matrix</p></dd>
+
+
 <dt>isChol</dt>
 <dd><p>boolen indicated whether sigma is cholesky decomposition</p></dd>
+
+
 <dt>cholDec</dt>
 <dd><p>Cholesky decomposition of variance matrix</p></dd>
+
+
 <dt>log</dt>
 <dd><p>boolen of log density</p></dd>
+
+
 <dt>df</dt>
 <dd><p>degrees of freedom for t distribution</p></dd>
+
+
 <dt>X_</dt>
 <dd><p>the data</p></dd>
+
+
 <dt>mu_</dt>
 <dd><p>the mean</p></dd>
+
+
 <dt>sigma_</dt>
 <dd><p>the variance matrix</p></dd>
+
+
 <dt>df_</dt>
 <dd><p>the degrees of freedom</p></dd>
+
+
 <dt>log_</dt>
 <dd><p>return log density (boolean).</p></dd>
+
+
 <dt>isChol_</dt>
 <dd><p>is variance matrix in cholesky decomposition</p></dd>
+
+
 <dt>b</dt>
 <dd><p>parameter of PG distribution</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>A numeric indicating the density of the t-distribution</p>
+    
+
+<p>A numeric indicating the density of the t-distribution</p>
     </div>
 
     <div id="ref-examples">
@@ -262,7 +367,7 @@ component</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

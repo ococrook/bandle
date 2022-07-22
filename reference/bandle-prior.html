@@ -25,7 +25,7 @@ Polya-Gamma prior."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/aj
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -34,7 +34,7 @@ Polya-Gamma prior."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/aj
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -104,19 +104,33 @@ Polya-Gamma prior.</p>
     <dl><dt>sigma</dt>
 <dd><p>the sigma parameter of the Polya-Gamma prior. A positive-definite
 symmetric matrix.</p></dd>
+
+
 <dt>mu</dt>
 <dd><p>the mu parameter of the Polya-Gamma prior. A vector of means</p></dd>
+
+
 <dt>alpha</dt>
 <dd><p>The concentration parameter of the first Dirichlet distribution</p></dd>
+
+
 <dt>beta</dt>
 <dd><p>The concentration parameter of the second Dirichlet distribution</p></dd>
+
+
 <dt>object</dt>
 <dd><p>An instance of class <code>MSnSet</code></p></dd>
+
+
 <dt>fcol</dt>
 <dd><p>The feature column indiating the markers. Default is "markers"</p></dd>
+
+
 <dt>iter</dt>
 <dd><p>Number of sample to use from prior predictive distribution.
 Default is 10000</p></dd>
+
+
 <dt>dirPrior</dt>
 <dd><p>The Dirichlet prior used. If NULL (default) will generate a
 a default Dirichlet prior. This should be a matrix with the same dimensions
@@ -124,30 +138,51 @@ as the number of subcellular niches. The diagonal terms correspond
 to the prior probability of not differentially localising. The (i,j)
 term corresponds to prior probability of differntially localising between
 niche i and j.</p></dd>
+
+
 <dt>q</dt>
 <dd><p>The upper tail value. That is the prior probability of having more
 than q differential localisations. Default is 15.</p></dd>
+
+
 <dt>objectCond1</dt>
 <dd><p>An instance of class <code>MSnSet</code>, usually the control dataset</p></dd>
+
+
 <dt>objectCond2</dt>
 <dd><p>An instance of class <code>MSnSet</code>, usually the treatment dataset</p></dd>
+
+
 <dt>tau</dt>
 <dd><p>The <code>tau</code> parameter of the Polya-Gamma prior. Default is 0.2.</p></dd>
+
+
 <dt>lambda</dt>
 <dd><p>The <code>lambda</code> ridge parameter used for numerical stability.
 Default is 0.01</p></dd>
+
+
 <dt>mu_prior</dt>
 <dd><p>The mean of the Polya-Gamma prior. Default is NULL which generates
 a default Polya-Gamma prior.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns a numeric indicating the KL divergence
-a numeric indicating the KL divergence
-A list contain the prior predictive distribution of
+    
+
+<p>returns a numeric indicating the KL divergence</p>
+
+
+<p>a numeric indicating the KL divergence</p>
+
+
+<p>A list contain the prior predictive distribution of
 differential localisations, the mean number of differential localised proteins
-and the probability than more than q are differentially localised
-A list contain the prior predictive distribution of
+and the probability than more than q are differentially localised</p>
+
+
+<p>A list contain the prior predictive distribution of
 differential localisations, the mean number of differential localised proteins
 and the probability than more than q are differentially localised</p>
     </div>
@@ -192,7 +227,7 @@ and the probability than more than q are differentially localised</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

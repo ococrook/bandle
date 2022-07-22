@@ -21,7 +21,7 @@ datasets."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/m
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -30,7 +30,7 @@ datasets."><!-- mathjax --><script src="https://cdnjs.cloudflare.com/ajax/libs/m
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -92,40 +92,61 @@ datasets.</p>
     <dl><dt>params</dt>
 <dd><p>An instance of class <code>bandleParams</code> or an instance of
 class <code>MSnSetList</code> of length 2.</p></dd>
+
+
 <dt>type</dt>
 <dd><p>A <code>character</code> specifying the type of visualisation to plot.
 One of <code>"alluvial"</code> (default) or <code>"chord"</code>.</p></dd>
+
+
 <dt>all</dt>
 <dd><p>A logical specifying whether to count all proteins or only show
 those that have changed in location between conditions. Default is
 <code>FALSE</code>.</p></dd>
+
+
 <dt>fcol</dt>
 <dd><p>If <code>params</code> is a <code>list</code> of <code>MSnSets</code>. Then
 <code>fcol</code> must be defined. This is a <code>character</code> vector of length 2
 to set different labels for each dataset. If only one label is specified,
 and the <code>character</code> is of length 1 then this single label will be
 used to identify the annotation column in both datasets.</p></dd>
+
+
 <dt>col</dt>
 <dd><p>A list of colours to define the classes in the data. If not
 defined then the default <code>pRoloc</code> colours in <code>getStockCol()</code> are
 used.</p></dd>
+
+
 <dt>labels</dt>
 <dd><p>Logical indicating whether to display class/organelle labels
 for the chord segments or alluvial stratum. Default is <code>TRUE</code>.</p></dd>
+
+
 <dt>labels.par</dt>
 <dd><p>If <code>type</code> is <code>"alluvial"</code>. Label style can be
 specified as one of <code>"adj"</code>, <code>"repel"</code>. Default is <code>"adj"</code>.</p></dd>
+
+
 <dt>cex</dt>
 <dd><p>Text size. Default is 1.</p></dd>
+
+
 <dt>spacer</dt>
 <dd><p>A <code>numeric</code>. Default is 4. Controls the white space around the
 circos plotting region.</p></dd>
+
+
 <dt>...</dt>
 <dd><p>Additional arguments passed to the <code>chordDiagram</code> function.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>Returns a directional circos/chord diagram showing the translocation
+    
+
+<p>Returns a directional circos/chord diagram showing the translocation
 of proteins between conditions. If <code>type = "alluvial"</code> ouput is a
 <code>ggplot</code> object.</p>
     </div>
@@ -155,10 +176,10 @@ of proteins between conditions. If <code>type = "alluvial"</code> ouput is a
 <span class="r-in">              numIter <span class="op">=</span> <span class="fl">5L</span>, </span>
 <span class="r-in">              burnin <span class="op">=</span> <span class="fl">1L</span>, </span>
 <span class="r-in">              thin <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span class="r-in">              numChains <span class="op">=</span> <span class="fl">2</span>, </span>
+<span class="r-in">              numChains <span class="op">=</span> <span class="fl">1</span>, </span>
 <span class="r-in">              BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span>,</span>
 <span class="r-in">              seed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span></span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%  |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%</span>
+<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%</span>
 <span class="r-in">               </span>
 <span class="r-in"><span class="co">## Process the results</span></span>
 <span class="r-in"><span class="va">bandleres</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle-process.html">bandleProcess</a></span><span class="op">(</span><span class="va">res</span><span class="op">)</span></span>
@@ -189,7 +210,7 @@ of proteins between conditions. If <code>type = "alluvial"</code> ouput is a
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

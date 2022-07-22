@@ -1,8 +1,8 @@
-pandoc: 2.14.1
-pkgdown: 2.0.2
+pandoc: 2.17.1.1
+pkgdown: 2.0.5
 pkgdown_sha: ~
 articles:
   v01-getting-started: v01-getting-started.html
   v02-workflow: v02-workflow.html
-last_built: 2022-04-26T09:04Z
+last_built: 2022-07-22T20:28Z
 

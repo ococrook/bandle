@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -26,7 +26,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -85,34 +85,55 @@
     <dl><dt>object</dt>
 <dd><p>A instance of class <code>MSnSet</code> from which to generate a spatial
 proteomics dataset.</p></dd>
+
+
 <dt>subsample</dt>
 <dd><p>how many proteins to subsample to speed up analysis. Default is NULL.</p></dd>
+
+
 <dt>knn_par</dt>
 <dd><p>the number of nearest neighbours to use in KNN classification to simulate
 dataset.
 Default is 10</p></dd>
+
+
 <dt>fcol</dt>
 <dd><p>feature column to indicate markers. Default is "markers". Proteins
 with unknown localisations must be encoded as "unknown".</p></dd>
+
+
 <dt>numRep</dt>
 <dd><p>The total number of datasets to generate. Default is 6. An
 integer must be provided</p></dd>
+
+
 <dt>method</dt>
 <dd><p>The bootstrap method to use to simulate dataset. Default is "wild".
 refer to BANDLE paper for more details.</p></dd>
+
+
 <dt>batch</dt>
 <dd><p>Whether or not to include batch effects. Default is FALSE.</p></dd>
+
+
 <dt>frac_perm</dt>
 <dd><p>whether or not to permute the fractions. Default is FALSE</p></dd>
+
+
 <dt>nu</dt>
 <dd><p>parameter to generate residual inflated noise. Default is 2. See BANDLE
 paper for more details</p></dd>
+
+
 <dt>numDyn</dt>
 <dd><p>An integer number of protein to simulate dynamic transitions. Default is 20</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns simulate dynamic lopit datasets and the name of the relocalated protein.</p>
+    
+
+<p>returns simulate dynamic lopit datasets and the name of the relocalated protein.</p>
     </div>
 
     <div id="ref-examples">
@@ -137,7 +158,7 @@ paper for more details</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

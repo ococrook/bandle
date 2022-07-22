@@ -19,7 +19,7 @@ experiments using the bandle method — diffLocalisationProb"><meta property="og
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -28,7 +28,7 @@ experiments using the bandle method — diffLocalisationProb"><meta property="og
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -80,20 +80,35 @@ experiments using the bandle method</h1>
     <h2>Arguments</h2>
     <dl><dt>params</dt>
 <dd><p>An instance of <code>bandleParams</code></p></dd>
+
+
 <dt>top</dt>
 <dd><p>The number of proteins for which to sample from the binomial distribution</p></dd>
+
+
 <dt>Bootsample</dt>
 <dd><p>Number of Bootstramp samples. Default is 5000</p></dd>
+
+
 <dt>decreasing</dt>
 <dd><p>Starting at protein most likely to be differentially localization</p></dd>
+
+
 <dt>nsample</dt>
 <dd><p>how many samples to return from the binomial distribution</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns a named vector of differential localisation probabilities
-returns a matrix of size Bootsample * top containing bootstrap
-returns a list containing empirical binomial samples</p>
+    
+
+<p>returns a named vector of differential localisation probabilities</p>
+
+
+<p>returns a matrix of size Bootsample * top containing bootstrap</p>
+
+
+<p>returns a list containing empirical binomial samples</p>
     </div>
 
     <div id="ref-examples">
@@ -111,9 +126,7 @@ returns a list containing empirical binomial samples</p>
 <span class="r-in"><span class="va">treatment1</span> <span class="op">&lt;-</span> <span class="va">d1</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle.html">bandle</a></span><span class="op">(</span>objectCond1 <span class="op">=</span> <span class="va">control1</span>, objectCond2 <span class="op">=</span> <span class="va">treatment1</span>, gpParams <span class="op">=</span> <span class="va">gpParams</span>,</span>
 <span class="r-in">                                     fcol <span class="op">=</span> <span class="st">"markers"</span>, numIter <span class="op">=</span> <span class="fl">10L</span>, burnin <span class="op">=</span> <span class="fl">1L</span>, thin <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">2</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
+<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">1</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle-process.html">bandleProcess</a></span><span class="op">(</span><span class="va">mcmc1</span><span class="op">)</span></span>
@@ -132,9 +145,7 @@ returns a list containing empirical binomial samples</p>
 <span class="r-in"><span class="va">treatment1</span> <span class="op">&lt;-</span> <span class="va">d1</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle.html">bandle</a></span><span class="op">(</span>objectCond1 <span class="op">=</span> <span class="va">control1</span>, objectCond2 <span class="op">=</span> <span class="va">treatment1</span>, gpParams <span class="op">=</span> <span class="va">gpParams</span>,</span>
 <span class="r-in">                                     fcol <span class="op">=</span> <span class="st">"markers"</span>, numIter <span class="op">=</span> <span class="fl">10L</span>, burnin <span class="op">=</span> <span class="fl">1L</span>, thin <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">2</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
+<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">1</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle-process.html">bandleProcess</a></span><span class="op">(</span><span class="va">mcmc1</span><span class="op">)</span></span>
@@ -152,9 +163,7 @@ returns a list containing empirical binomial samples</p>
 <span class="r-in"><span class="va">treatment1</span> <span class="op">&lt;-</span> <span class="va">d1</span><span class="op">[</span><span class="fl">4</span><span class="op">:</span><span class="fl">6</span><span class="op">]</span></span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle.html">bandle</a></span><span class="op">(</span>objectCond1 <span class="op">=</span> <span class="va">control1</span>, objectCond2 <span class="op">=</span> <span class="va">treatment1</span>, gpParams <span class="op">=</span> <span class="va">gpParams</span>,</span>
 <span class="r-in">                                     fcol <span class="op">=</span> <span class="st">"markers"</span>, numIter <span class="op">=</span> <span class="fl">10L</span>, burnin <span class="op">=</span> <span class="fl">1L</span>, thin <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">2</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
+<span class="r-in">                                     numChains <span class="op">=</span> <span class="fl">1</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |=======                                                               |  10%  |                                                                              |==============                                                        |  20%  |                                                                              |=====================                                                 |  30%  |                                                                              |============================                                          |  40%  |                                                                              |===================================                                   |  50%  |                                                                              |==========================================                            |  60%  |                                                                              |=================================================                     |  70%  |                                                                              |========================================================              |  80%</span>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle-process.html">bandleProcess</a></span><span class="op">(</span><span class="va">mcmc1</span><span class="op">)</span></span>
@@ -173,7 +182,7 @@ returns a list containing empirical binomial samples</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

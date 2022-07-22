@@ -17,7 +17,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -26,7 +26,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -91,49 +91,96 @@
     <h2>Arguments</h2>
     <dl><dt>loglikelihoods</dt>
 <dd><p>the log likelihoods</p></dd>
+
+
 <dt>currentweights</dt>
 <dd><p>the current allocations weights</p></dd>
+
+
 <dt>alloctemp</dt>
 <dd><p>the current protein allocations</p></dd>
+
+
 <dt>cond</dt>
 <dd><p>the control = 1, treatment = 2</p></dd>
+
+
 <dt>outlierlikelihood</dt>
 <dd><p>the outlier log likelihoods</p></dd>
+
+
 <dt>epsilon</dt>
 <dd><p>the outlier component weight</p></dd>
+
+
 <dt>allocoutlierprob</dt>
 <dd><p>the outlier probabilities</p></dd>
+
+
 <dt>object</dt>
 <dd><p>An instance of class <code>MSnSet</code></p></dd>
+
+
 <dt>fcol</dt>
 <dd><p>The feature column containing the markers.</p></dd>
+
+
 <dt>object_cond1</dt>
 <dd><p>A list of instance of class <code>MSnSets</code> usually control</p></dd>
+
+
 <dt>object_cond2</dt>
 <dd><p>A list of instance of class <code>MSnSets</code> usually treatment</p></dd>
+
+
 <dt>K</dt>
 <dd><p>The number of organelle classes</p></dd>
+
+
 <dt>pgPrior</dt>
 <dd><p>The Polya-Gamma prior</p></dd>
+
+
 <dt>nk_mat</dt>
 <dd><p>The summary matrix of allocations</p></dd>
+
+
 <dt>w</dt>
 <dd><p>The Polya-Gamma auxiliary variable</p></dd>
+
+
 <dt>tau</dt>
 <dd><p>The empirical bayes parameter for the Polya-Gamma variable.
 Defaults to 0.2.</p></dd>
+
+
 <dt>dirPrior</dt>
 <dd><p>The Dirichlet prior</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns samples for protein allocations, log likelihoods and probabilities
-returns outlier probabilities
-returns outlier allocations
-returns covariance of organelles using marker proteins
-returns the Polya-Gamma prior
-returns A sample of the weights using Polya-Gamma priors.
-returns A sample of the weights using Dirichlet prior.</p>
+    
+
+<p>returns samples for protein allocations, log likelihoods and probabilities</p>
+
+
+<p>returns outlier probabilities</p>
+
+
+<p>returns outlier allocations</p>
+
+
+<p>returns covariance of organelles using marker proteins</p>
+
+
+<p>returns the Polya-Gamma prior</p>
+
+
+<p>returns A sample of the weights using Polya-Gamma priors.</p>
+
+
+<p>returns A sample of the weights using Dirichlet prior.</p>
     </div>
 
     <div id="ref-examples">
@@ -206,7 +253,7 @@ returns A sample of the weights using Dirichlet prior.</p>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>

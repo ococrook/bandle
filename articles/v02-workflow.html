@@ -33,7 +33,7 @@
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -43,7 +43,7 @@
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -81,12 +81,17 @@
       </header><div class="row">
   <div class="col-md-9 contents">
     <div class="page-header toc-ignore">
-      <h1 data-toc-skip>Vignette 2: A workflow for analysing differential localisation</h1>
-                        <h4 data-toc-skip class="author">Oliver M. Crook</h4>
+      <h1 data-toc-skip>Vignette 2: A workflow for analysing
+differential localisation</h1>
+                        <h4 data-toc-skip class="author">Oliver M.
+Crook</h4>
             <address class="author_afil">
-      Department of Statistics, University of Oxford, UK<br><h4 data-toc-skip class="author">Lisa M. Breckels</h4>
+      Department of Statistics, University of Oxford,
+UK<br><h4 data-toc-skip class="author">Lisa
+M. Breckels</h4>
             <address class="author_afil">
-      Cambridge Centre for Proteomics, University of Cambridge, UK<br><small class="dont-index">Source: <a href="https://github.com/ococrook/bandle/blob/HEAD/vignettes/v02-workflow.Rmd" class="external-link"><code>vignettes/v02-workflow.Rmd</code></a></small>
+      Cambridge Centre for Proteomics, University of Cambridge,
+UK<br><small class="dont-index">Source: <a href="https://github.com/ococrook/bandle/blob/HEAD/vignettes/v02-workflow.Rmd" class="external-link"><code>vignettes/v02-workflow.Rmd</code></a></small>
       <div class="hidden name"><code>v02-workflow.Rmd</code></div>
 
     </address>
@@ -96,7 +101,12 @@
     
         <div class="abstract">
       <p class="abstract">Abstract</p>
-      <p>This vignette describes how to analyse mass-spectrometry based differential localisation experiments using the BANDLE method <span class="citation">(Crook et al. 2021)</span>. Data should be stored as lists of <code>MSnSet</code>s. There is also features for quality control and visualisation of results. Please see other vignettes for convergence and other methodology.</p>
+      <p>This vignette describes how to analyse mass-spectrometry based
+      differential localisation experiments using the BANDLE method
+      <span class="citation">(Crook et al. 2021)</span>. Data should be
+      stored as lists of <code>MSnSet</code>s. There is also features
+      for quality control and visualisation of results. Please see other
+      vignettes for convergence and other methodology.</p>
     </div>
     
 <script type="text/javascript">
@@ -110,45 +120,57 @@ document.addEventListener("DOMContentLoaded", function() {
     if (links[i].hostname != window.location.hostname)
       links[i].target = '_blank';
 });
-</script><div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="co"># options(width = 150)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://github.com/ococrook/bandle" class="external-link">"bandle"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/lgatto/pRoloc" class="external-link">"pRoloc"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://lgatto.github.io/MSnbase" class="external-link">"MSnbase"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"pheatmap"</span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">"viridis"</a></span><span class="op">)</span>
-<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://dplyr.tidyverse.org" class="external-link">"dplyr"</a></span><span class="op">)</span>
-
-<span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">setStockcol</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">setStockcol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span>,<span class="st">"90"</span><span class="op">)</span><span class="op">)</span> <span class="co"># make colours transparent</span></code></pre></div>
-<div class="section level2">
+</script><div class="section level2">
 <h2 id="introduction">Introduction<a class="anchor" aria-label="anchor" href="#introduction"></a>
 </h2>
-<p>In this vignette we use a real-life biological use-case to demonstrate how to analyse mass-spectrometry based proteomics data using the Bayesian ANalysis of Differential Localisation Experiments (BANDLE) method.</p>
+<p>In this vignette we use a real-life biological use-case to
+demonstrate how to analyse mass-spectrometry based proteomics data using
+the Bayesian ANalysis of Differential Localisation Experiments (BANDLE)
+method.</p>
 </div>
 <div class="section level2">
 <h2 id="the-data">The data<a class="anchor" aria-label="anchor" href="#the-data"></a>
 </h2>
-<p>As mentioned in “Vignette 1: Getting Started with BANDLE” data from mass spectrometry based proteomics methods most commonly yield a matrix of measurements where we have proteins/peptides/peptide spectrum matches (PSMs) along the rows, and samples/fractions along the columns. To use <code>bandle</code> the data must be stored as a <code>MSnSet</code>, as implemented in the Bioconductor <em><a href="https://bioconductor.org/packages/3.14/MSnbase" class="external-link">MSnbase</a></em> package. Please see the relevant vignettes in <em><a href="https://bioconductor.org/packages/3.14/MSnbase" class="external-link">MSnbase</a></em> for constructing these data containers.</p>
-<p>The data used in this vignette has been published in <span class="citation">Claire M. Mulvey et al. (2021)</span> and is currently stored as <code>MSnSet</code> instances in the the <em><a href="https://bioconductor.org/packages/3.14/pRolocdata" class="external-link">pRolocdata</a></em> package. We will load it in the next section.</p>
+<p>As mentioned in “Vignette 1: Getting Started with BANDLE” data from
+mass spectrometry based proteomics methods most commonly yield a matrix
+of measurements where we have proteins/peptides/peptide spectrum matches
+(PSMs) along the rows, and samples/fractions along the columns. To use
+<code>bandle</code> the data must be stored as a <code>MSnSet</code>, as
+implemented in the Bioconductor <em><a href="https://bioconductor.org/packages/3.15/MSnbase" class="external-link">MSnbase</a></em>
+package. Please see the relevant vignettes in <em><a href="https://bioconductor.org/packages/3.15/MSnbase" class="external-link">MSnbase</a></em>
+for constructing these data containers.</p>
+<p>The data used in this vignette has been published in <span class="citation">Claire M. Mulvey et al. (2021)</span> and is currently
+stored as <code>MSnSet</code> instances in the the <em><a href="https://bioconductor.org/packages/3.15/pRolocdata" class="external-link">pRolocdata</a></em>
+package. We will load it in the next section.</p>
 <div class="section level3">
 <h3 id="spatialtemporal-proteomic-profiling-of-a-thp-1-cell-line">Spatialtemporal proteomic profiling of a THP-1 cell line<a class="anchor" aria-label="anchor" href="#spatialtemporal-proteomic-profiling-of-a-thp-1-cell-line"></a>
 </h3>
-<p>In this workflow we analyse the data produced by <span class="citation">Claire M. Mulvey et al. (2021)</span>. In this experiment triplicate hyperLOPIT experiments <span class="citation">(Claire M. Mulvey et al. 2017)</span> were conducted on THP-1 human leukaemia cells where the samples were analysed and collected (1) when cells were unstimulated and then (2) following 12 hours stimulation with LPS (12h-LPS).</p>
-<p>In the following code chunk we load 4 of the datasets from the study: 2 replicates of the unstimulated and 2 replicates of the 12h-LPS stimulated samples. Please note to adhere to Bioconductor vignette build times we only load 2 of the 3 replicates for each condition to demonstrate the BANDLE workflow.</p>
-<div class="sourceCode" id="cb2"><pre class="downlit sourceCode r">
+<p>In this workflow we analyse the data produced by <span class="citation">Claire M. Mulvey et al. (2021)</span>. In this
+experiment triplicate hyperLOPIT experiments <span class="citation">(Claire M. Mulvey et al. 2017)</span> were conducted on
+THP-1 human leukaemia cells where the samples were analysed and
+collected (1) when cells were unstimulated and then (2) following 12
+hours stimulation with LPS (12h-LPS).</p>
+<p>In the following code chunk we load 4 of the datasets from the study:
+2 replicates of the unstimulated and 2 replicates of the 12h-LPS
+stimulated samples. Please note to adhere to Bioconductor vignette build
+times we only load 2 of the 3 replicates for each condition to
+demonstrate the BANDLE workflow.</p>
+<div class="sourceCode" id="cb1"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://github.com/lgatto/pRolocdata" class="external-link">"pRolocdata"</a></span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## </span>
-<span class="co">## This is pRolocdata version 1.33.1.</span>
-<span class="co">## Use 'pRolocdata()' to list available data sets.</span></code></pre>
-<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
+<pre><code><span class="co">## Warning in fun(libname, pkgname): mzR has been built against a different Rcpp version (1.0.8.3)</span>
+<span class="co">## than is installed on your system (1.0.9). This might lead to errors</span>
+<span class="co">## when loading mzR. If you encounter such issues, please send a report,</span>
+<span class="co">## including the output of sessionInfo() to the Bioc support forum at </span>
+<span class="co">## https://support.bioconductor.org/. For details see also</span>
+<span class="co">## https://github.com/sneumann/mzR/wiki/mzR-Rcpp-compiler-linker-issue.</span></code></pre>
+<div class="sourceCode" id="cb3"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"thpLOPIT_unstimulated_rep1_mulvey2021"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"thpLOPIT_unstimulated_rep3_mulvey2021"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"thpLOPIT_lps_rep1_mulvey2021"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/utils/data.html" class="external-link">data</a></span><span class="op">(</span><span class="st">"thpLOPIT_lps_rep3_mulvey2021"</span><span class="op">)</span></code></pre></div>
-<p>By typing the names of the datasets we get a <code>MSnSet</code> data summary. For example,</p>
-<div class="sourceCode" id="cb5"><pre class="downlit sourceCode r">
+<p>By typing the names of the datasets we get a <code>MSnSet</code> data
+summary. For example,</p>
+<div class="sourceCode" id="cb4"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">thpLOPIT_unstimulated_rep1_mulvey2021</span></code></pre></div>
 <pre><code><span class="co">## MSnSet (storageMode: lockedEnvironment)</span>
 <span class="co">## assayData: 5107 features, 20 samples </span>
@@ -170,7 +192,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## Loaded on Tue Jan 12 14:46:48 2021. </span>
 <span class="co">## Normalised to sum of intensities. </span>
 <span class="co">##  MSnbase version: 2.14.2</span></code></pre>
-<div class="sourceCode" id="cb7"><pre class="downlit sourceCode r">
+<div class="sourceCode" id="cb6"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">thpLOPIT_lps_rep1_mulvey2021</span></code></pre></div>
 <pre><code><span class="co">## MSnSet (storageMode: lockedEnvironment)</span>
 <span class="co">## assayData: 4879 features, 20 samples </span>
@@ -192,18 +214,40 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## Loaded on Tue Jan 12 14:46:57 2021. </span>
 <span class="co">## Normalised to sum of intensities. </span>
 <span class="co">##  MSnbase version: 2.14.2</span></code></pre>
-<p>We see that the datasets <code>thpLOPIT_unstimulated_rep1_mulvey2021</code> and <code>thpLOPIT_lps_rep1_mulvey2021</code> contain 5107 and 4879 proteins respectively, across 20 TMT channels. The data is accessed through different slots of the <code>MSnSet</code> (see <code>str(thpLOPIT_unstimulated_rep1_mulvey2021)</code> for all available slots). The 3 main slots which are used most frequently are those that contain the quantitation data, the features i.e. PSM/peptide/protein information and the sample information, and these can be accessed using the functions <code>exprs</code>, <code>fData</code>, and <code>pData</code>, respectively.</p>
+<p>We see that the datasets
+<code>thpLOPIT_unstimulated_rep1_mulvey2021</code> and
+<code>thpLOPIT_lps_rep1_mulvey2021</code> contain 5107 and 4879 proteins
+respectively, across 20 TMT channels. The data is accessed through
+different slots of the <code>MSnSet</code> (see
+<code>str(thpLOPIT_unstimulated_rep1_mulvey2021)</code> for all
+available slots). The 3 main slots which are used most frequently are
+those that contain the quantitation data, the features
+i.e. PSM/peptide/protein information and the sample information, and
+these can be accessed using the functions <code>exprs</code>,
+<code>fData</code>, and <code>pData</code>, respectively.</p>
 </div>
 <div class="section level3">
 <h3 id="preparing-the-data">Preparing the data<a class="anchor" aria-label="anchor" href="#preparing-the-data"></a>
 </h3>
-<p>To run <code>bandle</code> there are a few minimal requirements that the data must fulfill. Data are required to have:</p>
+<p>First, let us load the <code>bandle</code> package along with some
+other R packages needed for visualisation and data manipulation,</p>
+<div class="sourceCode" id="cb8"><pre class="downlit sourceCode r">
+<code class="sourceCode R"><span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="http://github.com/ococrook/bandle" class="external-link">"bandle"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st">"pheatmap"</span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://sjmgarnier.github.io/viridis/" class="external-link">"viridis"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://dplyr.tidyverse.org" class="external-link">"dplyr"</a></span><span class="op">)</span>
+<span class="kw"><a href="https://rdrr.io/r/base/library.html" class="external-link">library</a></span><span class="op">(</span><span class="st"><a href="https://ggplot2.tidyverse.org" class="external-link">"ggplot2"</a></span><span class="op">)</span></code></pre></div>
+<p>To run <code>bandle</code> there are a few minimal requirements that
+the data must fulfill.</p>
 <ul>
 <li>the same number of channels across conditions and replicates</li>
 <li>the same proteins across conditions and replicates</li>
-<li>data must be a <code>list</code> of <code>MSnSet</code> instances</li>
+<li>data must be a <code>list</code> of <code>MSnSet</code>
+instances</li>
 </ul>
-<p>If we use the <code>dim</code> function we see that the datasets we have loaded have the same number of channels but a different number of proteins per experiment.</p>
+<p>If we use the <code>dim</code> function we see that the datasets we
+have loaded have the same number of channels but a different number of
+proteins per experiment.</p>
 <div class="sourceCode" id="cb9"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">thpLOPIT_unstimulated_rep1_mulvey2021</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 5107   20</span></code></pre>
@@ -216,22 +260,32 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb15"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">dim</a></span><span class="op">(</span><span class="va">thpLOPIT_lps_rep3_mulvey2021</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 5848   20</span></code></pre>
-<p>We use the function <code>commonFeatureNames</code> to extract proteins that are common across all replicates. This function has a nice side effect which is that it also wraps the data into a <code>list</code>, ready for input into <code>bandle</code>.</p>
+<p>We use the function <code>commonFeatureNames</code> to extract
+proteins that are common across all replicates. This function has a nice
+side effect which is that it also wraps the data into a
+<code>list</code>, ready for input into <code>bandle</code>.</p>
 <div class="sourceCode" id="cb17"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">thplopit</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/commonFeatureNames.html" class="external-link">commonFeatureNames</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="va">thpLOPIT_unstimulated_rep1_mulvey2021</span>,  <span class="co">## unstimulated rep</span>
                                  <span class="va">thpLOPIT_unstimulated_rep3_mulvey2021</span>,  <span class="co">## unstimulated rep</span>
                                  <span class="va">thpLOPIT_lps_rep1_mulvey2021</span>,           <span class="co">## 12h-LPS rep</span>
                                  <span class="va">thpLOPIT_lps_rep3_mulvey2021</span><span class="op">)</span><span class="op">)</span>          <span class="co">## 12h-LPS rep</span></code></pre></div>
 <pre><code><span class="co">## 3727 features in common</span></code></pre>
-<p>We now have our list of <code>MSnSet</code>s ready for <code>bandle</code> with 3727 proteins common across all 4 replicates/conditions.</p>
+<p>We now have our list of <code>MSnSet</code>s ready for
+<code>bandle</code> with 3727 proteins common across all 4
+replicates/conditions.</p>
 <div class="sourceCode" id="cb19"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">thplopit</span></code></pre></div>
 <pre><code><span class="co">## Instance of class 'MSnSetList' containig 4 objects.</span></code></pre>
-<p>We can visualise the data using the <code>plot2D</code> function from <code>pRoloc</code></p>
+<p>We can visualise the data using the <code>plot2D</code> function from
+<code>pRoloc</code></p>
 <div class="sourceCode" id="cb21"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## create a character vector of title names for the plots</span>
 <span class="va">plot_id</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"Unstimulated 1st rep"</span>, <span class="st">"Unstimulated 2nd rep"</span>,
              <span class="st">"12h-LPS 1st rep"</span>, <span class="st">"12h-LPS 2nd rep"</span><span class="op">)</span>
+
+<span class="co">## Let's set the stock colours of the classes to plot to be transparent</span>
+<span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">setStockcol</a></span><span class="op">(</span><span class="cn">NULL</span><span class="op">)</span>
+<span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">setStockcol</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/paste.html" class="external-link">paste0</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span>, <span class="st">"90"</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co">## plot the data</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>,<span class="fl">2</span><span class="op">)</span><span class="op">)</span>
@@ -239,56 +293,110 @@ document.addEventListener("DOMContentLoaded", function() {
     <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/plot2D.html" class="external-link">plot2D</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="va">i</span><span class="op">]</span><span class="op">]</span>, main <span class="op">=</span> <span class="va">plot_id</span><span class="op">[</span><span class="va">i</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/addLegend.html" class="external-link">addLegend</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span>, where <span class="op">=</span> <span class="st">"topleft"</span>, cex <span class="op">=</span> <span class="fl">.75</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/exampledata-1.png" width="250"></p>
-<p>By default the <code>plot2D</code> uses principal components analysis (PCA) for the data transformation. Other options such as t-SNE, kernal PCA etc. are also available, see <code><a href="https://rdrr.io/pkg/pRoloc/man/plot2D.html" class="external-link">?plot2D</a></code> and the <code>method</code> argument. PCA sometimes will randomly flip the axis, because the eigenvectors only need to satisfy <span class="math inline">\(||v|| = 1\)</span>, which allows a sign flip. You will notice this is the case for the 3rd plot. If desired you can flip the axis/change the sign of the PCs by specifying any of the arguments <code>mirrorX</code>, <code>mirrorY</code>, <code>axsSwitch</code> to TRUE when you call <code>plot2D</code>.</p>
+<p>By default the <code>plot2D</code> uses principal components analysis
+(PCA) for the data transformation. Other options such as t-SNE, kernal
+PCA etc. are also available, see <code><a href="https://rdrr.io/pkg/pRoloc/man/plot2D.html" class="external-link">?plot2D</a></code> and the
+<code>method</code> argument. PCA sometimes will randomly flip the axis,
+because the eigenvectors only need to satisfy <span class="math inline">\(||v|| = 1\)</span>, which allows a sign flip. You
+will notice this is the case for the 3rd plot. If desired you can flip
+the axis/change the sign of the PCs by specifying any of the arguments
+<code>mirrorX</code>, <code>mirrorY</code>, <code>axsSwitch</code> to
+TRUE when you call <code>plot2D</code>.</p>
 </div>
 </div>
 <div class="section level2">
-<h2 id="preparing-bandle-fitting-gps-and-setting-the-priors">Preparing <code>bandle</code>: fitting GPs and setting the priors<a class="anchor" aria-label="anchor" href="#preparing-bandle-fitting-gps-and-setting-the-priors"></a>
+<h2 id="preparing-bandle-fitting-gps-and-setting-the-priors">Preparing <code>bandle</code>: fitting GPs and setting the
+priors<a class="anchor" aria-label="anchor" href="#preparing-bandle-fitting-gps-and-setting-the-priors"></a>
 </h2>
-<p>As mentioned in the first vignette, <code>bandle</code> uses a complex model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is used to sample the posterior distribution of parameters and latent variables from which statistics of interest can be computed. Again, here we only run a few iterations for brevity but typically one needs to run thousands of iterations to ensure convergence, as well as multiple parallel chains.</p>
+<p>As mentioned in the first vignette, <code>bandle</code> uses a
+complex model to analyse the data. Markov-Chain Monte-Carlo (MCMC) is
+used to sample the posterior distribution of parameters and latent
+variables from which statistics of interest can be computed. Again, here
+we only run a few iterations for brevity but typically one needs to run
+thousands of iterations to ensure convergence, as well as multiple
+parallel chains.</p>
 <div class="section level3">
 <h3 id="fitting-gaussian-processes">Fitting Gaussian processes<a class="anchor" aria-label="anchor" href="#fitting-gaussian-processes"></a>
 </h3>
-<p>First, we need to fit non-parametric regression functions to the markers profiles. We use the <code>fitGPmaternPC</code> function using the default penalised complexity priors (see <code><a href="../reference/bandle-gpfit.html">?fitGP</a></code>), which work well.</p>
+<p>First, we need to fit non-parametric regression functions to the
+markers profiles. We use the <code>fitGPmaternPC</code> function using
+the default penalised complexity priors (see <code><a href="../reference/bandle-gpfit.html">?fitGP</a></code>), which
+work well.</p>
 <div class="sourceCode" id="cb22"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gpParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thplopit</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="../reference/bandle-gpfit.html">fitGPmaternPC</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>We apply the <code>fitGPmaternPC</code> function on to each dataset by using <code>lapply</code> over the <code>thplopit</code> list of data. The posterior predictive means, standard deviations and MAP hyperparamters for the GP are returned. If desired we can visualise the predictives overlaid onto the marker profiles of the data by using the <code>plotGPmatern</code> function.</p>
-<p>The prior needs to form a <code>K*3</code> matrix (where <code>K</code> is the number of subcellular classes in the data),</p>
+<code class="sourceCode R"><span class="va">gpParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thplopit</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="../reference/bandle-gpfit.html">fitGPmaternPC</a></span><span class="op">(</span><span class="va">x</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<p>We apply the <code>fitGPmaternPC</code> function on to each dataset
+by using <code>lapply</code> over the <code>thplopit</code> list of
+data. The posterior predictive means, standard deviations and MAP
+hyperparamters for the GP are returned. If desired we can visualise the
+predictives overlaid onto the marker profiles of the data by using the
+<code>plotGPmatern</code> function.</p>
+<p>The prior needs to form a <code>K*3</code> matrix (where
+<code>K</code> is the number of subcellular classes in the data),</p>
 <div class="sourceCode" id="cb23"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">(</span><span class="va">mrkCl</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getMarkerClasses.html" class="external-link">getMarkerClasses</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, fcol <span class="op">=</span> <span class="st">"markers"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##  [1] "40S/60S Ribosome"      "Chromatin"             "Cytosol"              </span>
 <span class="co">##  [4] "Endoplasmic Reticulum" "Golgi Apparatus"       "Lysosome"             </span>
 <span class="co">##  [7] "Mitochondria"          "Nucleolus"             "Nucleus"              </span>
 <span class="co">## [10] "Peroxisome"            "Plasma Membrane"</span></code></pre>
-<p>So for this data we require a <code>11*3</code> matrix. Three columns are needed, one for the prior, one for length-scale amplitude and finally one for the standard deviation parameters (see <code>hyppar</code> in <code><a href="../reference/bandle-gpfit.html">?fitGP</a></code>). For more details see the manuscript by <span class="citation">Crook et al. (2021)</span>.</p>
+<p>So for this data we require a <code>11*3</code> matrix. Three columns
+are needed which represent the hyperparameters length-scale, amplitude,
+variance. We have found that the
+<code>matrix(c(10, 60, 250), nrow = 1)</code> worked well for the
+smaller datasets with a few hundred proteins, as tested in <span class="citation">Crook et al. (2021)</span>. Here, we found that
+<code>matrix(c(1, 60, 100)</code> worked well. This is a bigger dataset
+with several thousand proteins and many more subcellular classes. This
+was visually assessed by passing these values and visualising the GP fit
+using the <code>plotGPmatern</code> function. Generally, (1) increasing
+the lengthscale parameter (the first column of the hyppar matrix)
+increases the spread of the covariance i.e. the similarity between
+points, (2) increasing the amplitude parameter (the second column of the
+hyppar matrix) increases the maximum value of the covariance and lastly
+(3) decreasing the variance (third column of the hyppar matrix) reduces
+the smoothness of the function to allow for local variations. We
+strongly recommend users start with the recommended parameters and
+change and assess them as necessary for their dataset by visually
+evaluating the fit of the GPs using the <code>plotGPmatern</code>
+function.</p>
 <div class="sourceCode" id="cb25"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">K</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">length</a></span><span class="op">(</span><span class="va">mrkCl</span><span class="op">)</span>
 <span class="va">pc_prior</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="cn">NA</span>, ncol <span class="op">=</span> <span class="fl">3</span>, <span class="va">K</span><span class="op">)</span>
-<span class="va">pc_prior</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">K</span><span class="op">)</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">10</span>, <span class="fl">60</span>, <span class="fl">250</span><span class="op">)</span>,
+<span class="va">pc_prior</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq.int</a></span><span class="op">(</span><span class="fl">1</span><span class="op">:</span><span class="va">K</span><span class="op">)</span>, <span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">60</span>, <span class="fl">100</span><span class="op">)</span>,
                                        each <span class="op">=</span> <span class="va">K</span><span class="op">)</span>, ncol <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">pc_prior</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">##      [,1] [,2] [,3]</span>
-<span class="co">## [1,]   10   60  250</span>
-<span class="co">## [2,]   10   60  250</span>
-<span class="co">## [3,]   10   60  250</span>
-<span class="co">## [4,]   10   60  250</span>
-<span class="co">## [5,]   10   60  250</span>
-<span class="co">## [6,]   10   60  250</span></code></pre>
-<p>Now we have generated these complexity priors we can pass them as an argument to the <code>fitGPmaternPC</code> function. For example,</p>
+<span class="co">## [1,]    1   60  100</span>
+<span class="co">## [2,]    1   60  100</span>
+<span class="co">## [3,]    1   60  100</span>
+<span class="co">## [4,]    1   60  100</span>
+<span class="co">## [5,]    1   60  100</span>
+<span class="co">## [6,]    1   60  100</span></code></pre>
+<p>Now we have generated these complexity priors we can pass them as an
+argument to the <code>fitGPmaternPC</code> function. For example,</p>
 <div class="sourceCode" id="cb27"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">gpParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thplopit</span>,
+<code class="sourceCode R"><span class="va">gpParams</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">thplopit</span>,
                    <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="../reference/bandle-gpfit.html">fitGPmaternPC</a></span><span class="op">(</span><span class="va">x</span>, hyppar <span class="op">=</span> <span class="va">pc_prior</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<p>By plotting the predictives using the <code>plotGPmatern</code> function we see that the distributions and fit looks sensible for each class so we will proceed with setting the prior on the weights.</p>
+<p>By plotting the predictives using the <code>plotGPmatern</code>
+function we see that the distributions and fit looks sensible for each
+class so we will proceed with setting the prior on the weights.</p>
 <div class="sourceCode" id="cb28"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">4</span>, <span class="fl">3</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="../reference/bandle-gpfit.html">plotGPmatern</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">gpParams</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/plotgps-1.png" width="200"></p>
-<p>For the interest of keeping the vignette size small, in the above chunk we plot only the first dataset and its respective predictive. To plot the second dataset we would execute <code>plotGPmatern(thplopit[[i]], gpParams[[i]])</code> where i = 2, and similarly for the third i = 3 and so on.</p>
+<p>For the interest of keeping the vignette size small, in the above
+chunk we plot only the first dataset and its respective predictive. To
+plot the second dataset we would execute
+<code>plotGPmatern(thplopit[[i]], gpParams[[i]])</code> where i = 2, and
+similarly for the third i = 3 and so on.</p>
 </div>
 <div class="section level3">
 <h3 id="setting-the-prior-on-the-weights">Setting the prior on the weights<a class="anchor" aria-label="anchor" href="#setting-the-prior-on-the-weights"></a>
 </h3>
-<p>The next step is to set up the matrix Dirichlet prior on the mixing weights. If <code>dirPrior = NULL</code> a default Dirichlet prior is computed see <code><a href="../reference/bandle.html">?bandle</a></code>. We strongly advise you to set your own prior. In “Vignette 1: Getting Started with BANDLE” we give some suggestions on how to set this and in the below code we try a few different priors and assess the expectations.</p>
+<p>The next step is to set up the matrix Dirichlet prior on the mixing
+weights. If <code>dirPrior = NULL</code> a default Dirichlet prior is
+computed see <code><a href="../reference/bandle.html">?bandle</a></code>. We strongly advise you to set your
+own prior. In “Vignette 1: Getting Started with BANDLE” we give some
+suggestions on how to set this and in the below code we try a few
+different priors and assess the expectations.</p>
 <p>As per Vignette 1, let’s try a <code>dirPrior</code> as follows,</p>
 <div class="sourceCode" id="cb29"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
@@ -300,14 +408,22 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb30"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">predDirPrior</span><span class="op">$</span><span class="va">meannotAlloc</span></code></pre></div>
 <pre><code><span class="co">## [1] 0.421633</span></code></pre>
-<p>The prior probability that more than <code>q</code> differential localisations are expected is</p>
+<p>The prior probability that more than <code>q</code> differential
+localisations are expected is</p>
 <div class="sourceCode" id="cb32"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">predDirPrior</span><span class="op">$</span><span class="va">tailnotAlloc</span></code></pre></div>
 <pre><code><span class="co">## [1] 0.0016</span></code></pre>
 <div class="sourceCode" id="cb34"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">predDirPrior</span><span class="op">$</span><span class="va">priornotAlloc</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/unnamed-chunk-3-1.png" width="150"></p>
-<p>We see that the prior probability that proteins are allocated to different components between datasets concentrates around 0. This is what we expect, we expect subtle changes between conditions for this data. We may perhaps wish to be a little stricter with the number of differential localisations output by <code>bandle</code> and in this case we could make the off-diagonal elements of the <code>dirPrior</code> smaller. In the below code chunk we test 0.0005 instead of 0.001, which reduces the number of re-localisations.</p>
+<p>We see that the prior probability that proteins are allocated to
+different components between datasets concentrates around 0. This is
+what we expect, we expect subtle changes between conditions for this
+data. We may perhaps wish to be a little stricter with the number of
+differential localisations output by <code>bandle</code> and in this
+case we could make the off-diagonal elements of the
+<code>dirPrior</code> smaller. In the below code chunk we test 0.0005
+instead of 0.001, which reduces the number of re-localisations.</p>
 <div class="sourceCode" id="cb35"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">dirPrior</span> <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/diag.html" class="external-link">diag</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">rep</a></span><span class="op">(</span><span class="fl">1</span>, <span class="va">K</span><span class="op">)</span><span class="op">)</span> <span class="op">+</span> <span class="fu"><a href="https://rdrr.io/r/base/matrix.html" class="external-link">matrix</a></span><span class="op">(</span><span class="fl">0.0005</span>, nrow <span class="op">=</span> <span class="va">K</span>, ncol <span class="op">=</span> <span class="va">K</span><span class="op">)</span>
@@ -323,14 +439,23 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb39"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/hist.html" class="external-link">hist</a></span><span class="op">(</span><span class="va">predDirPrior</span><span class="op">$</span><span class="va">priornotAlloc</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/try-1.png" width="150"></p>
-<p>Again, we see that the prior probability that proteins are allocated to different components between datasets concentrates around 0.</p>
+<p>Again, we see that the prior probability that proteins are allocated
+to different components between datasets concentrates around 0.</p>
 </div>
 <div class="section level3">
 <h3 id="the-bandle-function">The bandle function<a class="anchor" aria-label="anchor" href="#the-bandle-function"></a>
 </h3>
-<p>Now we have computed our <code>gpParams</code> and <code>pcPriors</code> we can run the main <code>bandle</code> function.</p>
-<p>Here for convenience of building the vignette we only run 2 of the triplicates for each condition and run the <code>bandle</code> function for a small number of iterations to minimise the vignette build-time. Typically we’d recommend you run the number of iterations (<code>numIter</code>) in the <span class="math inline">\(1000\)</span>s.</p>
-<p>We first subset our data into two objects called <code>control</code> and <code>treatment</code> which we subsequently pass to <code>bandle</code> along with our priors.</p>
+<p>Now we have computed our <code>gpParams</code> and
+<code>pcPriors</code> we can run the main <code>bandle</code>
+function.</p>
+<p>Here for convenience of building the vignette we only run 2 of the
+triplicates for each condition and run the <code>bandle</code> function
+for a small number of iterations to minimise the vignette build-time.
+Typically we’d recommend you run the number of iterations
+(<code>numIter</code>) in the <span class="math inline">\(1000\)</span>s.</p>
+<p>We first subset our data into two objects called <code>control</code>
+and <code>treatment</code> which we subsequently pass to
+<code>bandle</code> along with our priors.</p>
 <div class="sourceCode" id="cb40"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">control</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, <span class="va">thplopit</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="va">treatment</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">thplopit</span><span class="op">[[</span><span class="fl">3</span><span class="op">]</span><span class="op">]</span>, <span class="va">thplopit</span><span class="op">[[</span><span class="fl">4</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
@@ -356,7 +481,9 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="section level2">
 <h2 id="processing-and-analysing-the-bandle-results">Processing and analysing the <code>bandle</code> results<a class="anchor" aria-label="anchor" href="#processing-and-analysing-the-bandle-results"></a>
 </h2>
-<p>Following Vignette 1 we populate the <code>bandleres</code> object by calling the <code>bandleProcess</code> function. This may take a few seconds to process.</p>
+<p>Following Vignette 1 we populate the <code>bandleres</code> object by
+calling the <code>bandleProcess</code> function. This may take a few
+seconds to process.</p>
 <div class="sourceCode" id="cb43"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">bandleres</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-process.html">bandleProcess</a></span><span class="op">(</span><span class="va">bandleres</span><span class="op">)</span></code></pre></div>
 <p>These slots have now been populated</p>
@@ -365,11 +492,14 @@ document.addEventListener("DOMContentLoaded", function() {
 <pre><code><span class="co">##      Length Class         Mode</span>
 <span class="co">## [1,] 1      bandleSummary S4  </span>
 <span class="co">## [2,] 1      bandleSummary S4</span></code></pre>
-<p>The <code>posteriorEstimates</code> slot gives posterior quantities of interest for different proteins. The object is of length 2, - 1 slot for control - 1 slot for treatment</p>
+<p>The <code>posteriorEstimates</code> slot gives posterior quantities
+of interest for different proteins. The object is of length 2, - 1 slot
+for control - 1 slot for treatment</p>
 <div class="sourceCode" id="cb46"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="../reference/bandleParams.html">summaries</a></span><span class="op">(</span><span class="va">bandleres</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## [1] 2</span></code></pre>
-<p>We explicitly extract the posterior estimates and protein allocation predictions as follows</p>
+<p>We explicitly extract the posterior estimates and protein allocation
+predictions as follows</p>
 <div class="sourceCode" id="cb48"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">pe1</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandleParams.html">posteriorEstimates</a></span><span class="op">(</span><span class="fu"><a href="../reference/bandleParams.html">summaries</a></span><span class="op">(</span><span class="va">bandleres</span><span class="op">)</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="va">pe2</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandleParams.html">posteriorEstimates</a></span><span class="op">(</span><span class="fu"><a href="../reference/bandleParams.html">summaries</a></span><span class="op">(</span><span class="va">bandleres</span><span class="op">)</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
@@ -379,68 +509,106 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">##              bandle.allocation bandle.probability bandle.outlier</span>
 <span class="co">##                    &lt;character&gt;          &lt;numeric&gt;      &lt;numeric&gt;</span>
 <span class="co">## A0AVT1                 Cytosol           1.000000              0</span>
-<span class="co">## A0FGR8-2       Golgi Apparatus           0.569065              0</span>
+<span class="co">## A0FGR8-2       Golgi Apparatus           0.919358              0</span>
 <span class="co">## A0JNW5                 Nucleus           1.000000              1</span>
 <span class="co">## A0MZ66-3               Cytosol           1.000000              0</span>
 <span class="co">## A0PJW6              Peroxisome           1.000000              0</span>
-<span class="co">## A1L0T0   Endoplasmic Reticulum           0.999969              0</span>
+<span class="co">## A1L0T0   Endoplasmic Reticulum           0.999907              0</span>
 <span class="co">##          bandle.probability.lowerquantile bandle.probability.upperquantile</span>
 <span class="co">##                                 &lt;numeric&gt;                        &lt;numeric&gt;</span>
 <span class="co">## A0AVT1                           1.000000                         1.000000</span>
-<span class="co">## A0FGR8-2                         0.177044                         0.980802</span>
-<span class="co">## A0JNW5                           0.999999                         1.000000</span>
+<span class="co">## A0FGR8-2                         0.657003                         0.995582</span>
+<span class="co">## A0JNW5                           1.000000                         1.000000</span>
 <span class="co">## A0MZ66-3                         1.000000                         1.000000</span>
 <span class="co">## A0PJW6                           1.000000                         1.000000</span>
-<span class="co">## A1L0T0                           0.999819                         1.000000</span>
+<span class="co">## A1L0T0                           0.999083                         1.000000</span>
 <span class="co">##          bandle.mean.shannon bandle.differential.localisation</span>
 <span class="co">##                    &lt;numeric&gt;                        &lt;numeric&gt;</span>
-<span class="co">## A0AVT1           0.00000e+00                         0.000000</span>
-<span class="co">## A0FGR8-2         0.00000e+00                         0.466667</span>
-<span class="co">## A0JNW5           4.58425e-07                         0.000000</span>
-<span class="co">## A0MZ66-3         0.00000e+00                         0.000000</span>
-<span class="co">## A0PJW6           0.00000e+00                         0.800000</span>
-<span class="co">## A1L0T0           0.00000e+00                         0.000000</span></code></pre>
-<p>The full joint probability distribution can be found in the <code>bandle.joint</code> slot e.g. for the control in slot 1 this would be <code>bandleJoint(summaries(bandleres)[[1]])</code> and the treatment in slot 2 this would be <code>bandleJoint(summaries(bandleres)[[2]])</code>.</p>
-<p>Let’s look at the posterior estimates and allocation predictions found in <code>pe1</code> and <code>pe2</code>. Each object is a <code>data.frame</code> containing the protein allocations and associated localisation probabilities for each condition. The 7 columns are</p>
+<span class="co">## A0AVT1            0.0000e+00                         0.000000</span>
+<span class="co">## A0FGR8-2          0.0000e+00                         0.955556</span>
+<span class="co">## A0JNW5            8.1364e-10                         0.000000</span>
+<span class="co">## A0MZ66-3          0.0000e+00                         0.000000</span>
+<span class="co">## A0PJW6            0.0000e+00                         0.888889</span>
+<span class="co">## A1L0T0            0.0000e+00                         0.000000</span></code></pre>
+<p>The full joint probability distribution can be found in the
+<code>bandle.joint</code> slot e.g. for the control in slot 1 this would
+be <code>bandleJoint(summaries(bandleres)[[1]])</code> and the treatment
+in slot 2 this would be
+<code>bandleJoint(summaries(bandleres)[[2]])</code>.</p>
+<p>Let’s look at the posterior estimates and allocation predictions
+found in <code>pe1</code> and <code>pe2</code>. Each object is a
+<code>data.frame</code> containing the protein allocations and
+associated localisation probabilities for each condition. The 7 columns
+are</p>
 <ul>
 <li>
-<code>bandle.allocation</code> which contains the the localisation predictions to one of the subcellular classes that appear in the training data.</li>
+<code>bandle.allocation</code> which contains the the localisation
+predictions to one of the subcellular classes that appear in the
+training data.</li>
 <li>
-<code>bandle.probability</code> is the allocation probability, corresponding to the mean of the distribution probability.</li>
+<code>bandle.probability</code> is the allocation probability,
+corresponding to the mean of the distribution probability.</li>
 <li>
-<code>bandle.outlier</code> is the probability of being an outlier. A high value indicates that the protein is unlikely to belong to any annotated class (and is hence considered an outlier).</li>
+<code>bandle.outlier</code> is the probability of being an outlier.
+A high value indicates that the protein is unlikely to belong to any
+annotated class (and is hence considered an outlier).</li>
 <li>
-<code>bandle.probability.lowerquantile</code> and <code>bandle.probability.upperquantile</code> are the upper and lower quantiles of the allocation probability distribution.</li>
+<code>bandle.probability.lowerquantile</code> and
+<code>bandle.probability.upperquantile</code> are the upper and lower
+quantiles of the allocation probability distribution.</li>
 <li>
-<code>bandle.mean.shannon</code> is the Shannon entropy, measuring the uncertainty in the allocations (a high value representing high uncertainty; the highest value is the natural logarithm of the number of classes).</li>
+<code>bandle.mean.shannon</code> is the Shannon entropy, measuring
+the uncertainty in the allocations (a high value representing high
+uncertainty; the highest value is the natural logarithm of the number of
+classes).</li>
 <li>
-<code>bandle.differential.localisation</code> is the differential localisation probability.</li>
+<code>bandle.differential.localisation</code> is the differential
+localisation probability.</li>
 </ul>
-<p>We plot the distribution of protein allocations by <code>bandle</code></p>
+<p>We plot the distribution of protein allocations by
+<code>bandle</code></p>
 <div class="sourceCode" id="cb50"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, oma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pe1</span><span class="op">$</span><span class="va">bandle.allocation</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pe1</span><span class="op">$</span><span class="va">bandle.allocation</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
         las <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">"Control: Protein allocation"</span>,
         ylab <span class="op">=</span> <span class="st">"Number of proteins"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pe2</span><span class="op">$</span><span class="va">bandle.allocation</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
+<span class="fu"><a href="https://rdrr.io/r/graphics/barplot.html" class="external-link">barplot</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/table.html" class="external-link">table</a></span><span class="op">(</span><span class="va">pe2</span><span class="op">$</span><span class="va">bandle.allocation</span><span class="op">)</span>, col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>,
         las <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">"Treatment: Protein allocation"</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/barplotalloc-1.png" width="225"></p>
-<p>The bar plot above tells us for this data <code>bandle</code> has allocated the majority of unlabelled proteins to the nucleus. The allocation result for each condition (found in <code>bandle.allocation</code>) is determined by <code>bandle</code> by looking at which subcellular niche was given the highest probability from the full distribution e.g. from <code>bandle.joint</code>. If we plot the <code>bandle.probability</code> (corresponding to the mean of the distribution) against the protein allocation results we can see that not all protein allocations are confident, this is why it is important to threshold when deducing a protein’s location.</p>
+<p>The bar plot above tells us for this data <code>bandle</code> has
+allocated the majority of unlabelled proteins to the nucleus. The
+allocation result for each condition (found in
+<code>bandle.allocation</code>) is determined by <code>bandle</code> by
+looking at which subcellular niche was given the highest probability
+from the full distribution e.g. from <code>bandle.joint</code>. If we
+plot the <code>bandle.probability</code> (corresponding to the mean of
+the distribution) against the protein allocation results we can see that
+not all protein allocations are confident, this is why it is important
+to threshold when deducing a protein’s location.</p>
 <div class="sourceCode" id="cb51"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">1</span>, <span class="fl">2</span><span class="op">)</span>, oma <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">6</span>, <span class="fl">2</span>, <span class="fl">2</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pe1</span><span class="op">$</span><span class="va">bandle.probability</span> <span class="op">~</span> <span class="va">pe1</span><span class="op">$</span> <span class="va">bandle.allocation</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pe1</span><span class="op">$</span><span class="va">bandle.probability</span> <span class="op">~</span> <span class="va">pe1</span><span class="op">$</span> <span class="va">bandle.allocation</span>, 
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="st">""</span>,
         ylab <span class="op">=</span> <span class="st">"BANDLE probability (mean)"</span>,
         las <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">"Control: Probability distribution\n by allocation class"</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pe2</span><span class="op">$</span><span class="va">bandle.probability</span> <span class="op">~</span> <span class="va">pe1</span><span class="op">$</span> <span class="va">bandle.allocation</span>, 
+<span class="fu"><a href="https://rdrr.io/r/graphics/boxplot.html" class="external-link">boxplot</a></span><span class="op">(</span><span class="va">pe2</span><span class="op">$</span><span class="va">bandle.probability</span> <span class="op">~</span> <span class="va">pe1</span><span class="op">$</span> <span class="va">bandle.allocation</span>, 
         col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, xlab <span class="op">=</span> <span class="st">""</span>, ylab <span class="op">=</span> <span class="st">""</span>,
         las <span class="op">=</span> <span class="fl">2</span>, main <span class="op">=</span> <span class="st">"Treatment: Probability distribution\n by allocation class"</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/meanbandleprob-1.png" width="225"></p>
 <div class="section level3">
 <h3 id="predicting-subcellular-location">Predicting subcellular location<a class="anchor" aria-label="anchor" href="#predicting-subcellular-location"></a>
 </h3>
-<p>As mentioned in Vignette 1, it is common to threshold allocation results based on the posterior probability. Proteins that do not meet the threshold are not assigned to a subcellular location and left unlabelled (here we use the terminology “unknown” for consistency with the <code>pRoloc</code> package). It is important not to force proteins to allocate to one of the niches defined here in the training data, if they have low probability to reside there. We wish to allow for greater subcellular diversity and to have multiple location, this is captured essentially in leaving a protein “unlabelled” or “unknown”.</p>
-<p>We use the <code>bandlePredict</code> function to append our results to the original <code>MSnSet</code> datasets.</p>
+<p>As mentioned in Vignette 1, it is common to threshold allocation
+results based on the posterior probability. Proteins that do not meet
+the threshold are not assigned to a subcellular location and left
+unlabelled (here we use the terminology “unknown” for consistency with
+the <code>pRoloc</code> package). It is important not to force proteins
+to allocate to one of the niches defined here in the training data, if
+they have low probability to reside there. We wish to allow for greater
+subcellular diversity and to have multiple location, this is captured
+essentially in leaving a protein “unlabelled” or “unknown”.</p>
+<p>We use the <code>bandlePredict</code> function to append our results
+to the original <code>MSnSet</code> datasets.</p>
 <div class="sourceCode" id="cb52"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Add the bandle results to a MSnSet</span>
 <span class="va">xx</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-predict.html">bandlePredict</a></span><span class="op">(</span><span class="va">control</span>, 
@@ -449,15 +617,33 @@ document.addEventListener("DOMContentLoaded", function() {
                     fcol <span class="op">=</span> <span class="st">"markers"</span><span class="op">)</span>
 <span class="va">res_0h</span> <span class="op">&lt;-</span> <span class="va">xx</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>
 <span class="va">res_12h</span> <span class="op">&lt;-</span> <span class="va">xx</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span></code></pre></div>
-<p>The BANDLE model combines replicate information within each condition to obtain the localisation of proteins for each single experimental condition.</p>
-<p>The results for each condition are appended to the <em>first</em> dataset in the list of <code>MSnSets</code> (for each condition). It is important to familiarise yourself with the <code>MSnSet</code> data structure. To further highlight this in the below code chunk we look at the <code>fvarLabels</code> of each datasets, this shows the column header names of the <code>fData</code> feature data. We see that the first replicate at 0h e.g. <code>res_0h[[1]]</code> has 7 columns with the output of <code>bandle</code> e.g. <code>bandle.probability</code>, <code>bandle.allocation</code>, <code>bandle.outlier</code> etc. (as described above) appended to the feature data (<code>fData(res_0h[[1]])</code>). The second dataset at 0h i.e. <code>res_0h[[2]]</code> does not have this information appended to the feature data. This is the same for the second condition at 12h post LPS stimulation.</p>
+<p>The BANDLE model combines replicate information within each condition
+to obtain the localisation of proteins for each single experimental
+condition.</p>
+<p>The results for each condition are appended to the <em>first</em>
+dataset in the list of <code>MSnSets</code> (for each condition). It is
+important to familiarise yourself with the <code>MSnSet</code> data
+structure. To further highlight this in the below code chunk we look at
+the <code>fvarLabels</code> of each datasets, this shows the column
+header names of the <code>fData</code> feature data. We see that the
+first replicate at 0h e.g. <code>res_0h[[1]]</code> has 7 columns with
+the output of <code>bandle</code> e.g. <code>bandle.probability</code>,
+<code>bandle.allocation</code>, <code>bandle.outlier</code> etc. (as
+described above) appended to the feature data
+(<code>fData(res_0h[[1]])</code>). The second dataset at 0h
+i.e. <code>res_0h[[2]]</code> does not have this information appended to
+the feature data. This is the same for the second condition at 12h post
+LPS stimulation.</p>
 <div class="sourceCode" id="cb53"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fvarLabels</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fvarLabels</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 
 <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fvarLabels</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fvarLabels</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span></code></pre></div>
-<p>To obtain classification results we threshold using a 1% FDR based on the <code>bandle.probability</code> and append the results to the data using the <code>getPredictions</code> function from <code>MSnbase</code>.</p>
+<p>To obtain classification results we threshold using a 1% FDR based on
+the <code>bandle.probability</code> and append the results to the data
+using the <code>getPredictions</code> function from
+<code>MSnbase</code>.</p>
 <div class="sourceCode" id="cb54"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## threshold results using 1% FDR</span>
 <span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">getPredictions</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
@@ -467,13 +653,13 @@ document.addEventListener("DOMContentLoaded", function() {
                               t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   314                   201                   504 </span>
+<span class="co">##                   256                   215                   505 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   170                   109                   274 </span>
+<span class="co">##                   153                   113                   315 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   395                   107                   651 </span>
+<span class="co">##                   385                   123                   660 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   141                   256                   605</span></code></pre>
+<span class="co">##                   161                   247                   594</span></code></pre>
 <div class="sourceCode" id="cb56"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">getPredictions</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
                                fcol <span class="op">=</span> <span class="st">"bandle.allocation"</span>,
@@ -482,17 +668,34 @@ document.addEventListener("DOMContentLoaded", function() {
                                t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   170                   227                   462 </span>
+<span class="co">##                   153                   223                   461 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   282                   295                   174 </span>
+<span class="co">##                   282                   302                   185 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   359                   117                   741 </span>
+<span class="co">##                   359                   121                   757 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   199                   368                   333</span></code></pre>
-<p>A table of predictions is printed as a side effect when running <code>getPredictions</code> function.</p>
-<p>In addition to thresholding on the <code>bandle.probability</code> we can threshold based on the <code>bandle.outlier</code> i.e. the probability of being an outlier. A high value indicates that the protein is unlikely to belong to any annotated class (and is hence considered an outlier). We wish to assign proteins to a subcellular niche if they have a high <code>bandle.probability</code> and also a low <code>bandle.outlier</code> probability. This is a nice way to ensure we keep the most high confidence localisations.</p>
-<p>In the below code chunk we use first create a new column called <code>bandle.outlier.t</code> in the feature data which is <code>1 - outlier probability</code>. This allows us then to use <code>getPredictions</code> once again and keep only proteins which meet both the 0.99 threshold on the <code>bandle.probability</code> and the <code>bandle.outlier</code>.</p>
-<p>Note, that running <code>getPredictions</code> appends the results to a new feature data column called <code>fcol.pred</code>, please see <code><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">?getPredictions</a></code> for the documentation. As we have run this function twice, our column of classification results are found in <code>bandle.allocation.pred.pred</code>.</p>
+<span class="co">##                   206                   361                   317</span></code></pre>
+<p>A table of predictions is printed as a side effect when running
+<code>getPredictions</code> function.</p>
+<p>In addition to thresholding on the <code>bandle.probability</code> we
+can threshold based on the <code>bandle.outlier</code> i.e. the
+probability of being an outlier. A high value indicates that the protein
+is unlikely to belong to any annotated class (and is hence considered an
+outlier). We wish to assign proteins to a subcellular niche if they have
+a high <code>bandle.probability</code> and also a low
+<code>bandle.outlier</code> probability. This is a nice way to ensure we
+keep the most high confidence localisations.</p>
+<p>In the below code chunk we use first create a new column called
+<code>bandle.outlier.t</code> in the feature data which is
+<code>1 - outlier probability</code>. This allows us then to use
+<code>getPredictions</code> once again and keep only proteins which meet
+both the 0.99 threshold on the <code>bandle.probability</code> and the
+<code>bandle.outlier</code>.</p>
+<p>Note, that running <code>getPredictions</code> appends the results to
+a new feature data column called <code>fcol.pred</code>, please see
+<code><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">?getPredictions</a></code> for the documentation. As we have run this
+function twice, our column of classification results are found in
+<code>bandle.allocation.pred.pred</code>.</p>
 <div class="sourceCode" id="cb58"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## add outlier probability</span>
 <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.outlier.t</span> <span class="op">&lt;-</span> <span class="fl">1</span> <span class="op">-</span>  <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.outlier</span>
@@ -506,13 +709,13 @@ document.addEventListener("DOMContentLoaded", function() {
                               t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                    89                   141                   313 </span>
+<span class="co">##                    88                   146                   318 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   167                    58                   208 </span>
+<span class="co">##                   151                    60                   232 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   353                    65                   107 </span>
+<span class="co">##                   350                    66                   100 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   122                   232                  1872</span></code></pre>
+<span class="co">##                   132                   225                  1859</span></code></pre>
 <div class="sourceCode" id="cb60"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getPredictions.html" class="external-link">getPredictions</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span>, 
                                fcol <span class="op">=</span> <span class="st">"bandle.allocation.pred"</span>,
@@ -521,14 +724,16 @@ document.addEventListener("DOMContentLoaded", function() {
                                t <span class="op">=</span> <span class="fl">.99</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## ans</span>
 <span class="co">##      40S/60S Ribosome             Chromatin               Cytosol </span>
-<span class="co">##                   118                   173                   287 </span>
+<span class="co">##                   113                   170                   286 </span>
 <span class="co">## Endoplasmic Reticulum       Golgi Apparatus              Lysosome </span>
-<span class="co">##                   251                   220                   149 </span>
+<span class="co">##                   250                   224                   157 </span>
 <span class="co">##          Mitochondria             Nucleolus               Nucleus </span>
-<span class="co">##                   345                    91                   135 </span>
+<span class="co">##                   344                    99                   132 </span>
 <span class="co">##            Peroxisome       Plasma Membrane               unknown </span>
-<span class="co">##                   185                   310                  1463</span></code></pre>
-<p>Let’s append the results to the second replicate (by default they are appended to the first only, as already mentioned above). This allows us to plot each dataset and the results using <code>plot2D</code>.</p>
+<span class="co">##                   189                   308                  1455</span></code></pre>
+<p>Let’s append the results to the second replicate (by default they are
+appended to the first only, as already mentioned above). This allows us
+to plot each dataset and the results using <code>plot2D</code>.</p>
 <div class="sourceCode" id="cb62"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## Add results to second replicate at 0h</span>
 <span class="va">res_alloc_0hr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span>
@@ -537,7 +742,8 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## Add results to second replicate at 12h</span>
 <span class="va">res_alloc_12hr</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span>
 <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">&lt;-</span> <span class="va">res_alloc_12hr</span></code></pre></div>
-<p>We can plot these results on a PCA plot and compare to the original subcellular markers.</p>
+<p>We can plot these results on a PCA plot and compare to the original
+subcellular markers.</p>
 <div class="sourceCode" id="cb63"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">5</span>, <span class="fl">2</span><span class="op">)</span><span class="op">)</span>
 
@@ -568,42 +774,71 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="section level3">
 <h3 id="differential-localisation">Differential localisation<a class="anchor" aria-label="anchor" href="#differential-localisation"></a>
 </h3>
-<p>The differential localisation probability tells us which proteins are most likely to <em>differentially localise</em>, that exhibit a change in their steady-state subcellular location. Quantifying changes in protein subcellular location between experimental conditions is challenging and Crook et al <span class="citation">(Crook et al. 2021)</span> have used a Bayesian approach to compute the probability that a protein differentially localises upon cellular perturbation, as well quantifying the uncertainty in these estimates. The differential localisation probability is found in the <code>bandle.differential.localisation</code> column of the <code>bandleParams</code> output.</p>
+<p>The differential localisation probability tells us which proteins are
+most likely to <em>differentially localise</em>, that exhibit a change
+in their steady-state subcellular location. Quantifying changes in
+protein subcellular location between experimental conditions is
+challenging and Crook et al <span class="citation">(Crook et al.
+2021)</span> have used a Bayesian approach to compute the probability
+that a protein differentially localises upon cellular perturbation, as
+well quantifying the uncertainty in these estimates. The differential
+localisation probability is found in the
+<code>bandle.differential.localisation</code> column of the
+<code>bandleParams</code> output.</p>
 <div class="sourceCode" id="cb64"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">diffloc_probs</span> <span class="op">&lt;-</span> <span class="va">pe1</span><span class="op">$</span><span class="va">bandle.differential.localisation</span></code></pre></div>
-<p>If we take a 5% FDR and examine how many proteins get a differential probability greater than 0.95 we find there are 631 proteins above this threshold.</p>
+<p>If we take a 5% FDR and examine how many proteins get a differential
+probability greater than 0.95 we find there are 640 proteins above this
+threshold.</p>
 <div class="sourceCode" id="cb65"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] 696</span></code></pre>
-<p>On a rank plot we can see the distribution of differential probabilities.</p>
+<code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/pSet-class.html" class="external-link">length</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span></code></pre></div>
+<pre><code><span class="co">## [1] 690</span></code></pre>
+<p>On a rank plot we can see the distribution of differential
+probabilities.</p>
 <div class="sourceCode" id="cb67"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/plot-methods.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>,
+<code class="sourceCode R"><span class="fu"><a href="https://lgatto.github.io/MSnbase/reference/plot-methods.html" class="external-link">plot</a></span><span class="op">(</span><span class="va">diffloc_probs</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/order.html" class="external-link">order</a></span><span class="op">(</span><span class="va">diffloc_probs</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span><span class="op">]</span>,
      col <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fl">2</span><span class="op">]</span>, pch <span class="op">=</span> <span class="fl">19</span>, ylab <span class="op">=</span> <span class="st">"Probability"</span>,
      xlab <span class="op">=</span> <span class="st">"Rank"</span>, main <span class="op">=</span> <span class="st">"Differential localisation rank plot"</span><span class="op">)</span></code></pre></div>
 <p><img src="v02-workflow_files/figure-html/extractdifflocp-1.png" width="150"></p>
-<p>This indicated that most proteins are not differentially localised and there are a few hundred confident differentially localised proteins of interest.</p>
+<p>This indicated that most proteins are not differentially localised
+and there are a few hundred confident differentially localised proteins
+of interest.</p>
 </div>
 <div class="section level3">
 <h3 id="estimating-uncertainty">Estimating uncertainty<a class="anchor" aria-label="anchor" href="#estimating-uncertainty"></a>
 </h3>
-<p>One advantage of using Bayesian methods over classic machine learning is the ability to quantify the uncertainty in our estimates. There are many ways to do this, as discussed in “Vignette 1: Getting Started with BANDLE”. In the below code chunk we use the <code>binomialDiffLocProb</code> function to obtain credible intervals from the binomial distribution and then extract a probability estimate for the differential localisation.</p>
-<p>Please note, that in interest of time and for the purpose of demonstration we set <code>nsample = 500</code> and thus only return 500 samples of the binomial distribution. In practice the minimum recommended number of samples is 5000.</p>
+<p>One advantage of using Bayesian methods over classic machine learning
+is the ability to quantify the uncertainty in our estimates. There are
+many ways to do this, as discussed in “Vignette 1: Getting Started with
+BANDLE”. In the below code chunk we use the
+<code>binomialDiffLocProb</code> function to obtain credible intervals
+from the binomial distribution and then extract a probability estimate
+for the differential localisation.</p>
+<p>Please note, that in interest of time and for the purpose of
+demonstration we set <code>nsample = 500</code> and thus only return 500
+samples of the binomial distribution. In practice the minimum
+recommended number of samples is 5000.</p>
 <div class="sourceCode" id="cb68"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/Random.html" class="external-link">set.seed</a></span><span class="op">(</span><span class="fl">1</span><span class="op">)</span>
 <span class="va">bin_t</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-differentiallocalisation.html">binomialDiffLocProb</a></span><span class="op">(</span>params <span class="op">=</span> <span class="va">bandleres</span>, top <span class="op">=</span> <span class="fl">500</span>,
                              nsample <span class="op">=</span> <span class="fl">500</span>, decreasing <span class="op">=</span> <span class="cn">TRUE</span><span class="op">)</span></code></pre></div>
-<p>As we have a large number of proteins as candidates we have chosen to threshold on the interval to reduce the number of differential localisations.</p>
+<p>As we have a large number of proteins as candidates we have chosen to
+threshold on the interval to reduce the number of differential
+localisations.</p>
 <div class="sourceCode" id="cb69"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">qt</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/apply.html" class="external-link">apply</a></span><span class="op">(</span><span class="va">bin_t</span>, <span class="fl">1</span>, <span class="kw">function</span><span class="op">(</span><span class="va">x</span><span class="op">)</span> <span class="fu"><a href="https://rdrr.io/r/stats/quantile.html" class="external-link">quantile</a></span><span class="op">(</span><span class="va">x</span>, <span class="fl">.025</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <p>This leaves us with 147 proteins to investigate.</p>
 <div class="sourceCode" id="cb70"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">candidates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">qt</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">candidates</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="va">qt</span> <span class="op">&gt;</span> <span class="fl">0.95</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">candidates</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## [1] "A1L170-2" "B2RUZ4"   "O15439"   "O43181"   "O43314"   "O43493"</span></code></pre>
+<pre><code><span class="co">## [1] "A1L170-2" "B7ZBB8"   "O43427"   "O43633"   "O43670-4" "O43768"</span></code></pre>
 <div class="section level4">
 <h4 id="add-the-results-to-the-msnset">Add the results to the MSnSet<a class="anchor" aria-label="anchor" href="#add-the-results-to-the-msnset"></a>
 </h4>
-<p>Let’s add the results to each replicate in the <code>MSnSet</code>s. The reason for doing this is so that later on when we wish to visulalise the data we have the information readily accessible to make use of the functions in the <code>pRoloc</code> package.</p>
+<p>Let’s add the results to each replicate in the <code>MSnSet</code>s.
+The reason for doing this is so that later on when we wish to visulalise
+the data we have the information readily accessible to make use of the
+functions in the <code>pRoloc</code> package.</p>
 <p>Let’s double check all datasets have the same proteins,</p>
 <div class="sourceCode" id="cb72"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/base/all.html" class="external-link">all</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureNames.html" class="external-link">featureNames</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span> <span class="op">==</span> <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureNames.html" class="external-link">featureNames</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">)</span></code></pre></div>
@@ -618,7 +853,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb78"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">dl.estimate</span> <span class="op">&lt;-</span> <span class="va">qt</span><span class="op">[</span><span class="va">candidates</span><span class="op">]</span>
 <span class="va">fn</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureNames.html" class="external-link">featureNames</a></span><span class="op">(</span><span class="va">control</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span>
-<span class="va">cmn</span> <span class="op">&lt;-</span> <span class="va">fn</span> <span class="op"><a href="https://rdrr.io/pkg/BiocGenerics/man/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dl.estimate</span><span class="op">)</span>
+<span class="va">cmn</span> <span class="op">&lt;-</span> <span class="va">fn</span> <span class="op"><a href="https://rdrr.io/r/base/match.html" class="external-link">%in%</a></span> <span class="fu"><a href="https://rdrr.io/r/base/names.html" class="external-link">names</a></span><span class="op">(</span><span class="va">dl.estimate</span><span class="op">)</span>
 
 
 <span class="co">## Add results to the 0h time-point (control)</span>
@@ -652,7 +887,9 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="section level2">
 <h2 id="visualising-differential-localisation">Visualising differential localisation<a class="anchor" aria-label="anchor" href="#visualising-differential-localisation"></a>
 </h2>
-<p>There are several different ways we can visualise the output of <code>bandle</code>. Now we have our set of candidates we can subset <code>MSnSet</code> datasets and plot the the results.</p>
+<p>There are several different ways we can visualise the output of
+<code>bandle</code>. Now we have our set of candidates we can subset
+<code>MSnSet</code> datasets and plot the the results.</p>
 <p>To subset the data,</p>
 <div class="sourceCode" id="cb79"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="va">msnset_cands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">candidates</span>, <span class="op">]</span>, 
@@ -661,24 +898,39 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="sourceCode" id="cb80"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co"># construct data.frame</span>
 <span class="va">df_cands</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/data.frame.html" class="external-link">data.frame</a></span><span class="op">(</span>
-    <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">msnset_cands</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dl.estimate"</span>, <span class="st">"bandle.allocation.pred.pred"</span><span class="op">)</span><span class="op">]</span>,
+    <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">msnset_cands</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span>, <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bandle.differential.localisation"</span>, 
+                                 <span class="st">"dl.estimate"</span>,
+                                 <span class="st">"bandle.allocation.pred.pred"</span><span class="op">)</span><span class="op">]</span>,
     <span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">msnset_cands</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span>, <span class="st">"bandle.allocation.pred.pred"</span><span class="op">]</span><span class="op">)</span>
-<span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/row_colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"dl.estimate"</span>, <span class="st">"0hr_location"</span>, <span class="st">"12h_location"</span><span class="op">)</span>
+
+<span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">colnames</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="st">"bandle.differential.localisation"</span>, <span class="st">"dl.estimate"</span>, 
+                        <span class="st">"0hr_location"</span>, <span class="st">"12h_location"</span><span class="op">)</span>
 
 <span class="co"># order by highest differential localisation estimate</span>
-<span class="va">df_cands</span> <span class="op">&lt;-</span> <span class="va">df_cands</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">dl.estimate</span><span class="op">)</span><span class="op">)</span>
+<span class="va">df_cands</span> <span class="op">&lt;-</span> <span class="va">df_cands</span> <span class="op"><a href="https://magrittr.tidyverse.org/reference/pipe.html" class="external-link">%&gt;%</a></span> <span class="fu"><a href="https://dplyr.tidyverse.org/reference/arrange.html" class="external-link">arrange</a></span><span class="op">(</span><span class="fu"><a href="https://dplyr.tidyverse.org/reference/desc.html" class="external-link">desc</a></span><span class="op">(</span><span class="va">bandle.differential.localisation</span><span class="op">)</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##        dl.estimate 0hr_location    12h_location</span>
-<span class="co">## P48960   0.9584272     Lysosome Plasma Membrane</span>
-<span class="co">## Q96GA3   0.9576311      unknown         unknown</span>
-<span class="co">## Q96FN4   0.9572997      unknown         unknown</span>
-<span class="co">## Q4G0F5   0.9572947      unknown         unknown</span>
-<span class="co">## Q9BY77   0.9570807      unknown       Nucleolus</span>
-<span class="co">## Q8IVM0   0.9569022      unknown         unknown</span></code></pre>
+<pre><code><span class="co">##          bandle.differential.localisation dl.estimate 0hr_location</span>
+<span class="co">## A1L170-2                                1   0.9506301      unknown</span>
+<span class="co">## B7ZBB8                                  1   0.9525446      unknown</span>
+<span class="co">## O43427                                  1   0.9559090      unknown</span>
+<span class="co">## O43633                                  1   0.9505633      unknown</span>
+<span class="co">## O43670-4                                1   0.9528166    Nucleolus</span>
+<span class="co">## O43768                                  1   0.9530232      unknown</span>
+<span class="co">##              12h_location</span>
+<span class="co">## A1L170-2          unknown</span>
+<span class="co">## B7ZBB8            unknown</span>
+<span class="co">## O43427            unknown</span>
+<span class="co">## O43633            unknown</span>
+<span class="co">## O43670-4 40S/60S Ribosome</span>
+<span class="co">## O43768            unknown</span></code></pre>
 <div class="section level3">
 <h3 id="alluvial-plots">Alluvial plots<a class="anchor" aria-label="anchor" href="#alluvial-plots"></a>
 </h3>
-<p>We can now plot this on an alluvial plot to view the changes in subcellular location. The class label is taken from the column called <code>"bandle.allocation.pred.pred"</code> which was deduced above by thresholding on the posterior and outlier probabilities before assigning BANDLE’s allocation prediction.</p>
+<p>We can now plot this on an alluvial plot to view the changes in
+subcellular location. The class label is taken from the column called
+<code>"bandle.allocation.pred.pred"</code> which was deduced above by
+thresholding on the posterior and outlier probabilities before assigning
+BANDLE’s allocation prediction.</p>
 <div class="sourceCode" id="cb82"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="co">## set colours for organelles and unknown</span>
 <span class="va">cols</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/getStockcol.html" class="external-link">getStockcol</a></span><span class="op">(</span><span class="op">)</span><span class="op">[</span><span class="fu"><a href="https://rdrr.io/r/base/seq.html" class="external-link">seq</a></span><span class="op">(</span><span class="va">mrkCl</span><span class="op">)</span><span class="op">]</span>, <span class="st">"grey"</span><span class="op">)</span>
@@ -704,7 +956,8 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## <span style="color: #555555;">This warning is displayed once every 8 hours.</span></span>
 <span class="co">## <span style="color: #555555;">Call `lifecycle::last_lifecycle_warnings()` to see where this warning was generated.</span></span></code></pre>
 <p><img src="v02-workflow_files/figure-html/plotres-1.png" width="200"></p>
-<p>To view a table of the translocations, we can call the function <code>plotTable</code>,</p>
+<p>To view a table of the translocations, we can call the function
+<code>plotTable</code>,</p>
 <div class="sourceCode" id="cb88"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="op">(</span><span class="va">tbl</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-plots-translocations-table.html">plotTable</a></span><span class="op">(</span><span class="va">msnset_cands</span>, fcol <span class="op">=</span> <span class="st">"bandle.allocation.pred.pred"</span><span class="op">)</span><span class="op">)</span></code></pre></div>
 <pre><code><span class="co">## 147 features in common</span></code></pre>
@@ -714,39 +967,43 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## setting fcol = c(bandle.allocation.pred.pred, bandle.allocation.pred.pred)</span>
 <span class="co">## ----------------------------------------------</span></code></pre>
 <pre><code><span class="co">##               Condition1            Condition2 value</span>
-<span class="co">## 8                Cytosol               unknown     3</span>
-<span class="co">## 12 Endoplasmic Reticulum       Golgi Apparatus     2</span>
-<span class="co">## 18 Endoplasmic Reticulum               unknown     1</span>
-<span class="co">## 28       Golgi Apparatus               unknown     1</span>
-<span class="co">## 33              Lysosome       Golgi Apparatus     5</span>
-<span class="co">## 37              Lysosome       Plasma Membrane    13</span>
-<span class="co">## 38              Lysosome               unknown     3</span>
-<span class="co">## 42          Mitochondria Endoplasmic Reticulum     1</span>
-<span class="co">## 46          Mitochondria            Peroxisome     8</span>
-<span class="co">## 58             Nucleolus               unknown     1</span>
-<span class="co">## 59             Nucleolus      40S/60S Ribosome     1</span>
-<span class="co">## 65            Peroxisome          Mitochondria     7</span>
-<span class="co">## 68            Peroxisome               unknown     1</span>
-<span class="co">## 74       Plasma Membrane              Lysosome     1</span>
-<span class="co">## 78       Plasma Membrane               unknown     4</span>
-<span class="co">## 81               unknown               Cytosol     1</span>
-<span class="co">## 82               unknown Endoplasmic Reticulum     5</span>
-<span class="co">## 83               unknown       Golgi Apparatus     2</span>
-<span class="co">## 84               unknown              Lysosome     1</span>
-<span class="co">## 85               unknown          Mitochondria     3</span>
-<span class="co">## 86               unknown             Nucleolus     1</span>
-<span class="co">## 87               unknown            Peroxisome     8</span>
-<span class="co">## 88               unknown       Plasma Membrane     7</span>
-<span class="co">## 90               unknown             Chromatin     3</span></code></pre>
-<p>Although this example analysis is limited compared to that of <span class="citation">Claire M. Mulvey et al. (2021)</span>, we do see similar trends inline with the results seen in the paper. For examples, we see a large number of proteins translocating between organelles that are involved in the secretory pathway. We can further examine these cases by subsetting the datasets once again and only plotting proteins that involve localisation with these organelles. Several organelles are known to be involved in this pathway, the main ones, the ER, Golgi (and plasma membrane).</p>
+<span class="co">## 6              Chromatin             Nucleolus     1</span>
+<span class="co">## 7              Chromatin            Peroxisome     1</span>
+<span class="co">## 9              Chromatin               unknown     1</span>
+<span class="co">## 19               Cytosol               unknown     3</span>
+<span class="co">## 23 Endoplasmic Reticulum       Golgi Apparatus     2</span>
+<span class="co">## 29 Endoplasmic Reticulum               unknown     1</span>
+<span class="co">## 39       Golgi Apparatus               unknown     1</span>
+<span class="co">## 44              Lysosome       Golgi Apparatus     2</span>
+<span class="co">## 48              Lysosome       Plasma Membrane     9</span>
+<span class="co">## 49              Lysosome               unknown     3</span>
+<span class="co">## 57          Mitochondria            Peroxisome     6</span>
+<span class="co">## 70             Nucleolus      40S/60S Ribosome     1</span>
+<span class="co">## 76            Peroxisome          Mitochondria     5</span>
+<span class="co">## 89       Plasma Membrane               unknown     4</span>
+<span class="co">## 91               unknown             Chromatin     3</span>
+<span class="co">## 92               unknown               Cytosol     1</span>
+<span class="co">## 93               unknown Endoplasmic Reticulum     3</span>
+<span class="co">## 94               unknown       Golgi Apparatus     3</span>
+<span class="co">## 97               unknown             Nucleolus     3</span>
+<span class="co">## 98               unknown            Peroxisome    18</span>
+<span class="co">## 99               unknown       Plasma Membrane     5</span></code></pre>
+<p>Although this example analysis is limited compared to that of <span class="citation">Claire M. Mulvey et al. (2021)</span>, we do see
+similar trends inline with the results seen in the paper. For examples,
+we see a large number of proteins translocating between organelles that
+are involved in the secretory pathway. We can further examine these
+cases by subsetting the datasets once again and only plotting proteins
+that involve localisation with these organelles. Several organelles are
+known to be involved in this pathway, the main ones, the ER, Golgi (and
+plasma membrane).</p>
 <p>Let’s subset for these proteins,</p>
 <div class="sourceCode" id="cb92"><pre class="downlit sourceCode r">
-<code class="sourceCode R"><span class="va">secretory_prots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">msnset_cands</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> 
-    <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Golgi Apparatus"</span><span class="op">)</span>,
-      <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Endoplasmic Reticulum"</span><span class="op">)</span>,
-      <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Plasma Membrane"</span><span class="op">)</span>,
-      <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Lysosome"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
-<span class="va">secretory_prots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">secretory_prots</span><span class="op">)</span>
+<code class="sourceCode R"><span class="va">secretory_prots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unlist.html" class="external-link">unlist</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/lapply.html" class="external-link">lapply</a></span><span class="op">(</span><span class="va">msnset_cands</span>, <span class="kw">function</span><span class="op">(</span><span class="va">z</span><span class="op">)</span> 
+    <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Golgi Apparatus"</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Endoplasmic Reticulum"</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Plasma Membrane"</span><span class="op">)</span>,
+      <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">z</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Lysosome"</span><span class="op">)</span><span class="op">)</span><span class="op">)</span><span class="op">)</span>
+<span class="va">secretory_prots</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/unique.html" class="external-link">unique</a></span><span class="op">(</span><span class="va">secretory_prots</span><span class="op">)</span>
 
 <span class="va">msnset_secret</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/list.html" class="external-link">list</a></span><span class="op">(</span><span class="va">msnset_cands</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">secretory_prots</span>, <span class="op">]</span>, 
                     <span class="va">msnset_cands</span><span class="op">[[</span><span class="fl">2</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">secretory_prots</span>, <span class="op">]</span><span class="op">)</span>
@@ -754,7 +1011,7 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="va">secretory_alluvial</span> <span class="op">&lt;-</span> <span class="fu"><a href="../reference/bandle-plots-translocations.html">plotTranslocations</a></span><span class="op">(</span><span class="va">msnset_secret</span>, 
                                          fcol <span class="op">=</span> <span class="st">"bandle.allocation.pred.pred"</span>, 
                                          col <span class="op">=</span> <span class="va">cols</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## 46 features in common</span></code></pre>
+<pre><code><span class="co">## 33 features in common</span></code></pre>
 <pre><code><span class="co">## ------------------------------------------------</span>
 <span class="co">## If length(fcol) == 1 it is assumed that the</span>
 <span class="co">## same fcol is to be used for both datasets</span>
@@ -767,29 +1024,46 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="section level3">
 <h3 id="protein-profiles">Protein profiles<a class="anchor" aria-label="anchor" href="#protein-profiles"></a>
 </h3>
-<p>In the next section we see how to plot proteins of interest.Our differential localisation candidates can be found in <code>df_cands</code>,</p>
+<p>In the next section we see how to plot proteins of interest.Our
+differential localisation candidates can be found in
+<code>df_cands</code>,</p>
 <div class="sourceCode" id="cb96"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">head</a></span><span class="op">(</span><span class="va">df_cands</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">##        dl.estimate 0hr_location    12h_location</span>
-<span class="co">## P48960   0.9584272     Lysosome Plasma Membrane</span>
-<span class="co">## Q96GA3   0.9576311      unknown         unknown</span>
-<span class="co">## Q96FN4   0.9572997      unknown         unknown</span>
-<span class="co">## Q4G0F5   0.9572947      unknown         unknown</span>
-<span class="co">## Q9BY77   0.9570807      unknown       Nucleolus</span>
-<span class="co">## Q8IVM0   0.9569022      unknown         unknown</span></code></pre>
-<p>Let’s take the first protein as an example; protein with accession B2RUZ4. It has a high differential localisation score and it’s steady state localisation in the control is predicted to be lysosomal and in the treatment condition at 12 hours-LPS it is predicted to localise to the plasma membrane. This fits with the information we see on Uniprot which tells us it is Small integral membrane protein 1 (SMIM1).</p>
-<p>In the below code chunk we plot the protein profiles of all proteins that were identified as lysosomal from BANDLE in the control and then overlay SMIM1. We do the same at 12hrs post LPS with all plasma membrane proteins.</p>
+<pre><code><span class="co">##          bandle.differential.localisation dl.estimate 0hr_location</span>
+<span class="co">## A1L170-2                                1   0.9506301      unknown</span>
+<span class="co">## B7ZBB8                                  1   0.9525446      unknown</span>
+<span class="co">## O43427                                  1   0.9559090      unknown</span>
+<span class="co">## O43633                                  1   0.9505633      unknown</span>
+<span class="co">## O43670-4                                1   0.9528166    Nucleolus</span>
+<span class="co">## O43768                                  1   0.9530232      unknown</span>
+<span class="co">##              12h_location</span>
+<span class="co">## A1L170-2          unknown</span>
+<span class="co">## B7ZBB8            unknown</span>
+<span class="co">## O43427            unknown</span>
+<span class="co">## O43633            unknown</span>
+<span class="co">## O43670-4 40S/60S Ribosome</span>
+<span class="co">## O43768            unknown</span></code></pre>
+<p>Let’s take the first protein as an example; protein with accession
+B2RUZ4. It has a high differential localisation score and it’s steady
+state localisation in the control is predicted to be lysosomal and in
+the treatment condition at 12 hours-LPS it is predicted to localise to
+the plasma membrane. This fits with the information we see on Uniprot
+which tells us it is Small integral membrane protein 1 (SMIM1).</p>
+<p>In the below code chunk we plot the protein profiles of all proteins
+that were identified as lysosomal from BANDLE in the control and then
+overlay SMIM1. We do the same at 12hrs post LPS with all plasma membrane
+proteins.</p>
 <div class="sourceCode" id="cb98"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/graphics/par.html" class="external-link">par</a></span><span class="op">(</span>mfrow <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/pkg/S4Vectors/man/Vector-class.html" class="external-link">c</a></span><span class="op">(</span><span class="fl">2</span>, <span class="fl">1</span><span class="op">)</span><span class="op">)</span>
 
 <span class="co">## plot lysosomal profiles</span>
-<span class="va">lyso</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Lysosome"</span><span class="op">)</span>
+<span class="va">lyso</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Lysosome"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/plotDist.html" class="external-link">plotDist</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">lyso</span><span class="op">]</span>, pcol <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="st">"Lysosome"</span><span class="op">]</span>, alpha <span class="op">=</span> <span class="fl">0.04</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matlines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/exprs.html" class="external-link">exprs</a></span><span class="op">(</span><span class="va">res_0h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="st">"B2RUZ4"</span>, <span class="op">]</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="st">"Lysosome"</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Protein SMIM1 (B2RUZ4) at 0hr (control)"</span><span class="op">)</span>
 
 <span class="co">## plot plasma membrane profiles</span>
-<span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/pkg/BiocGenerics/man/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Plasma Membrane"</span><span class="op">)</span>
+<span class="va">pm</span> <span class="op">&lt;-</span> <span class="fu"><a href="https://rdrr.io/r/base/which.html" class="external-link">which</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/featureData.html" class="external-link">fData</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">$</span><span class="va">bandle.allocation.pred.pred</span> <span class="op">==</span> <span class="st">"Plasma Membrane"</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/pkg/pRoloc/man/plotDist.html" class="external-link">plotDist</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">[</span><span class="va">pm</span><span class="op">]</span>, pcol <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="st">"Plasma Membrane"</span><span class="op">]</span>, alpha <span class="op">=</span> <span class="fl">0.04</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/matplot.html" class="external-link">matlines</a></span><span class="op">(</span><span class="fu"><a href="https://rdrr.io/pkg/Biobase/man/exprs.html" class="external-link">exprs</a></span><span class="op">(</span><span class="va">res_12h</span><span class="op">[[</span><span class="fl">1</span><span class="op">]</span><span class="op">]</span><span class="op">)</span><span class="op">[</span><span class="st">"B2RUZ4"</span>, <span class="op">]</span>, col <span class="op">=</span> <span class="va">cols</span><span class="op">[</span><span class="st">"Plasma Membrane"</span><span class="op">]</span>, lwd <span class="op">=</span> <span class="fl">3</span><span class="op">)</span>
 <span class="fu"><a href="https://rdrr.io/r/graphics/title.html" class="external-link">title</a></span><span class="op">(</span><span class="st">"Protein SMIM1 (B2RUZ4) at 12hr-LPS (treatment)"</span><span class="op">)</span></code></pre></div>
@@ -810,16 +1084,17 @@ document.addEventListener("DOMContentLoaded", function() {
 <div class="section level2">
 <h2 id="session-information">Session information<a class="anchor" aria-label="anchor" href="#session-information"></a>
 </h2>
-<p>All software and respective versions used to produce this document are listed below.</p>
+<p>All software and respective versions used to produce this document
+are listed below.</p>
 <div class="sourceCode" id="cb100"><pre class="downlit sourceCode r">
 <code class="sourceCode R"><span class="fu"><a href="https://rdrr.io/r/utils/sessionInfo.html" class="external-link">sessionInfo</a></span><span class="op">(</span><span class="op">)</span></code></pre></div>
-<pre><code><span class="co">## R version 4.1.2 (2021-11-01)</span>
+<pre><code><span class="co">## R version 4.2.0 (2022-04-22)</span>
 <span class="co">## Platform: x86_64-apple-darwin17.0 (64-bit)</span>
-<span class="co">## Running under: macOS Big Sur 10.16</span>
+<span class="co">## Running under: macOS Big Sur/Monterey 10.16</span>
 <span class="co">## </span>
 <span class="co">## Matrix products: default</span>
-<span class="co">## BLAS:   /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRblas.0.dylib</span>
-<span class="co">## LAPACK: /Library/Frameworks/R.framework/Versions/4.1/Resources/lib/libRlapack.dylib</span>
+<span class="co">## BLAS:   /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRblas.0.dylib</span>
+<span class="co">## LAPACK: /Library/Frameworks/R.framework/Versions/4.2/Resources/lib/libRlapack.dylib</span>
 <span class="co">## </span>
 <span class="co">## locale:</span>
 <span class="co">## [1] en_GB.UTF-8/en_GB.UTF-8/en_GB.UTF-8/C/en_GB.UTF-8/en_GB.UTF-8</span>
@@ -829,79 +1104,92 @@ document.addEventListener("DOMContentLoaded", function() {
 <span class="co">## [8] base     </span>
 <span class="co">## </span>
 <span class="co">## other attached packages:</span>
-<span class="co">##  [1] pRolocdata_1.33.1    dplyr_1.0.7          viridis_0.6.2       </span>
-<span class="co">##  [4] viridisLite_0.4.0    pheatmap_1.0.12      ggplot2_3.3.5       </span>
-<span class="co">##  [7] bandle_0.99.12       pRoloc_1.34.0        BiocParallel_1.28.3 </span>
-<span class="co">## [10] MLInterfaces_1.74.0  cluster_2.1.2        annotate_1.72.0     </span>
-<span class="co">## [13] XML_3.99-0.8         AnnotationDbi_1.56.2 IRanges_2.28.0      </span>
-<span class="co">## [16] MSnbase_2.20.4       ProtGenerics_1.26.0  mzR_2.28.0          </span>
-<span class="co">## [19] Rcpp_1.0.8.3         Biobase_2.54.0       S4Vectors_0.32.3    </span>
-<span class="co">## [22] BiocGenerics_0.40.0  BiocStyle_2.22.0    </span>
+<span class="co">##  [1] ggplot2_3.3.6        dplyr_1.0.9          viridis_0.6.2       </span>
+<span class="co">##  [4] viridisLite_0.4.0    pheatmap_1.0.12      bandle_1.1.3        </span>
+<span class="co">##  [7] pRoloc_1.36.0        BiocParallel_1.30.3  MLInterfaces_1.76.0 </span>
+<span class="co">## [10] cluster_2.1.3        annotate_1.74.0      XML_3.99-0.10       </span>
+<span class="co">## [13] AnnotationDbi_1.58.0 IRanges_2.30.0       pRolocdata_1.34.0   </span>
+<span class="co">## [16] MSnbase_2.22.0       ProtGenerics_1.28.0  S4Vectors_0.34.0    </span>
+<span class="co">## [19] mzR_2.30.0           Rcpp_1.0.9           Biobase_2.56.0      </span>
+<span class="co">## [22] BiocGenerics_0.42.0  BiocStyle_2.24.0    </span>
 <span class="co">## </span>
 <span class="co">## loaded via a namespace (and not attached):</span>
-<span class="co">##   [1] utf8_1.2.2             tidyselect_1.1.1       RSQLite_2.2.9         </span>
-<span class="co">##   [4] grid_4.1.2             lpSolve_5.6.15         pROC_1.18.0           </span>
+<span class="co">##   [1] utf8_1.2.2             tidyselect_1.1.2       RSQLite_2.2.15        </span>
+<span class="co">##   [4] grid_4.2.0             lpSolve_5.6.15         pROC_1.18.0           </span>
 <span class="co">##   [7] munsell_0.5.0          codetools_0.2-18       ragg_1.2.2            </span>
-<span class="co">##  [10] preprocessCore_1.56.0  future_1.23.0          withr_2.4.3           </span>
+<span class="co">##  [10] preprocessCore_1.58.0  future_1.26.1          withr_2.5.0           </span>
 <span class="co">##  [13] colorspace_2.0-3       filelock_1.0.2         highr_0.9             </span>
-<span class="co">##  [16] knitr_1.37             ggalluvial_0.12.3      rstudioapi_0.13       </span>
-<span class="co">##  [19] mzID_1.32.0            listenv_0.8.0          GenomeInfoDbData_1.2.7</span>
-<span class="co">##  [22] farver_2.1.0           bit64_4.0.5            rprojroot_2.0.2       </span>
-<span class="co">##  [25] coda_0.19-4            parallelly_1.30.0      vctrs_0.3.8           </span>
-<span class="co">##  [28] generics_0.1.2         ipred_0.9-12           xfun_0.29             </span>
-<span class="co">##  [31] BiocFileCache_2.2.1    randomForest_4.6-14    R6_2.5.1              </span>
-<span class="co">##  [34] doParallel_1.0.16      GenomeInfoDb_1.30.1    clue_0.3-60           </span>
-<span class="co">##  [37] MsCoreUtils_1.6.0      bitops_1.0-7           cachem_1.0.6          </span>
-<span class="co">##  [40] assertthat_0.2.1       scales_1.1.1           nnet_7.3-17           </span>
-<span class="co">##  [43] gtable_0.3.0           affy_1.72.0            globals_0.14.0        </span>
-<span class="co">##  [46] timeDate_3043.102      rlang_1.0.0            systemfonts_1.0.4     </span>
-<span class="co">##  [49] GlobalOptions_0.1.2    splines_4.1.2          ModelMetrics_1.2.2.2  </span>
-<span class="co">##  [52] impute_1.68.0          hexbin_1.28.2          BiocManager_1.30.16   </span>
-<span class="co">##  [55] yaml_2.2.2             reshape2_1.4.4         caret_6.0-90          </span>
-<span class="co">##  [58] tools_4.1.2            lava_1.6.10            bookdown_0.24         </span>
-<span class="co">##  [61] affyio_1.64.0          ellipsis_0.3.2         jquerylib_0.1.4       </span>
-<span class="co">##  [64] RColorBrewer_1.1-2     proxy_0.4-26           plyr_1.8.6            </span>
-<span class="co">##  [67] progress_1.2.2         zlibbioc_1.40.0        purrr_0.3.4           </span>
-<span class="co">##  [70] RCurl_1.98-1.5         prettyunits_1.1.1      rpart_4.1.16          </span>
+<span class="co">##  [16] knitr_1.39             ggalluvial_0.12.3      rstudioapi_0.13       </span>
+<span class="co">##  [19] mzID_1.34.0            listenv_0.8.0          GenomeInfoDbData_1.2.8</span>
+<span class="co">##  [22] farver_2.1.1           bit64_4.0.5            rprojroot_2.0.3       </span>
+<span class="co">##  [25] coda_0.19-4            parallelly_1.32.0      vctrs_0.4.1           </span>
+<span class="co">##  [28] generics_0.1.3         ipred_0.9-13           xfun_0.31             </span>
+<span class="co">##  [31] BiocFileCache_2.4.0    randomForest_4.7-1.1   R6_2.5.1              </span>
+<span class="co">##  [34] doParallel_1.0.17      GenomeInfoDb_1.32.2    clue_0.3-61           </span>
+<span class="co">##  [37] MsCoreUtils_1.8.0      bitops_1.0-7           cachem_1.0.6          </span>
+<span class="co">##  [40] assertthat_0.2.1       scales_1.2.0           nnet_7.3-17           </span>
+<span class="co">##  [43] gtable_0.3.0           affy_1.74.0            globals_0.15.0        </span>
+<span class="co">##  [46] timeDate_3043.102      rlang_1.0.4            systemfonts_1.0.4     </span>
+<span class="co">##  [49] GlobalOptions_0.1.2    splines_4.2.0          ModelMetrics_1.2.2.2  </span>
+<span class="co">##  [52] impute_1.70.0          hexbin_1.28.2          BiocManager_1.30.18   </span>
+<span class="co">##  [55] yaml_2.3.5             reshape2_1.4.4         caret_6.0-92          </span>
+<span class="co">##  [58] tools_4.2.0            lava_1.6.10            bookdown_0.27         </span>
+<span class="co">##  [61] affyio_1.66.0          ellipsis_0.3.2         jquerylib_0.1.4       </span>
+<span class="co">##  [64] RColorBrewer_1.1-3     proxy_0.4-27           plyr_1.8.7            </span>
+<span class="co">##  [67] progress_1.2.2         zlibbioc_1.42.0        purrr_0.3.4           </span>
+<span class="co">##  [70] RCurl_1.98-1.7         prettyunits_1.1.1      rpart_4.1.16          </span>
 <span class="co">##  [73] sampling_2.9           LaplacesDemon_16.1.6   ggrepel_0.9.1         </span>
-<span class="co">##  [76] fs_1.5.2               magrittr_2.0.2         data.table_1.14.2     </span>
-<span class="co">##  [79] circlize_0.4.13        pcaMethods_1.86.0      mvtnorm_1.1-3         </span>
-<span class="co">##  [82] hms_1.1.1              evaluate_0.14          xtable_1.8-4          </span>
-<span class="co">##  [85] mclust_5.4.9           gridExtra_2.3          shape_1.4.6           </span>
-<span class="co">##  [88] compiler_4.1.2         biomaRt_2.50.2         tibble_3.1.6          </span>
-<span class="co">##  [91] ncdf4_1.19             crayon_1.4.2           htmltools_0.5.2       </span>
-<span class="co">##  [94] segmented_1.4-0        tidyr_1.2.0            lubridate_1.8.0       </span>
-<span class="co">##  [97] DBI_1.1.2              dbplyr_2.1.1           MASS_7.3-55           </span>
-<span class="co">## [100] rappdirs_0.3.3         Matrix_1.4-0           cli_3.1.1             </span>
-<span class="co">## [103] vsn_3.62.0             parallel_4.1.2         gower_0.2.2           </span>
-<span class="co">## [106] pkgconfig_2.0.3        pkgdown_2.0.2          recipes_0.1.17        </span>
+<span class="co">##  [76] fs_1.5.2               magrittr_2.0.3         data.table_1.14.2     </span>
+<span class="co">##  [79] circlize_0.4.15        pcaMethods_1.88.0      mvtnorm_1.1-3         </span>
+<span class="co">##  [82] hms_1.1.1              evaluate_0.15          xtable_1.8-4          </span>
+<span class="co">##  [85] mclust_5.4.10          gridExtra_2.3          shape_1.4.6           </span>
+<span class="co">##  [88] compiler_4.2.0         biomaRt_2.52.0         tibble_3.1.7          </span>
+<span class="co">##  [91] ncdf4_1.19             crayon_1.5.1           htmltools_0.5.2       </span>
+<span class="co">##  [94] segmented_1.6-0        tidyr_1.2.0            lubridate_1.8.0       </span>
+<span class="co">##  [97] DBI_1.1.3              dbplyr_2.2.1           MASS_7.3-57           </span>
+<span class="co">## [100] rappdirs_0.3.3         Matrix_1.4-1           cli_3.3.0             </span>
+<span class="co">## [103] vsn_3.64.0             parallel_4.2.0         gower_1.0.0           </span>
+<span class="co">## [106] pkgconfig_2.0.3        pkgdown_2.0.5          recipes_0.2.0         </span>
 <span class="co">## [109] MALDIquant_1.21        xml2_1.3.3             foreach_1.5.2         </span>
-<span class="co">## [112] bslib_0.3.1            XVector_0.34.0         prodlim_2019.11.13    </span>
-<span class="co">## [115] stringr_1.4.0          digest_0.6.29          Biostrings_2.62.0     </span>
-<span class="co">## [118] rmarkdown_2.11         dendextend_1.15.2      curl_4.3.2            </span>
-<span class="co">## [121] kernlab_0.9-29         gtools_3.9.2           lifecycle_1.0.1       </span>
-<span class="co">## [124] nlme_3.1-155           jsonlite_1.7.3         desc_1.4.0            </span>
-<span class="co">## [127] limma_3.50.0           fansi_1.0.2            pillar_1.7.0          </span>
-<span class="co">## [130] lattice_0.20-45        lbfgs_1.2.1            KEGGREST_1.34.0       </span>
-<span class="co">## [133] fastmap_1.1.0          httr_1.4.2             survival_3.2-13       </span>
-<span class="co">## [136] glue_1.6.1             FNN_1.1.3              png_0.1-7             </span>
-<span class="co">## [139] iterators_1.0.13       bit_4.0.4              class_7.3-20          </span>
-<span class="co">## [142] stringi_1.7.6          sass_0.4.0             mixtools_1.2.0        </span>
-<span class="co">## [145] blob_1.2.2             textshaping_0.3.6      memoise_2.0.1         </span>
-<span class="co">## [148] e1071_1.7-9            future.apply_1.8.1</span></code></pre>
+<span class="co">## [112] bslib_0.3.1            hardhat_1.1.0          XVector_0.36.0        </span>
+<span class="co">## [115] prodlim_2019.11.13     stringr_1.4.0          digest_0.6.29         </span>
+<span class="co">## [118] Biostrings_2.64.0      rmarkdown_2.14         dendextend_1.15.2     </span>
+<span class="co">## [121] curl_4.3.2             kernlab_0.9-31         gtools_3.9.2.2        </span>
+<span class="co">## [124] lifecycle_1.0.1        nlme_3.1-158           jsonlite_1.8.0        </span>
+<span class="co">## [127] desc_1.4.1             limma_3.52.2           fansi_1.0.3           </span>
+<span class="co">## [130] pillar_1.8.0           lattice_0.20-45        lbfgs_1.2.1.2         </span>
+<span class="co">## [133] KEGGREST_1.36.3        fastmap_1.1.0          httr_1.4.3            </span>
+<span class="co">## [136] survival_3.3-1         glue_1.6.2             FNN_1.1.3.1           </span>
+<span class="co">## [139] png_0.1-7              iterators_1.0.14       bit_4.0.4             </span>
+<span class="co">## [142] class_7.3-20           stringi_1.7.8          sass_0.4.1            </span>
+<span class="co">## [145] mixtools_1.2.0         blob_1.2.3             textshaping_0.3.6     </span>
+<span class="co">## [148] memoise_2.0.1          e1071_1.7-11           future.apply_1.9.0</span></code></pre>
 </div>
 <div class="section level2">
 <h2 class="unnumbered" id="references">References<a class="anchor" aria-label="anchor" href="#references"></a>
 </h2>
 <div id="refs" class="references csl-bib-body hanging-indent">
 <div id="ref-bandle" class="csl-entry">
-Crook, Oliver M, Colin TR Davies, Laurent Gatto, Paul DW Kirk, and Kathryn S Lilley. 2021. <span>“Inferring Differential Subcellular Localisation in Comparative Spatial Proteomics Using BANDLE.”</span> <em>bioRxiv</em>. <a href="doi:%20https://doi.org/10.1101/2021.01.04.425239" class="external-link">doi: https://doi.org/10.1101/2021.01.04.425239</a>.
+Crook, Oliver M, Colin TR Davies, Laurent Gatto, Paul DW Kirk, and
+Kathryn S Lilley. 2021. <span>“Inferring Differential Subcellular
+Localisation in Comparative Spatial Proteomics Using BANDLE.”</span>
+<em>bioRxiv</em>. <a href="doi:%20https://doi.org/10.1101/2021.01.04.425239" class="external-link">doi:
+https://doi.org/10.1101/2021.01.04.425239</a>.
 </div>
 <div id="ref-thplopit" class="csl-entry">
-Mulvey, Claire M., Lisa M. Breckels, Oliver M. Crook, David J. Sanders, Andre L. R. Ribeiro, Aikaterini Geladaki, Andy Christoforou, et al. 2021. <span>“Spatiotemporal Proteomic Profiling of the Pro-Inflammatory Response to Lipopolysaccharide in the <span>THP</span>-1 Human Leukaemia Cell Line.”</span> <em>Nature Communications</em> 12 (1). <a href="https://doi.org/10.1038/s41467-021-26000-9" class="external-link">https://doi.org/10.1038/s41467-021-26000-9</a>.
+Mulvey, Claire M., Lisa M. Breckels, Oliver M. Crook, David J. Sanders,
+Andre L. R. Ribeiro, Aikaterini Geladaki, Andy Christoforou, et al.
+2021. <span>“Spatiotemporal Proteomic Profiling of the Pro-Inflammatory
+Response to Lipopolysaccharide in the <span>THP</span>-1 Human Leukaemia
+Cell Line.”</span> <em>Nature Communications</em> 12 (1). <a href="https://doi.org/10.1038/s41467-021-26000-9" class="external-link">https://doi.org/10.1038/s41467-021-26000-9</a>.
 </div>
 <div id="ref-Mulvey:2017" class="csl-entry">
-Mulvey, Claire M, Lisa M Breckels, Aikaterini Geladaki, Nina Kočevar Britovšek, Daniel J H Nightingale, Andy Christoforou, Mohamed Elzek, Michael J Deery, Laurent Gatto, and Kathryn S Lilley. 2017. <span>“Using <span class="nocase">hyperLOPIT</span> to Perform High-Resolution Mapping of the Spatial Proteome.”</span> <em>Nature Protocols</em> 12 (6): 1110–35. <a href="https://doi.org/10.1038/nprot.2017.026" class="external-link">https://doi.org/10.1038/nprot.2017.026</a>.
+Mulvey, Claire M, Lisa M Breckels, Aikaterini Geladaki, Nina Kočevar
+Britovšek, Daniel J H Nightingale, Andy Christoforou, Mohamed Elzek,
+Michael J Deery, Laurent Gatto, and Kathryn S Lilley. 2017. <span>“Using
+<span class="nocase">hyperLOPIT</span> to Perform High-Resolution
+Mapping of the Spatial Proteome.”</span> <em>Nature Protocols</em> 12
+(6): 1110–35. <a href="https://doi.org/10.1038/nprot.2017.026" class="external-link">https://doi.org/10.1038/nprot.2017.026</a>.
 </div>
 </div>
 </div>
@@ -924,7 +1212,7 @@ Mulvey, Claire M, Lisa M Breckels, Aikaterini Geladaki, Nina Kočevar Britovšek
 
 <div class="pkgdown">
   <p></p>
-<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+<p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer>

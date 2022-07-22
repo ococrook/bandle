@@ -19,7 +19,7 @@ localisation to different organelles — mcmc_plot_probs"><meta property="og:des
       </button>
       <span class="navbar-brand">
         <a class="navbar-link" href="../index.html">bandle</a>
-        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">0.99.12</span>
+        <span class="version label label-default" data-toggle="tooltip" data-placement="bottom" title="">1.1.3</span>
       </span>
     </div>
 
@@ -28,7 +28,7 @@ localisation to different organelles — mcmc_plot_probs"><meta property="og:des
   <a href="../reference/index.html">Reference</a>
 </li>
 <li class="dropdown">
-  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" aria-expanded="false">
+  <a href="#" class="dropdown-toggle" data-toggle="dropdown" role="button" data-bs-toggle="dropdown" aria-expanded="false">
     Articles
      
     <span class="caret"></span>
@@ -84,25 +84,40 @@ localisation to different organelles</h1>
     <h2>Arguments</h2>
     <dl><dt>params</dt>
 <dd><p>An instance of class <code>bandleParams</code></p></dd>
+
+
 <dt>fname</dt>
 <dd><p>The name of the protein to plot</p></dd>
+
+
 <dt>cond</dt>
 <dd><p>Which conditions do we want to plot. Must be <code>1</code> or <code>2</code>. Default
 is <code>1</code></p></dd>
+
+
 <dt>n</dt>
 <dd><p>The chain from which we plot the probability distribution. Default
 is 1.</p></dd>
+
+
 <dt>bw</dt>
 <dd><p>The bandwidth use in probability distribution smoothing of
 geom_violin Default is 0.05.</p></dd>
+
+
 <dt>scale</dt>
 <dd><p>Scaling of geom_violin. Defaults to width.</p></dd>
+
+
 <dt>trim</dt>
 <dd><p>trim parameter of geom_violin. Defaults to true.</p></dd>
+
 </dl></div>
     <div id="value">
     <h2>Value</h2>
-    <p>returns a named vector of differential localisation probabilities</p>
+    
+
+<p>returns a named vector of differential localisation probabilities</p>
     </div>
 
     <div id="ref-examples">
@@ -121,9 +136,7 @@ geom_violin Default is 0.05.</p></dd>
 <span class="r-in"><span class="va">mcmc1</span> <span class="op">&lt;-</span> <span class="fu"><a href="bandle.html">bandle</a></span><span class="op">(</span>objectCond1 <span class="op">=</span> <span class="va">control1</span>,</span>
 <span class="r-in"> objectCond2 <span class="op">=</span> <span class="va">treatment1</span>, gpParams <span class="op">=</span> <span class="va">gpParams</span>,</span>
 <span class="r-in"> fcol <span class="op">=</span> <span class="st">"markers"</span>, numIter <span class="op">=</span> <span class="fl">5L</span>, burnin <span class="op">=</span> <span class="fl">1L</span>, thin <span class="op">=</span> <span class="fl">2L</span>,</span>
-<span class="r-in"> numChains <span class="op">=</span> <span class="fl">2</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
-<span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
-<span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%</span>
+<span class="r-in"> numChains <span class="op">=</span> <span class="fl">1</span>, BPPARAM <span class="op">=</span> <span class="fu">SerialParam</span><span class="op">(</span>RNGseed <span class="op">=</span> <span class="fl">1</span><span class="op">)</span><span class="op">)</span></span>
 <span class="r-msg co"><span class="r-pr">#&gt;</span> You haven't provided a seed, you may wish to provide a seed</span>
 <span class="r-out co"><span class="r-pr">#&gt;</span>   |                                                                              |                                                                      |   0%  |                                                                              |==============                                                        |  20%  |                                                                              |============================                                          |  40%  |                                                                              |==========================================                            |  60%</span>
 <span class="r-in"><span class="fu">mcmc_plot_probs</span><span class="op">(</span>params <span class="op">=</span> <span class="va">mcmc1</span>, fname <span class="op">=</span> <span class="fu"><a href="https://rdrr.io/r/base/colnames.html" class="external-link">rownames</a></span><span class="op">(</span><span class="va">tan2009r1</span><span class="op">)</span><span class="op">[</span><span class="fl">1</span><span class="op">]</span><span class="op">)</span></span>
@@ -143,7 +156,7 @@ geom_violin Default is 0.05.</p></dd>
 </div>
 
 <div class="pkgdown">
-  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.2.</p>
+  <p></p><p>Site built with <a href="https://pkgdown.r-lib.org/" class="external-link">pkgdown</a> 2.0.5.</p>
 </div>
 
       </footer></div>
