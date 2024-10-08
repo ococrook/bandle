@@ -1,3 +1,16 @@
+# bandle 1.9
+
+## bandle 1.9.1
+
+
+## bandle 1.9.0
+- New devel version Bioc  
+
+# bandle 1.8
+
+## bandle 1.8.0
+- New release version Bioc (3.19)
+
 # bandle 1.1
 
 ## bandle 1.1.3
