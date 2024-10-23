@@ -18,10 +18,12 @@ output:
     toc_float: true
 bibliography: bandle.bib
 vignette: >
-  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE: Vignette 1}
-  %\VignetteEngine{knitr::rmarkdown}
   %%\VignetteKeywords{Mass Spectrometry, MS, MSMS, Proteomics, Metabolomics, Infrastructure, Quantitative}
   %\VignetteEncoding{UTF-8}
+  %\VignetteIndexEntry{Analysing differential localisation experiments with BANDLE: Vignette 1}
+  %\VignetteEngine{knitr::rmarkdown}
+editor_options: 
+  chunk_output_type: console
 ---
 
 ```{r style, echo = FALSE, results = 'asis'}
@@ -29,27 +31,41 @@ BiocStyle::markdown()
 ```
 
 ```{r setup, include=FALSE}
-knitr::opts_chunk$set(dpi=25,fig.width=7)
+knitr::opts_chunk$set(dpi=40,fig.width=7)
 ```
 
 # Introduction
 
 Bayesian ANalysis of Differential Localisation Experiments (BANDLE) is an
-integrative semi-supervised functional mixture model, developed by [@bandle], 
-to obtain the probability of a protein being differentially
-localised between two conditions. 
+integrative semi-supervised functional mixture model, developed by Crook et al
+[@bandle], to obtain the probability of a protein being differentially localised
+between two conditions.
 
 In this vignette we walk users through how to install and use the R [@Rstat]
-Bioconductor [@Gentleman:2004] [`bandle` package](https://github.com/ococrook/bandle) 
+Bioconductor [@Gentleman:2004] [`bandle`package](https://github.com/ococrook/bandle) 
 by simulating a well-defined differential localisation experiment from spatial
 proteomics data from the `pRolocdata` package [@pRoloc:2014].
 
 The BANDLE method uses posterior Bayesian computations performed using
-Markov-chain Monte-Carlo (MCMC) and thus uncertainty estimates are
-available [@Gilks:1995]. Throughout this vignette we use the term *differentially
-localised* to pertain to proteins which are assigned to different sub-cellular
-localisations between two conditions. One of the main outputs of BANDLE is the
-probability that a protein is differentially localised between two conditions.
+Markov-chain Monte-Carlo (MCMC) and thus uncertainty estimates are available
+[@Gilks:1995]. It is inspired by the T-augmented Gaussuan mixture model (TAGM)
+by Crook et al. 2018 [@Crook2018] which was developed to allow interrogation of
+multiply localised proteins through uncertainty estimation. Throughout this
+vignette we use the term *differentially localised* to pertain to proteins which
+are assigned to different sub-cellular localisations between two conditions.
+
+The output of BANDLE provides users with:
+
+1. **Protein subcellular localisation predictions**. For each protein the full
+probability distribution over all possible organelles/complexes is computed.
+Through uncertainty quantification users can gain insight into proteins that may
+localise to more than one location.
+
+1. **Differential localisation predictions**. The full probability of a protein
+being differentially localised between two conditions is computed. Uncertainty
+estimates are available for the differential localisation probability to aid
+filtering of candidate movers for validation.
+
 
 # Installation
 
@@ -72,6 +88,9 @@ For visualisation we also load the packages,
 ```{r ldpkg2, message=FALSE}
 library("pheatmap")
 library("viridis")
+library("dplyr")
+library("ggplot2")
+library("gridExtra")
 ```
 
 # The data
@@ -102,7 +121,7 @@ In the code chunk below we begin by loading the `r Biocpkg("pRolocdata")`
 package to obtain a spatial proteomics dataset. This will be the basis of our
 simulation which will use boostrapping to generate new datasets. The dataset we
 have chosen to load is a dataset from 2009 (`tan2009r1`). This is data from a
-early LOPIT experiment performed on Drosophila embryos [@Tan:2009]. The aim of
+early LOPIT experiment performed on Drosophila embryos by @Tan:2009. The aim of
 this experiment was to apply LOPIT to an organism with heterogeneous cell types.
 This experiment used four isotopes across four distinct fractions and thus
 yielded four measurements (features) per protein profile. We visualise the
@@ -132,15 +151,20 @@ set.seed(1)
 tansim <- sim_dynamic(object = tan2009r1,
                       numRep = 6L,
                       numDyn = 100L)
-
 ```
 
 The list of the 6 simulated experiments are found in `tansim$lopitrep`. Each one
 is an `MSnSet` instance (the standard data container for proteomics experimental
 data). The first 3 are the simulated control experiments (see
 `tansim$lopitrep[1:3]`), and the following 3 in the list are the treatment
-condition simulated experiments (see `tansim$lopitrep[4:6]`). We can plot them
-using the `plot2D` function from `pRoloc`.
+condition simulated experiments (see `tansim$lopitrep[4:6]`).
+
+```{r first_rep}
+# To access the first replicate
+tansim$lopitrep[[1]]
+```
+
+We can plot them using the `plot2D` function from `pRoloc`.
 
 ```{r plotsims}
 plot_title <- c(paste0("Replicate ", seq(3), " condition", " A"), 
@@ -153,9 +177,6 @@ out <- lapply(seq(tansim$lopitrep), function(z)
 
 For understanding, exploring and visualizing individual spatial proteomics
 experiments, see the vignettes in `pRoloc` and `MSnbase` packages.
-```{r,}
-tansim$lopitrep[[1]]
-```
 
 # Preparing for `bandle` analysis
 
@@ -172,8 +193,8 @@ First, we need to fit non-parametric regression functions to the markers
 profiles, upon which we place our analysis. This uses Gaussian processes. The
 `fitGPmaternPC` function can be used and fits some default penalised complexity
 priors (see `?fitGP`), which works well. However, these can be altered, which is
-demonstrated in the next code chunk
-
+demonstrated in the next code chunk and also further in Vignette 2 of this
+package.
 
 ```{r fitgps, fig.height=10, fig.width=8}
 par(mfrow = c(4, 3))
@@ -186,11 +207,13 @@ the `tansim$lopitrep` list of datasets. The output of `fitGPmaternPC` returns a
 list of posterior predictive means and standard deviations. As well as MAP
 hyperparamters for the GP. 
 
-Note here we the use the default `hyppar = matrix(c(10, 60, 250), nrow = 1)` as
-a starting point for fitting the GPs to the marker profile distributions. In the
-@bandle manuscript we found that these values worked well for smaller spatial
-proteomics datasets. This was visually assessed by passing these values and
-visualising the GP fit using the `plotGPmatern` function.
+Note here we the use the default parameters for the `fitGPmaternPC` function are
+`hyppar = matrix(c(10, 60, 250), nrow = 1)`. This is provided as a starting
+point for fitting the GPs to the marker profile distributions. In the @bandle 
+we found that these values worked well for smaller spatial
+proteomics datasets and those with fewer channels/fractions. This was visually
+assessed by passing these values and visualising the GP fit using the
+`plotGPmatern` function.
 
 The `plotGPmatern` function can be used to plot the profiles for each
 class in each replicate condition with the posterior predictive distributions
@@ -202,26 +225,24 @@ par(mfrow = c(4, 3))
 plotGPmatern(tansim$lopitrep[[1]], params = gpParams[[1]])
 ```
 
-The prior needs to form a `K*3` matrix. `K` corresponds to the number of
-subcellular classes in the data, and 3 columns for (1) the prior, (2)
-length-scale amplitude and (3) standard deviation parameters (see `hyppar` in
-`?fitGPmaternPC`). Increasing these values, increases the shrinkage. For more
-details see the manuscript by @bandle. We strongly recommend users start with
-the recommended `hyppar` parameters and change and assess them as necessary for
-their dataset by visually evaluating the fit of the GPs using the `plotGPmatern`
-function.
+In the next code chunk we set some priors on the data. The prior needs to form a
+`K*3` matrix. `K` corresponds to the number of subcellular classes in the data,
+and 3 columns for the prior; (1) length-scale, (2) amplitude and (3) variance
+(see `hyppar` in `?fitGPmaternPC`). Increasing these values, increases the
+shrinkage. For more details see the manuscript by @bandle. We strongly recommend
+users start with the recommended `hyppar` parameters and change and assess them
+as necessary for their dataset by visually evaluating the fit of the GPs using
+the `plotGPmatern` function.
 
 ```{r sethyppar}
 K <- length(getMarkerClasses(tansim$lopitrep[[1]], fcol = "markers"))
 pc_prior <- matrix(NA, ncol = 3, K)
 pc_prior[seq.int(1:K), ] <- matrix(rep(c(10, 60, 250),
                                        each = K), ncol = 3)
-
 ```
 
-
-Now we have generated these complexity priors we can pass them as an
-argument to the `fitGPmaternPC` function. For example,
+Now we have generated these complexity priors we can pass them as an argument to
+the `fitGPmaternPC` function. For example,
 
 ```{r runhyppar}
 gpParams <- lapply(tansim$lopitrep,
@@ -279,7 +300,6 @@ of expected re-localisations inline with the biological expectation, and
 visa-versa when we expect the number of proteins to have changed to be higher.
 
 
-
 # Running the `bandle` function
 
 We are now ready to run the main `bandle` function. Remember to carefully
@@ -287,7 +307,7 @@ select the datasets and replicates that define the control and treatment.
 As a reminder, in this introductory vignette we have used a small dataset
 and generated theoretical triplicates of each theoretical condition. Please see
 the second vignette in this package for a more detailed workflow and real
-biological use-case. In the below code chunk we run `bandle` for only 50
+biological use-case. In the below code chunk we run `bandle` for only 100
 iterations for the convenience of building the vignette, but typically we'd
 recommend you run the number of iterations (`numIter`) in the 1000s.
 
@@ -295,26 +315,26 @@ Remember: the first 3 datasets are the first 3 elements of `tansim` and the
 final 3 elements are the "treatment" triplicate datasets.
 
 ```{r runbandle, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide'}
+## Split the datasets into two separate lists, one for control and one for treatment
 control <- tansim$lopitrep[1:3] 
 treatment <- tansim$lopitrep[4:6]
 
+## Run bandle
 bandleres <- bandle(objectCond1 = control,
                     objectCond2 = treatment,
-                    numIter = 20,  # usually 10,000
-                    burnin = 5L,   # usually 5,000
-                    thin = 1L,     # usually 20
+                    numIter = 100,   # usually 10,000
+                    burnin = 5L,    # usually 5,000
+                    thin = 1L,      # usually 20
                     gpParams = gpParams,
                     pcPrior = pc_prior,
-                    numChains = 1,  # usually >=4
-                    dirPrior = dirPrior)
+                    numChains = 3,  # usually >=4
+                    dirPrior = dirPrior, 
+                    seed = 1)       # set a random seed for reproducibility)
 ```
 
 The `bandle` function generates an object of class `bandleParams`. The `show`
 method indicates the number of parallel chains that were run, this should
-typically be greater than 4 (here we use 1 just as a demo). Normally, we
-should also assess convergence but this omitted for the moment so that we 
-can move forward with the analysis. Please see the end of the vignette for
-convergence plots.
+typically be greater than 4 (here we use 3 just as a demo).
 
 ```{r,}
 bandleres
@@ -322,9 +342,75 @@ bandleres
 
 # Analysing `bandle` output
 
-Before we can begin to extract protein allocation information and a list of
-proteins which are differentially localised between conditions, we first need to
-populate the `bandleres` object by calling the `bandleProcess` function.
+## Assesing the model for convergence
+
+The `bandle` method uses of Markov Chain Monte Carlo (MCMC) and therefore before
+we can extract our classification and differential localisation results we first
+need to check the algorithm for convergence of the MCMC chains. This is standard
+practice in Bayesian inference and there are many ways to assess for convergence
+as discussed in @Crook2019.
+
+The two main functions we can use to help us assess convergence are:
+
+- `calculateGelman` which calculates the Gelman diagnostics for all pairwise
+chain combinations
+- `plotOutliers` which generates trace and density plots for all chains
+
+Let's start with the `calculateGelman` which uses code the `coda` R package. It
+allows us to compare the inter and intra chain variances. If the chains have
+converged the ratio of these quantities should be < 1.2, ideally, close to 1, as
+discuss in @Crook2019 and general Bayesian literature.
+
+```{r calcGelman}
+calculateGelman(bandleres)
+```
+
+In this example, to demonstrate how to use `bandle` we have only run 100 MCMC
+iterations for each chain. As already mentioned, in practice we suggest running
+a minimum of 1000 iterations and a minimum of 4 chains.
+
+In this toy example we see that the point estimate Gelman diagnostics are <1.2
+which suggests convergence. The upper confidence intervals however are higher
+than 1.2 for some pairs of chains. We may wish to consider removing some chains
+which when paired with another chain exhibit values > 1. First let's generate
+trace and density plots for all chains using the `plotOutliers` function.
+
+```{r plotoutliers, fig.width=8, fig.height=7}
+plotOutliers(bandleres)
+```
+
+- Trace plots are subjective but can used to help visually
+assess the sample path of the chains. Textbooks on Bayesian inference often tell
+us that a good trace plots should look like a "hairy" or "fuzzy caterpillar".
+- The density plots generated from the `plotOutliers` function show the number
+of outliers for each iteration expressed as a probability density. For
+convergence we expect to see a normally distributed plot centered around roughly
+the same number of outliers in each chain.
+
+As expected, as this is a toy theoretical example, only run for a few chains and
+iterations, the trace and density plots do not show convergence i.e. over the
+100 iterations they do not reach a stationary distribution.
+
+In practice, we would do is remove bad chains i.e. those that have not
+converged.
+
+## Removing unconverged chains 
+
+Chains which have not converged can be removed by standard subsetting. As an
+example, let's remove chain 2. We generate a new object called `bandlres_opt`,
+
+```{r}
+bandleres_opt <- bandleres[-2]
+```
+
+We see the object `bandlres_opt` has now only 2 chains,
+
+```{r}
+bandleres_opt
+```
+
+In practice if we remove chains we would re-compute the Gelman and plot the
+outliers as we did above to check again for convergence.
 
 ## Populating a `bandleres` object
 
@@ -332,98 +418,21 @@ Currently, the summary slots of the `bandleres` object are empty. The
 `summaries` function accesses them.
 
 ```{r processbandle1}
-summaries(bandleres)
+summaries(bandleres_opt)
 ```
 
-These can be populated as follows
+These can be populated as follows,
+
 ```{r processbandle2}
-bandleres <- bandleProcess(bandleres)
+bandleres_opt <- bandleProcess(bandleres_opt)
 ```
 
 These slots have now been populated
-```{r processbandle3}
-summary(summaries(bandleres))
+```{r processbandle3, results = 'hide'}
+summaries(bandleres_opt)
 ```
 
-### `bandle` results
-
-We can save the results by calling `summaries`. We see that it is
-of length 2. 1 for control and 1 for treatment.
-
-```{r res}
-res <- summaries(bandleres)
-length(res)
-```
-
-There are a number of slots,
-
-```{r seeslots}
-str(res[[1]])
-```
-
-The main one of interest is the `posteriorEstimates` slot,
-
-```{r postest}
-posteriorEstimates(res[[1]])
-```
-
-This output object is a `data.frame` containing the protein allocations and
-associated localisation probabilities (including the upper and lower quantiles
-of the allocation probability distribution), the mean Shannon entropy and the
-`bandle.differential.localisation` probability.
-
-## Extracting posteriors and allocation results
-
-We create two new objects `pe1` and `pe2` in the below code chunk which contain
-the output of the `posteriorEstimates` slot. 
-
-```{r getposteriors}
-pe1 <- posteriorEstimates(res[[1]])
-pe2 <- posteriorEstimates(res[[2]])
-```
-
-One quantity of interest is the protein allocations, which we can plot as a
-barplot.
-
-```{r barplotalloc, fig.width=8, fig.height=5}
-alloc1 <- pe1$bandle.allocation
-alloc2 <- pe2$bandle.allocation
-
-par(mfrow = c(1, 2), oma = c(6,2,2,2))
-barplot(table(alloc1), col = getStockcol()[2],
-        las = 2, main = "Protein allocation: control")
-barplot(table(alloc2), col = getStockcol()[2],
-        las = 2, main = "Protein allocation: treatment")
-```
-
-The barplot tells us for this example that `bandle` has allocated the majority
-of unlabelled proteins to the ER, followed by the Golgi (irrespective of the
-posterior probability).
-
-The associated posterior estimates are located in the `bandle.probability`
-column.
-
-```{r allocspost}
-pe_alloc1 <- pe1$bandle.probability
-pe_alloc2 <- pe1$bandle.probability
-```
-
-## Allocation probabilities
-
-The full allocation probabilities are stored in the `tagm.joint` slot. These can
-be visualised in a heatmap
-
-```{r heatmap_control}
-bjoint_control <- bandleJoint(summaries(bandleres)[[1]])
-pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25))
-```
-
-```{r heatmap_treatment}
-bjoint_treatment <- bandleJoint(summaries(bandleres)[[2]])
-pheatmap(bjoint_treatment, cluster_cols = FALSE, color = viridis(n = 25))
-```
-
-## Predicting the subcellular location
+# Predicting the subcellular location
 
 We can append the results to our original `MSnSet` datasets using the 
 `bandlePredict` function.
@@ -431,7 +440,7 @@ We can append the results to our original `MSnSet` datasets using the
 ```{r bandpred}
 xx <- bandlePredict(control, 
                     treatment, 
-                    params = bandleres, 
+                    params = bandleres_opt, 
                     fcol = "markers")
 res_control <- xx[[1]]
 res_treatment <- xx[[2]]
@@ -459,7 +468,7 @@ fData(res_control[[1]])$bandle.probability
 fData(res_control[[1]])$bandle.allocation
 ```
 
-### Thresholding on protein allocations
+## Thresholding on protein allocations
 
 It is common practice in supervised machine learning to set a specific threshold
 on which to define new assignments/allocations, below which classifications are
@@ -467,8 +476,8 @@ left unassigned/unknown. Indeed, we do not expect the whole subcellular
 diversity to be represented by the 11 niches defined here, we expect there to be
 many more, many of which will be multiply localised within the cell. It is
 important to allow for the possibility of proteins to reside in multiple
-locations (this information is available in the `bandle.joint` slot - see above
-for more details on multiple location).
+locations, this information is available in the `bandle.joint` slot and also
+can be extracted from the `bandleParams` object.
 
 As we are using a Bayesian model the outputs of the classifier are
 probabilities. This not only allows us to look at the distribution of
@@ -480,8 +489,9 @@ The subcellular allocations are located in the `bandle.allocation` column of the
 can use the `getPredictions` function from the `pRoloc` package to return a set
 of predicted localisations according to if they meet a probability threshold.
 
-For example, in the below code chunk we set a 1% FDR for assigning proteins a
-subcellular nice, below which we leave them unlabelled.
+For example, in the below code chunk we set a 1% FDR (`t = .99`) for assigning proteins a
+subcellular niche, below which we leave them unlabelled termed "unknown" in the
+`pRoloc` literature.
 
 ```{r setthreshold}
 res_control[[1]] <- getPredictions(res_control[[1]], 
@@ -497,54 +507,285 @@ res_treatment[[1]] <- getPredictions(res_treatment[[1]],
                                    t = .99)
 ```
 
-We may also wish to take into account the probability of the protein being an
+We see a new column has been appended to the `fData` slot, called,
+`bandle.allocation.pred` which contains the subcellular predictions 
+after thresholding. 
+
+We can use the function `unknownMSnSet` to subset the data so that we only
+examine proteins which were not included as markers in the analysis. 
+
+```{r}
+## Remove the markers from the MSnSet
+res_control_unknowns <- unknownMSnSet(res_control[[1]], fcol = "markers")
+res_treated_unknowns <- unknownMSnSet(res_treatment[[1]], fcol = "markers")
+```
+
+Now we can use the `getMarkers` function to summarise the new allocations by
+class.
+
+```{r}
+getMarkers(res_control_unknowns, "bandle.allocation.pred")
+getMarkers(res_treated_unknowns, "bandle.allocation.pred")
+```
+
+Note: We may also wish to take into account the probability of the protein being an
 outlier and thus use the results in the `bandle.outlier` column of the feature
 data. We could calculate the product of the posterior and the outlier (as they
-are both probabilities) to obtain a localisation score that takes into account
-the outlier model. More details on this are found in the second vignette of this
-package.
+are both probabilities i.e. `bandle.outlier x bandle.outlier`) to obtain a
+localisation score that takes into account the outlier model. More details on
+this are found in the second vignette of this package.
 
-## Differential localisation probability
+## Distribution on allocations
+
+We can examine the distribution of allocations that: 
+
+(1) have been assigned to a single location with high confidence and,
+(2) those which did not meet the threshold and thus have high uncertainty i.e.
+are labelled as "unknown".
+
+### Proteins assigned to one main location
+
+The column in the `fData` called `bandle.allocation.pred` contains the predicted
+subcellular location for proteins. Let's plot this,
+
+Extract the predictions,
+
+```{r}
+res1 <- fData(res_control_unknowns)$bandle.allocation.pred
+res2 <- fData(res_treated_unknowns)$bandle.allocation.pred
+
+res1_tbl <- table(res1)
+res2_tbl <- table(res2)
+```
+
+Construct a quick barplot,
+
+```{r, fig.height=4, fig.width=8}
+par(mfrow = c(1, 2))
+barplot(res1_tbl, las = 2, main = "Predicted location: control",
+        ylab = "Number of proteins")
+barplot(res2_tbl, las = 2, main = "Predicted location: treatment",
+        ylab = "Number of proteins")
+```
+
+The barplot tells us for this example that after thresholding with a 1% FDR on
+the posterior probability `bandle` has allocated the majority of unlabelled
+proteins to the ER, followed by the Golgi. We also see many proteins have been
+be unassigned and given the class label "unknown". As previously mentioned
+the class label "unknown" is a historic term from the `pRoloc` package to
+describe proteins that are left unassigned following thresholding and thus 
+proteins which exhibit uncertainty in their allocations. In the section
+after this one we examine these proteins and what their distributions may
+mean.
+
+The associated posterior estimates are located in the `bandle.probability`column
+and we can construct a `boxplot` to examine these probabilities by class,
+
+```{r allocspost, fig.height=4, fig.width=8}
+pe1 <- fData(res_control_unknowns)$bandle.probability
+pe2 <- fData(res_treated_unknowns)$bandle.probability
+
+par(mfrow = c(1, 2))
+boxplot(pe1 ~ res1, las = 2, main = "Posterior: control",
+        ylab = "Probability")
+boxplot(pe2 ~ res2, las = 2, main = "Posterior: treatment",
+        ylab = "Probability")
+```
+
+### Proteins with uncertainty
+
+We can use the `unknownMSnSet` function once again to extract proteins which did
+not get a main location when we performed thresholding i.e. those labelled 
+"unknown".
+
+```{r}
+res1_unlabelled <- unknownMSnSet(res_control_unknowns, 
+                                 fcol = "bandle.allocation.pred")
+res2_unlabelled <- unknownMSnSet(res_treated_unknowns, 
+                                 fcol = "bandle.allocation.pred")
+```
+
+We see we have 91 and 99 proteins for the control and treatment respectively,
+which do not get assigned one main location.
+
+```{r}
+nrow(res1_unlabelled)
+nrow(res2_unlabelled)
+```
+
+Let's extract the names of these proteins,
+
+```{r}
+fn1 <- featureNames(res1_unlabelled)
+fn2 <- featureNames(res2_unlabelled)
+```
+
+Let's plot the the first 9 proteins that did not meet the thresholding criteria.
+We can use the `mcmc_plot_probs` function to generate a violin plot of the 
+localisation distribution. We need to recall the main `bandleParams` object we
+created `bandleres_opt` to extract the full distribution and visualise the
+uncertainty.
+
+Let's first look at these proteins in the control condition,
+
+```{r, fig.height=10, fig.width=10}
+g <- vector("list", 9)
+for (i in 1:9) g[[i]] <- mcmc_plot_probs(bandleres_opt, fn1[i], cond = 1)
+do.call(grid.arrange, g)
+```
+
+Now the treated,
+
+```{r, fig.height=10, fig.width=10}
+g <- vector("list", 9)
+for (i in 1:9) g[[i]] <- mcmc_plot_probs(bandleres_opt, fn1[i], cond = 2)
+do.call(grid.arrange, g)
+```
+
+If we wanted to visualise one specific protein of interest e.g. `"Q24253"`
+
+```{r}
+grid.arrange(
+  mcmc_plot_probs(bandleres_opt, fname = "Q24253", cond = 1) +
+  ggtitle("Distribution of Q24253 in control"),
+  mcmc_plot_probs(bandleres_opt, fname = "Q24253", cond = 2) +
+    ggtitle("Distribution of Q24253 in treated")
+)
+```
+
+We can also get a summary of the full probability distribution by looking at the 
+joint estimates stored in the `bandle.joint` slot of the `MSnSet`. 
+
+For example, again we can extract the joint posteriors for a specific protein,
+
+```{r}
+fData(res_control_unknowns)$bandle.joint["Q24253", ]
+```
+
+Or full a set of proteins we could visualise the joint posteriors on a heatmap.
+
+```{r heatmap_control}
+bjoint_control <- fData(res_control_unknowns)$bandle.joint
+pheatmap(bjoint_control, cluster_cols = FALSE, color = viridis(n = 25), 
+         show_rownames = FALSE, main = "Joint posteriors in the control")
+```
+
+```{r heatmap_treatment}
+bjoint_treated <- fData(res_treated_unknowns)$bandle.joint
+pheatmap(bjoint_treated, cluster_cols = FALSE, color = viridis(n = 25),
+         show_rownames = FALSE, main = "Joint posteriors in the treated")
+```
+
+# Differential localisation probability
 
 As previously mentioned the term "differentially localised" is used to pertain
 to proteins which are assigned to different sub-cellular localisations between
 two conditions. For the majority of users this is the main output they are keen
-to extract using the BANDLE method.
+to extract using the BANDLE method. The differential localisation probability
+can be found in either (1) the `bandle.differential.localisation` column of the
+`MSnSet` that we generated following prediction, or (2) obtained directly from
+the `bandleParams` object using the `diffLocalisationProb` function. The latter
+is useful for users who are only interested in running bandle for obtaining
+differential localisation information and not in using `bandle` as a method for
+protein localisation prediction.
 
-Following on from the above example, after extracting posterior estimates for
-each condition using the `summaries` function we can also access the
-differential localisation probability as it is stored in the
-`bandle.differential.localisation` column of the `data.frames` of `pe1` and
-`pe2`, in the above sections.
+To obtain the differential localisation probability from a `bandleParams`
+object,
 
-The differential localisation probability tells us which proteins are most
-likely to *differentially localise*. We can for example, examine how many
-proteins get a differential probability greater than 0.99 to look for
-the most confident differentially localised candidates.
-
-```{r numtransloc}
-diffloc_probs <- pe1$bandle.differential.localisation
-head(diffloc_probs, 50)
-length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))
+```{r}
+dl <- diffLocalisationProb(bandleres_opt)
+head(dl)
 ```
 
-We find there are `r length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))` 
-proteins above this threshold.
+Or from the `MSnSet`,
 
-This can also be seen on a rank plot
+```{r numtransloc}
+dl <- fData(res_control_unknowns)$bandle.differential.localisation
+names(dl) <- featureNames(res_control_unknowns)
+head(dl)
+```
+
+The differential localisation probability tells us which proteins are most
+likely to *differentially localise*. This can also be seen on a rank plot,
 
 ```{r extractdiffloc}
-plot(diffloc_probs[order(diffloc_probs, decreasing = TRUE)],
+plot(dl[order(dl, decreasing = TRUE)],
      col = getStockcol()[3], pch = 19, ylab = "Probability",
      xlab = "Rank", main = "Differential localisation rank plot")
 ```
 
 In-line with our expectations, the rank plot indicates that most proteins are
-not differentially localised.
+**not** differentially localised.
 
-### Estimating uncertainty
+We can for example, examine how many proteins get a differential probability
+greater than 0.99 to look for the most confident differentially localised
+candidates.
 
-#### Applying the `bootstrapdiffLocprob` function
+```{r}
+## Subset MSnSets for DL proteins > 0.99
+ind <- which(dl > 0.99)
+res_control_dl0.99 <- res_control_unknowns[ind, ]
+res_treated_dl0.99 <- res_treated_unknowns[ind, ]
+
+## Get DL results
+dl0.99 <- fData(res_control_dl0.99)$bandle.differential.localisation
+(names(dl0.99) <- featureNames(res_control_dl0.99))
+```
+
+We find there are `r length(dl0.99)` proteins above this threshold.
+
+## Visualising differential localisation
+
+We can visualise the changes in localisation between conditions on an alluvial
+plot using the `plotTranslocations` function
+
+```{r alluvial, warning=FALSE, message=FALSE, fig.height=6, fig.width=7}
+## Create an list of the two MSnSets
+dl_msnsets <- list(res_control_dl0.99, res_treated_dl0.99)
+
+## Set colours for organelles and unknown
+mrkCl <- getMarkerClasses(res_control[[1]], fcol = "markers")
+dl_cols <- c(getStockcol()[seq(mrkCl)], "grey")
+names(dl_cols) <- c(mrkCl, "unknown")
+
+## Now plot
+plotTranslocations(dl_msnsets, 
+                   fcol = "bandle.allocation.pred", 
+                   col = dl_cols)
+```
+
+Or alternatively, on a chord (circos) diagram
+
+```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
+plotTranslocations(dl_msnsets, 
+                   fcol = "bandle.allocation.pred", 
+                   col = dl_cols,
+                   type = "chord")
+```
+
+A table summarising the differential localisations can be computed with the
+`plotTable` function
+
+```{r}
+plotTable(dl_msnsets, fcol = "bandle.allocation.pred")
+```
+
+# Additional analysis
+
+One advantage of using Bayesian methods over classic machine learning is the
+ability to quantify the uncertainty in our estimates. This can be useful to help
+pare down and select the proteins that are predicted to differentially localise.
+
+## Estimating uncertainty in differential localisation
+
+There are several ways we can go about performing uncertainty quantification on
+the differential localisation probability. Several functions are available in
+the `bandle` package, namely, the  `binomDiffLoc` function which allows users to
+sample credible intervals from a binomial distribution, or the
+`bootstrapdiffLocprob` which uses a non-parametric bootstrap on the Monte-Carlo
+samples.
+
+### The `bootstrapdiffLocprob` function
 
 We can examine the top `n` proteins (here we use an example of `top = 100`) and
 produce bootstrap estimates of the uncertainty (note here the uncertainty is
@@ -562,11 +803,10 @@ boxplot(t(boot_t), col = getStockcol()[5],
 ```
 
 
-#### Applying the `binomDiffLoc` function
+### The `binomDiffLoc` function
 
 Instead of applying the `bootstrapdiffLocprob` we could use the `binomDiffLoc`
 function to obtain credible intervals from the binomial distribution.
-
 
 ```{r diffloc_binom}
 bin_t <- binomialDiffLocProb(params = bandleres, top = 100,
@@ -577,14 +817,13 @@ boxplot(t(bin_t), col = getStockcol()[5],
         main = "Differential localisation \nprobability plot (top 100 proteins)")
 ```
 
-#### Obtaining probability estimates
+### Obtaining probability estimates
 
 There are many ways we could obtain probability estimates from either of the
 above methods. We could, for example, take the mean of each protein estimate, or
 compute the cumulative error (there is not really a false discovery rate in
 Bayesian statistics) or we could threshold on the interval to reduce the number
 of differential localisations if you feel the model has been overconfident.
-
 
 ```{r get_pe}
 # more robust estimate of probabilities
@@ -600,115 +839,21 @@ qt <- apply(bin_t, 1, function(x) quantile(x, .025))
 ```
 
 
-#### The expected false discovery rate
+## The expected false discovery rate
 
 Instead of estimating the false discovery rate we can estimate the expected
 false discovery rate from the posterior probabilities at a particular 
 threshold. This mean that for fixed threshold, we compute the expected proportion
 of false discoveries. Here is an example below. We can see that setting
-a probability threshold of 0.9 leads to an expected false discovery rate of
+a probability threshold of 0.95 leads to an expected false discovery rate of
 less than $0.5\%$
 
 ```{r,}
-EFDR(diffloc_probs, threshold = 0.90)
+EFDR(dl, threshold = 0.95)
 ```
 
-# Visualising differential localisation
-
-We can visualise the changes in localisation between conditions on an alluvial
-plot using the `plotTranslocations` function
-
-```{r alluvial, warning=FALSE, message=FALSE, fig.height=8, fig.width=7}
-plotTranslocations(bandleres)
-```
-
-Or alternatively, on a chord (circos) diagram
-
-```{r chord, warning=FALSE, message=FALSE, fig.height=7, fig.width=7}
-plotTranslocations(bandleres, type = "chord")
-```
-
-### Important consideration 
-These visualisations are showing the change in class label between the two
-conditions (as assigned by `bandle` i.e. the result stored in
-`bandle.allocation`). The results are taken directly from `bandleres` and thus
-no thresholding on the class label and posterior to allow for proteins to be
-left "unassigned" or unknown, is conducted. Furthermore, there is no
-thresholding on the `bandle.differential.localisation` probability.
-
-It would be better to re-plot these figures with some thresholds on the above
-quantities, to get a better representation of what is moving. The easiest way to
-do this is to pass the `MSnSets` output after performing `bandlePredict` and
-`getPredictions`.
-
-For example, first let's identify which proteins get a high differential
-localisation probability,
-
-```{r plotafterthresh}
-## identify which proteins get a high differential localisation probability
-ind <- which(fData(res_control[[1]])$bandle.differential.localisation > 0.99)
-
-## create two new MSnSets with only these proteins
-res_dl_control <- res_control[[1]][ind, ]
-res_dl_treatment <- res_treatment[[1]][ind, ]
-```
-
-Now we can plot only these `r length(which(diffloc_probs[order(diffloc_probs, decreasing = TRUE)] > 0.99))`
-proteins which are deemed to move/differentially localise. We also specify where the prediction results are
-located e.g. `fcol = "bandle.allocation.pred"`.
-
-```{r plottlres, warning=FALSE, fig.height=8, fig.width=7}
-## specify colour palette
-mycols <- c(getStockcol()[seq(getMarkerClasses(res_control[[1]]))], "grey")
-names(mycols) <- c(getMarkerClasses(res_control[[1]]), "unknown")
-
-## Create a list of the datasets for plotTranslocations
-res <- list(res_dl_control, res_dl_treatment)
-
-plotTranslocations(res, fcol = "bandle.allocation.pred", col = mycols)
-```
-
-We can also use the function `plotTable` to display a summary table of the
-number of proteins that have changed in location between conditions.
-
-```{r summaryfinal, warning=FALSE, message=FALSE}
-(tbl <- plotTable(res, fcol = "bandle.allocation.pred"))
-```
-
-# Assessing convergence
-
-In this section, we demonstrate how to visually assess convergence of the MCMC
-algorithm. In the chunk below, we use 4 chains so that we can assess the 
-convergence of the method.
-
-```{r, bandleagain, message=FALSE, warning=FALSE, error=FALSE, echo = TRUE, results = 'hide',fig.height=4, fig.width=4}
-control <- tansim$lopitrep[1:3] 
-treatment <- tansim$lopitrep[4:6]
-
-bandleres <- bandle(objectCond1 = control,
-                    objectCond2 = treatment,
-                    numIter = 50, # usually 10,000
-                    burnin = 10L, # usually 5,000
-                    thin = 1L, # usually 20
-                    gpParams = gpParams,
-                    pcPrior = pc_prior,
-                    numChains = 4,
-                    dirPrior = dirPrior)
-
-```
-We then use the `plotConvergence` function which plots the ranks of the total
-number of outliers within in each of the chains. If convergence has been reached
-these plots should be uniform. As we can see these plots are not uniform and
-are skewed towards the extremes, so they have not converged. Clearly one
-of the chains has higher values on average than the other chains producing
-the skew. Running the algorithm for more iterations (typically 10,000)
-should produce convergence. This is not done here for brevity of the vignette.
-
-```{r, convergence, fig.height=8}
-par(mfrow = c(2, 2))
-out <- plotConvergence(bandleres)
-```
-
+(We remind users that this data is a simulated and uses very few iterations and 
+chains). 
 
 # Description of `bandle` parameters
 
