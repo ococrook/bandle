@@ -2,8 +2,7 @@
 % Please edit documentation in R/bandle-plots.R
 \name{plotTable}
 \alias{plotTable}
-\title{Generates a table for visualising changes in
-localisation between two conditions/datasets}
+\title{Generate a table of differential localisations}
 \usage{
 plotTable(params, all = FALSE, fcol)
 }
@@ -11,8 +10,8 @@ plotTable(params, all = FALSE, fcol)
 \item{params}{An instance of class \code{bandleParams} or an instance of
 class \code{MSnSetList} of length 2.}
 
-\item{all}{A logical specifying whether to count all proteins or only show
-those that have changed in location between conditions. Default is
+\item{all}{A \code{logical} specifying whether to count all proteins or only
+show those that have changed in location between conditions. Default is
 \code{FALSE}.}
 
 \item{fcol}{If \code{params} is a \code{list} of \code{MSnSets}. Then
@@ -25,7 +24,8 @@ used to identify the annotation column in both datasets.}
 Returns a summary table of translocations of proteins between conditions.
 }
 \description{
-Produces a table summarising differential localisation results
+This function produces a table summarising differential localisation results
+between two experiments
 }
 \examples{
 ## Generate some example data

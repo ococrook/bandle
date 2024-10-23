@@ -2,8 +2,7 @@
 % Please edit documentation in R/bandle-plots.R
 \name{plotTranslocations}
 \alias{plotTranslocations}
-\title{Generates a chord diagram or alluvial plot for visualising changes in
-localisation between two conditions/datasets}
+\title{Plot changes in localisation between two conditions/datasets}
 \usage{
 plotTranslocations(
   params,
@@ -25,7 +24,7 @@ class \code{MSnSetList} of length 2.}
 \item{type}{A \code{character} specifying the type of visualisation to plot.
 One of \code{"alluvial"} (default) or \code{"chord"}.}
 
-\item{all}{A logical specifying whether to count all proteins or only show
+\item{all}{A \code{logical} specifying whether to count all proteins or only show
 those that have changed in location between conditions. Default is
 \code{FALSE}.}
 
@@ -39,7 +38,7 @@ used to identify the annotation column in both datasets.}
 defined then the default \code{pRoloc} colours in \code{getStockCol()} are
 used.}
 
-\item{labels}{Logical indicating whether to display class/organelle labels
+\item{labels}{A \code{logical} indicating whether to display class/organelle labels
 for the chord segments or alluvial stratum. Default is \code{TRUE}.}
 
 \item{labels.par}{If \code{type} is \code{"alluvial"}. Label style can be
@@ -58,9 +57,9 @@ of proteins between conditions. If \code{type = "alluvial"} ouput is a
 \code{ggplot} object.
 }
 \description{
-Produces a chord diagram (circos plot) or an alluvial plot (also known as a
-Sankey diagram) to show changes in location between two conditions or
-datasets.
+This function produces a chord diagram (also known as a circos plot) or an
+alluvial plot (also known as a Sankey diagram) to show changes in location
+between two conditions or datasets.
 }
 \examples{
 ## Generate some example data
