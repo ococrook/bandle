@@ -432,3 +432,74 @@ prior_pred_pg <- function(objectCond1,
                 varnotAlloc = varnotAlloc,
                 tailnotAlloc = tailnotAlloc))
 }
+
+##' This function is a wrapper function for the \code{gelman.diag} function from
+##' the \code{coda} package. It takes a \code{bandleParams} object and
+##' calculates the Gelman and Rubin's convergence diagnostic (otherwise known as
+##' the potential scale reduction factor) for all pairwise MCMC chain
+##' combinations, together with upper and lower confidence limits.
+##' @title Calculate the Gelman and Rubin diagnostic for bandle output
+##' @param params An instance of class \code{bandleParams}
+##' @return A \code{list} of 2 \code{matrix} \code{array}'s, one for each
+##'   condition containing the point estimates of the potential scale reduction
+##'   factor (labelled Point est.) and their upper confidence limits (labelled
+##'   Upper C.I.).
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1,
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x)
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment,
+##'               gpParams = gpParams,
+##'               fcol = "markers",
+##'               numIter = 20L,
+##'               burnin = 1L,
+##'               thin = 2L,
+##'               numChains = 2,
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##' 
+##' ## Process the results
+##' calculateGelman(res)
+calculateGelman <- function(params) {
+  stopifnot("params must be of class bandleParams"=inherits(params, "bandleParams"))
+  stopifnot("more than 1 chain is required to compute Gelman"=length(params@chains) > 1)
+  ## get number of conditions (default is 2 but add here in case of pkg developemnt to allow more conditions)
+  n_conds <- length(params@chains@chains[[1]]@outlier)
+  ## initiate list
+  gelmanStats <- vector("list", n_conds)
+  ## Look over both conditions (n_conds = 2)
+  for (j in seq(n_conds)) {
+    ## get MCMC outputs
+    outliers_cond <- lapply(params@chains@chains, function(mc)
+      coda::mcmc(colSums(1 - mc@outlier[[j]])))
+    ## get combinations
+    p <- combinations(length(params@chains), 2)
+    m <- vector("list", nrow(p))
+    for (i in seq(nrow(p))) {
+      m[[i]] <- as.vector(p[i, ])
+    }
+    ## calculate gelmans
+    gelmanStats[[j]] <- lapply(m, function(z) 
+      gelman.diag(outliers_cond[z], autoburnin = FALSE)$psrf)
+    gelmanStats[[j]] <- matrix(unlist(gelmanStats[[j]]), nrow = 2, 
+                               dimnames = list(c("Point_Est", "Upper_CI")))
+    colnames(gelmanStats[[j]]) <- sapply(m, function(x) 
+      paste0("comb_", paste0(x, collapse = "")))
+  }
+  names(gelmanStats) <- paste0("Condition", 1:2)
+  return(gelmanStats)
+}

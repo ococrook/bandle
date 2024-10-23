@@ -20,7 +20,7 @@
 ##' @param numIter The number of iterations of the MCMC
 ##'     algorithm. Default is 1000. Though usually much larger numbers are used
 ##' @param burnin The number of samples to be discarded from the
-##'     begining of the chain. Default is 100.
+##'     beginning of the chain. Default is 100.
 ##' @param thin The thinning frequency to be applied to the MCMC
 ##'     chain.  Default is 5.
 ##' @param u The prior shape parameter for Beta(u, v). Default is 2
@@ -49,11 +49,11 @@
 ##'  and dirPrior is generated on the fly. This should have dimension
 ##'  equal to the number of subcellular niches. We suggest referring
 ##'  to the vignette on direction to set this value.
-##' @param maternCov `logical` indicated whether to use a matern or gaussian
+##' @param maternCov `logical` indicated whether to use a matern or Gaussian
 ##' covariance. Default is True and matern covariance is used
 ##' @param PC `logical` indicating whether to use a penalised complexity prior.
 ##' Default is TRUE.
-##' @param pcPrior `matrix` of length 3 indicating the lambda paramters for the
+##' @param pcPrior `matrix` of length 3 indicating the lambda parameters for the
 ##' penalised complexity prior. Default is `matrix(c(0.5, 3, 100), nrow = 1)` and the order is 
 ##' length-scale, amplitude and variance.
 ##' @param nu `integter` indicating the smoothness of the matern prior. Default
