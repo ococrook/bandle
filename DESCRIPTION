@@ -38,9 +38,12 @@ Imports: Rcpp (>= 1.0.4.6),
     stats,
     utils,
     grDevices,
-    rlang
+    rlang,
+    RColorBrewer,
+    gtools, 
+    gridExtra,
+    coda (>= 0.19-4)
 Suggests: 
-    coda (>= 0.19-4),
     testthat,
     interp,
     fields,
@@ -51,7 +54,7 @@ Suggests:
 VignetteBuilder: knitr
 LinkingTo: Rcpp, RcppArmadillo, BH
 Roxygen: list(markdown=TRUE)
-RoxygenNote: 7.2.0
+RoxygenNote: 7.3.2
 biocViews: Bayesian, Classification, Clustering, ImmunoOncology,
     QualityControl,DataImport, Proteomics, MassSpectrometry
 BugReports: https://github.com/ococrook/bandle/issues
