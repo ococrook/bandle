@@ -63,8 +63,8 @@ mcmc_plot_probs <- function(params,
               axis.text.x = element_text(angle = 45, hjust = 1),
               axis.title.x = element_blank())
     gg2 <- gg2 +
-        ylab("Membership Probability") +
-        ggtitle(paste0("Distribution of Subcellular Membership for Protein ", fname ))
+        ylab("Membership probability") +
+        ggtitle(paste0("Protein ", fname ))
     gg2 <- gg2 +
         theme(legend.position = "none")
     return(gg2)
@@ -240,18 +240,17 @@ spatial2D <- function(object,
     return(gg)
 }
 
-##' Produces a chord diagram (circos plot) or an alluvial plot (also known as a
-##' Sankey diagram) to show changes in location between two conditions or
-##' datasets.
-##' @title Generates a chord diagram or alluvial plot for visualising changes in
-##'   localisation between two conditions/datasets
+##' This function produces a chord diagram (also known as a circos plot) or an
+##' alluvial plot (also known as a Sankey diagram) to show changes in location
+##' between two conditions or datasets.
+##' @title Plot changes in localisation between two conditions/datasets
 ##' @param params An instance of class \code{bandleParams} or an instance of
 ##'   class \code{MSnSetList} of length 2.
 ##' @param type A \code{character} specifying the type of visualisation to plot.
 ##'   One of \code{"alluvial"} (default) or \code{"chord"}.
-##' @param all A logical specifying whether to count all proteins or only show
+##' @param all A \code{logical} specifying whether to count all proteins or only show
 ##'   those that have changed in location between conditions. Default is
-##'   `FALSE`.
+##'   \code{FALSE}.
 ##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then
 ##'   \code{fcol} must be defined. This is a \code{character} vector of length 2
 ##'   to set different labels for each dataset. If only one label is specified,
@@ -260,7 +259,7 @@ spatial2D <- function(object,
 ##' @param col A list of colours to define the classes in the data. If not
 ##'   defined then the default \code{pRoloc} colours in \code{getStockCol()} are
 ##'   used.
-##' @param labels Logical indicating whether to display class/organelle labels
+##' @param labels A \code{logical} indicating whether to display class/organelle labels
 ##'   for the chord segments or alluvial stratum. Default is \code{TRUE}.
 ##' @param labels.par If \code{type} is \code{"alluvial"}. Label style can be
 ##'   specified as one of \code{"adj"}, \code{"repel"}. Default is \code{"adj"}.
@@ -576,14 +575,14 @@ plotConvergence <- function(params){
     return(toplot)
 }
 
-##' Produces a table summarising differential localisation results
-##' @title Generates a table for visualising changes in
-##'   localisation between two conditions/datasets
+##' This function produces a table summarising differential localisation results
+##' between two experiments
+##' @title Generate a table of differential localisations
 ##' @param params An instance of class \code{bandleParams} or an instance of
 ##'   class \code{MSnSetList} of length 2.
-##' @param all A logical specifying whether to count all proteins or only show
-##'   those that have changed in location between conditions. Default is
-##'   `FALSE`.
+##' @param all A \code{logical} specifying whether to count all proteins or only
+##'   show those that have changed in location between conditions. Default is
+##'   \code{FALSE}.
 ##' @param fcol If \code{params} is a \code{list} of \code{MSnSets}. Then
 ##'   \code{fcol} must be defined. This is a \code{character} vector of length 2
 ##'   to set different labels for each dataset. If only one label is specified,
@@ -698,4 +697,101 @@ plotTable <- function(params,
 
         # return table
         return(df = df)
+}
+
+##' Helper function to get the number of outliers at each MCMC
+##' iteration for each chain
+##'
+##' @title Number of outliers at each iteration of MCMC
+##' @param x Object of class `bandleParams`
+##' @return A `list` of length `length(x)`.
+##' @md
+bandle_get_outliers <- function(params) {
+  ## check for validity
+  stopifnot(inherits(params, "bandleParams"))
+  ## get outliers
+  out_cond1 <- lapply(params@chains@chains, function(mc) 
+    coda::mcmc(colSums(1 - mc@outlier$cond1)))
+  out_cond2 <- lapply(params@chains@chains, function(mc) 
+    coda::mcmc(colSums(1 - mc@outlier$cond2)))
+  out <- list(cond1 = out_cond1, 
+              cond2 = out_cond2)
+  return(out)
+}
+
+##' This function takes the output from running `bandle` i.e. a `bandleParams`
+##' object and generates trace and density plots for each MCMC chain in each
+##' condition. The output plots can be used to help assess convergence of MCMC
+##' chains.
+##' @title Generate trace and density plots for all chains
+##' @param params An instance of class \code{bandleParams}
+##' @param auto.layout A \code{logical} specifying whether to automatically determine
+##'   the arrangement of each plot. Default is \code{TRUE}.
+##' @return Generates trace and density plots for each chain for each
+##'   condition/experiment.
+##' @examples 
+##' ## Generate some example data
+##' library("pRolocdata")
+##' data("tan2009r1")
+##' set.seed(1)
+##' tansim <- sim_dynamic(object = tan2009r1,
+##'                       numRep = 4L,
+##'                       numDyn = 100L)
+##' data <- tansim$lopitrep
+##' control <- data[1:2]
+##' treatment <- data[3:4]
+##' 
+##' ## fit GP params
+##' gpParams <- lapply(tansim$lopitrep, function(x)
+##' fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+##' 
+##' ## run bandle
+##' res <- bandle(objectCond1 = control,
+##'               objectCond2 = treatment,
+##'               gpParams = gpParams,
+##'               fcol = "markers",
+##'               numIter = 20L,
+##'               burnin = 1L,
+##'               thin = 2L,
+##'               numChains = 2,
+##'               BPPARAM = SerialParam(RNGseed = 1),
+##'               seed = 1)
+##' 
+##' ## Process the results
+##' plotOutliers(res)
+plotOutliers <- function(params, 
+                         auto.layout = TRUE) {
+  
+  
+  ## check for validity
+  stopifnot(inherits(params, "bandleParams")) 
+  
+  ## get outliers
+  out <- bandle_get_outliers(params)
+  
+  ## set plotting parameters
+  oldpar <- NULL
+  on.exit(par(oldpar))
+  if (auto.layout) {
+    mfrow <- c(length(out$cond1), 4)
+    oldpar <- par(mfrow = mfrow)
+  }
+  
+  ## set names for plots
+  chain_id <- seq_along(out$cond1)
+  t_names1 <- paste0("Trace - condition ", 1, ", chain ", chain_id)
+  d_names1 <- paste0("Density - condition ", 1, ", chain ", chain_id)
+  t_names2 <- paste0("Trace - condition ", 2, ", chain ", chain_id)
+  d_names2 <- paste0("Density - condition ", 2, ", chain ", chain_id)
+  
+  ## colours
+  cols <- brewer.pal(n = 9, "Set1")[seq_along(chain_id)]
+  
+  ## use coda for plots
+  for (i in seq_along(chain_id)) {
+    traceplot(out$cond1[[i]], main = t_names1[i], col = cols[i])
+    densplot(out$cond1[[i]], main = d_names1[i], col = cols[i])
+    traceplot(out$cond2[[i]], main = t_names2[i], col = cols[i])
+    densplot(out$cond2[[i]], main = d_names2[i], col = cols[i])
+  }
 }

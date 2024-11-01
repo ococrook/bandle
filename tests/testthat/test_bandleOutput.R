@@ -92,3 +92,26 @@ test_that("bandlePredict fData output", {
   expect_equal(res_fdata_con2, fdata_con2, check.attributes = FALSE)
   expect_equal(res_fdata_tr2, fdata_tr2, check.attributes = FALSE)
 })
+
+test_that("calculate Gelman output", {
+  .numIter <- 5
+  set.seed(1)
+  
+  ## before running bandle
+  pdata_con1 <- pData(control[[1]])
+  pdata_con2 <- pData(control[[2]])
+  pdata_tr1 <- pData(treatment[[1]])
+  pdata_tr2 <- pData(treatment[[2]])
+  
+  ## run
+  gpParams <- lapply(tansim$lopitrep, 
+                     function(x) fitGPmaternPC(x, hyppar = matrix(c(0.5, 1, 100), nrow = 1)))
+  res <- bandle(objectCond1 = control, objectCond2 = treatment, gpParams = gpParams,
+                fcol = "markers", numIter = .numIter, burnin = 1L, thin = 2L,
+                numChains = 1, BPPARAM = SerialParam(RNGseed = 1))
+  
+  res <- bandleProcess(res)
+  
+  ## can't run Gelman on 1 chain
+  expect_error(calculateGelman(res))
+})

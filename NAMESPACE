@@ -40,6 +40,11 @@ importFrom("circlize", "chordDiagram", "circos.trackPlotRegion", "CELL_META",
 importFrom("grDevices", "dev.off", "rainbow")
 importFrom("plyr", "id")
 importFrom("rlang", ".data")
+importFrom("RColorBrewer", "brewer.pal")
+importFrom("coda", "traceplot", "densplot", "gelman.diag")
+importFrom("gtools", "combinations")
+importFrom("gridExtra", "grid.arrange")
+
 
 exportClasses(bandleChains,
               bandleSummary,
@@ -55,14 +60,34 @@ exportMethods(posteriorEstimates,
 export(diffLoc,
        mcmc_plot_probs,
        spatial2D,
-       plotTranslocations, plotTable,
-       plotConvergence, plotGPmatern,
-       fitGP, fitGPmaternPC, fitGPmatern, 
-       bandle, bandlePredict, bandleProcess,
-       diffLocalisationProb, bootstrapdiffLocprob,
-       binomialDiffLocProb, EFDR,
-       meanOrganelle, prior_pred_dir,
-       prior_pred_pg, mrMethod, sim_dynamic,
-       summaries, StatStratum, dmvtCpp, Gumbel,
-       covOrganelle, pg_prior, kldirpg, kldir)
+       plotTranslocations, 
+       plotTable,
+       plotGPmatern,
+       fitGP, 
+       fitGPmaternPC, 
+       fitGPmatern, 
+       bandle, 
+       bandlePredict, 
+       bandleProcess,
+       diffLocalisationProb, 
+       bootstrapdiffLocprob, 
+       binomialDiffLocProb, 
+       EFDR,
+       meanOrganelle, 
+       prior_pred_dir, 
+       prior_pred_pg, 
+       mrMethod, 
+       sim_dynamic, 
+       kldirpg, 
+       kldir,
+       summaries, 
+       StatStratum, 
+       dmvtCpp, 
+       Gumbel,
+       covOrganelle, 
+       pg_prior, 
+       plotConvergence, 
+       plotOutliers,
+       bandle_get_outliers,
+       calculateGelman)
 
