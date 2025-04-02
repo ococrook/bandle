@@ -1,6 +1,9 @@
 # bandle 1.11
 
-## bandle 1.11.0 
+## Changes in version bandle 1.11.1
+- Use C++14
+
+## Changes in version bandle 1.11.0 
 - push to Bioc devel
 
 # bandle 1.9
