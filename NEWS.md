@@ -1,3 +1,8 @@
+# bandle 1.11
+
+## bandle 1.11.0 
+- push to Bioc devel
+
 # bandle 1.9
 
 ## Changes in version 1.9.1
