@@ -24,19 +24,19 @@ BEGIN_RCPP
 END_RCPP
 }
 // besselK
-arma::mat besselK(arma::mat x, double v);
+arma::mat besselK(const arma::mat& x, double v);
 RcppExport SEXP _bandle_besselK(SEXP xSEXP, SEXP vSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type x(xSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type x(xSEXP);
     Rcpp::traits::input_parameter< double >::type v(vSEXP);
     rcpp_result_gen = Rcpp::wrap(besselK(x, v));
     return rcpp_result_gen;
 END_RCPP
 }
 // matern
-arma::mat matern(double nu, double a, double rho, arma::vec tau, int D);
+arma::mat matern(double nu, double a, double rho, const arma::vec& tau, int D);
 RcppExport SEXP _bandle_matern(SEXP nuSEXP, SEXP aSEXP, SEXP rhoSEXP, SEXP tauSEXP, SEXP DSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
@@ -44,7 +44,7 @@ BEGIN_RCPP
     Rcpp::traits::input_parameter< double >::type nu(nuSEXP);
     Rcpp::traits::input_parameter< double >::type a(aSEXP);
     Rcpp::traits::input_parameter< double >::type rho(rhoSEXP);
-    Rcpp::traits::input_parameter< arma::vec >::type tau(tauSEXP);
+    Rcpp::traits::input_parameter< const arma::vec& >::type tau(tauSEXP);
     Rcpp::traits::input_parameter< int >::type D(DSEXP);
     rcpp_result_gen = Rcpp::wrap(matern(nu, a, rho, tau, D));
     return rcpp_result_gen;
@@ -320,35 +320,35 @@ BEGIN_RCPP
 END_RCPP
 }
 // sampleDirichlet
-arma::vec sampleDirichlet(int numSamples, NumericVector alpha);
+arma::vec sampleDirichlet(int numSamples, const NumericVector& alpha);
 RcppExport SEXP _bandle_sampleDirichlet(SEXP numSamplesSEXP, SEXP alphaSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
     Rcpp::traits::input_parameter< int >::type numSamples(numSamplesSEXP);
-    Rcpp::traits::input_parameter< NumericVector >::type alpha(alphaSEXP);
+    Rcpp::traits::input_parameter< const NumericVector& >::type alpha(alphaSEXP);
     rcpp_result_gen = Rcpp::wrap(sampleDirichlet(numSamples, alpha));
     return rcpp_result_gen;
 END_RCPP
 }
 // sampleOutliercpp
-arma::vec sampleOutliercpp(arma::mat allocoutlierprob);
+arma::vec sampleOutliercpp(const arma::mat& allocoutlierprob);
 RcppExport SEXP _bandle_sampleOutliercpp(SEXP allocoutlierprobSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type allocoutlierprob(allocoutlierprobSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type allocoutlierprob(allocoutlierprobSEXP);
     rcpp_result_gen = Rcpp::wrap(sampleOutliercpp(allocoutlierprob));
     return rcpp_result_gen;
 END_RCPP
 }
 // sampleAlloccpp
-arma::vec sampleAlloccpp(arma::mat allocprob);
+arma::vec sampleAlloccpp(const arma::mat& allocprob);
 RcppExport SEXP _bandle_sampleAlloccpp(SEXP allocprobSEXP) {
 BEGIN_RCPP
     Rcpp::RObject rcpp_result_gen;
     Rcpp::RNGScope rcpp_rngScope_gen;
-    Rcpp::traits::input_parameter< arma::mat >::type allocprob(allocprobSEXP);
+    Rcpp::traits::input_parameter< const arma::mat& >::type allocprob(allocprobSEXP);
     rcpp_result_gen = Rcpp::wrap(sampleAlloccpp(allocprob));
     return rcpp_result_gen;
 END_RCPP

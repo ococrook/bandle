@@ -80,7 +80,7 @@
 diffLoc <- function(objectCond1,
                     objectCond2,
                     fcol = "markers",
-                    hyperLearn = "MH",
+                    hyperLearn = "fixed",
                     numIter = 1000,
                     burnin = 100L,
                     thin = 5L,
@@ -106,7 +106,7 @@ diffLoc <- function(objectCond1,
     stopifnot(exprs = {
               "ObjectCond1 must be an MSnSet"=is(objectCond1[[1]], "MSnSet")
               "ObjectCond2 must be an MSnSet"=is(objectCond2[[1]], "MSnSet")
-              "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
+              "hyperLearn must be either fixed, MH or LBFGS"=hyperLearn %in% c("fixed", "MH", "LBFGS")
               "numIter must be a numeric"=is(numIter, "numeric")
               "burnin must be an integer"=is(burnin, "integer")
               "thin must be an integer"=is(thin, "integer")

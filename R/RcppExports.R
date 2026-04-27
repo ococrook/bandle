@@ -42,7 +42,7 @@ besselK_boost <- function(x, v) {
 #' @title vectorised bessel function of the 2nd kind
 #' @param x bessel arguement
 #' @param v bessel parameter
-#' 
+#' s
 #' @md
 #' 
 #' @rdname bandle-cpp   
@@ -322,11 +322,12 @@ sampleOutliercpp <- function(allocoutlierprob) {
     .Call(`_bandle_sampleOutliercpp`, allocoutlierprob)
 }
 
-#' @title sample allocation for components
-#' @param allocprob probability of being allocated to particular component
+#' @title sample allocations from allocation probabilities
+#' @param allocprob The allocation probabilities for each component
 #' @md
 #' 
-#' @rdname bandle-cpp  
+#' @rdname bandle-cpp
+#' 
 sampleAlloccpp <- function(allocprob) {
     .Call(`_bandle_sampleAlloccpp`, allocprob)
 }

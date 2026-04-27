@@ -16,7 +16,7 @@
 ##' @param fcol The feature meta-data containing marker definitions. Default is
 ##' `markers`
 ##' @param hyperLearn Algorithm to learn posterior hyperparameters of the Gaussian
-##' processes. Default is `LBFGS` and `MH` for metropolis-hastings is also implemented. 
+##' processes. Default is `fixed` but `LBFGS` and `MH` for metropolis-hastings is also implemented. 
 ##' @param numIter The number of iterations of the MCMC
 ##'     algorithm. Default is 1000. Though usually much larger numbers are used
 ##' @param burnin The number of samples to be discarded from the
@@ -88,7 +88,7 @@
 bandle <- function(objectCond1,
                    objectCond2,
                    fcol = "markers",
-                   hyperLearn = "LBFGS",
+                   hyperLearn = "fixed",
                    numIter = 1000,
                    burnin = 100L,
                    thin = 5L,
@@ -117,7 +117,7 @@ bandle <- function(objectCond1,
     stopifnot(exprs = {
                 "ObjectCond1 must be a list of MSnSet"=is(objectCond1[[1]], "MSnSet")
                 "ObjectCond2 must be a list of  MSnSet"=is(objectCond2[[1]], "MSnSet")
-                "hyperLearn must be either MH or LBFGS"=hyperLearn %in% c("MH", "LBFGS")
+                "hyperLearn must be either fixed, MH or LBFGS"=hyperLearn %in% c("fixed", "MH", "LBFGS")
                 "numIter must be a numeric"=is(numIter, "numeric")
                 "burnin must be an integer"=is(burnin, "integer")
                 "thin must be an integer"=is(thin, "integer")
@@ -134,6 +134,17 @@ bandle <- function(objectCond1,
                 "nu must be numeric" = is(nu, "numeric")
                 "propSd must be numeric"=is(propSd, "numeric")
                 "Must provide 3 values for propSd"=length(propSd) == 3})
+  
+    if (hyperLearn == "fixed") {
+      if (is.null(gpParams)) {
+        stop("gpParams must be provided when hyperLearn='fixed'. ",
+             "Use fitGPmaternPC() to generate these parameters.")
+      }
+      if (!maternCov) {
+        stop("Fixed hyperparameter optimization currently only supports Matérn covariance. ",
+             "Set maternCov=TRUE or use hyperLearn='MH' or 'LBFGS'.")
+      }
+    }
     
     # if dirPrior is not NULL
     if(!is.null(dirPrior)){
@@ -181,34 +192,34 @@ bandle <- function(objectCond1,
         stop("fcol is not in all the datasets. Check fcol is present")
     }
     
-    ## chains run in parallel, repeating number of iterations
-    .res <- BiocParallel::bplapply(rep(numIter, numChains),
-                                   FUN = diffLoc,
-                                   objectCond1 = objectCond1,
-                                   objectCond2 = objectCond2,
-                                   fcol = fcol,
-                                   hyperLearn = hyperLearn,
-                                   #numIter = numIter, #parrallelised 
-                                   burnin = burnin,
-                                   thin = thin,
-                                   u = u,
-                                   v = v,
-                                   lambda = lambda,
-                                   gpParams = gpParams,
-                                   hyperIter = hyperIter,
-                                   hyperMean = hyperMean,
-                                   hyperSd = hyperSd,
-                                   seed = seed,
-                                   pg = pg,
-                                   pgPrior = pgPrior,
-                                   tau = tau,
-                                   dirPrior = dirPrior,
-                                   maternCov = maternCov,
-                                   PC = PC,
-                                   pcPrior = pcPrior,
-                                   nu = nu,
-                                   propSd = propSd,
-                                   BPPARAM = BPPARAM)
+    ## Use original diffLoc for MH/LBFGS
+      .res <- BiocParallel::bplapply(rep(numIter, numChains),
+                                     FUN = diffLoc,  # Original implementation
+                                     objectCond1 = objectCond1,
+                                     objectCond2 = objectCond2,
+                                     fcol = fcol,
+                                     hyperLearn = hyperLearn,
+                                     burnin = burnin,
+                                     thin = thin,
+                                     u = u,
+                                     v = v,
+                                     lambda = lambda,
+                                     gpParams = gpParams,
+                                     hyperIter = hyperIter,
+                                     hyperMean = hyperMean,
+                                     hyperSd = hyperSd,
+                                     seed = seed,
+                                     pg = pg,
+                                     pgPrior = pgPrior,
+                                     tau = tau,
+                                     dirPrior = dirPrior,
+                                     maternCov = maternCov,
+                                     PC = PC,
+                                     pcPrior = pcPrior,
+                                     nu = nu,
+                                     propSd = propSd,
+                                     BPPARAM = BPPARAM)
+
     
     K <- length(getMarkerClasses(objectCond1[[1]], fcol = fcol))
     

@@ -18,26 +18,27 @@ double besselK_boost(double x, double v) {
 //' @title vectorised bessel function of the 2nd kind
 //' @param x bessel arguement
 //' @param v bessel parameter
-//' 
+//' s
 //' @md
 //' 
 //' @rdname bandle-cpp   
 // [[Rcpp::export]]
-arma::mat besselK(arma::mat x,
-                  double v) {
-    int N = x.n_cols;
-    arma::mat B(N, N);
-    
-    for (int i = 0; i < N; i++){
-        for (int j = 0; j < N; j ++){
-            if (x(i, j) < pow(10, -8)){
-                B(i, j) = 0;
-            } else {
-                B(i, j) = besselK_boost(x(i, j), v); 
-            }
-        }
+arma::mat besselK(const arma::mat& x, double v) {
+  const int n_rows = x.n_rows;
+  const int n_cols = x.n_cols;
+  const double threshold = 1e-8;  // Precompute threshold
+  
+  arma::mat B(n_rows, n_cols);
+  
+  // Simple nested loops (often faster for small matrices)
+  for (int i = 0; i < n_rows; ++i) {
+    for (int j = 0; j < n_cols; ++j) {
+      B(i, j) = (x(i, j) < threshold) ? 0.0 : boost::math::cyl_bessel_k(v, x(i, j));
     }
-    return(B);
+  }
+  
+  return B;
+  
 }
 //' @title Compute a matern covariance
 //' @param nu smoothness parameter
@@ -52,21 +53,38 @@ arma::mat besselK(arma::mat x,
 arma::mat matern(double nu,
                  double a,
                  double rho,
-                 arma::vec tau,
-                 int D){
-    arma::mat S = arma::zeros(D, D);
-    arma::mat kappa;
-    arma::mat bes(D, D);
-    arma::mat cov(D, D);
-    
-    
-    S = S.each_col() + tau;
-    kappa = sqrt(8 * nu) * abs(S - S.t())/rho;
-    bes = besselK(kappa, nu);
-    cov = a * a * (pow(2.0, 1 - nu)/exp(lgamma(nu))) * pow(kappa, nu) % bes;
-    cov = cov + a * a * arma::eye(D, D);
-    
-    return(cov);
+                 const arma::vec& tau,
+                 int D) {
+  // Input validation
+  if (nu <= 0 || a <= 0 || rho <= 0) {
+    throw std::invalid_argument("Parameters nu, a, rho must be positive");
+  }
+  
+  // Precompute constants
+  const double sqrt_8nu = std::sqrt(8.0 * nu);
+  const double scale_factor = a * a * std::pow(2.0, 1.0 - nu) / std::tgamma(nu);
+  const double a_squared = a * a;
+  
+  arma::mat cov = a_squared * arma::eye(D, D);  // Start with diagonal
+  
+  // Exploit symmetry - only compute upper triangle
+  for (int i = 0; i < D; ++i) {
+    for (int j = i + 1; j < D; ++j) {
+      const double kappa_val = sqrt_8nu * std::abs(tau(i) - tau(j)) / rho;
+      
+      double bessel_val;
+      if (kappa_val < 1e-8) {
+        bessel_val = 0.0;
+      } else {
+        bessel_val = boost::math::cyl_bessel_k(nu, kappa_val);
+      }
+      
+      const double cov_val = scale_factor * std::pow(kappa_val, nu) * bessel_val;
+      cov(i, j) = cov(j, i) = cov_val;  // Symmetric assignment
+    }
+  }
+  
+  return cov;
 }
 //' @title Compute matrix determinant using trench algorithm
 //' @param c first row of toeplitz matrix
@@ -810,23 +828,30 @@ List centeredDatamatern(arma::mat Xknown,
 //' 
 //' @rdname bandle-cpp  
 // [[Rcpp::export]]
-arma::vec componentloglike(const arma::mat &centereddata,
-                           double sigmak){
-    int d;
-    int D = centereddata.n_rows;
-    int N = centereddata.n_cols;
-    arma::vec likelihood;
-    arma::mat likelihoods(N,D);
-    arma::vec sumlikelihood;
-    
-    for(d = 0; d < D; d++){
-        likelihood = dnorm(as<NumericVector>(wrap(centereddata.row(d))), 0, sigmak, 1);
-        likelihoods.col(d) = likelihood;
-    }
-    
-    sumlikelihood = rowSums(as<NumericMatrix>(wrap(likelihoods)));
-    return(sumlikelihood);
-    
+arma::vec componentloglike(const arma::mat& centereddata, double sigmak) {
+      const int D = centereddata.n_rows;
+      const int N = centereddata.n_cols;
+      
+      if (N == 0) {
+        return arma::vec();
+      }
+      
+      // Precompute constants (same for all proteins/dimensions)
+      const double log_norm_const = -0.9189385332046727 - std::log(sigmak);  // log(1/√(2π)) - log(σ)
+      const double inv_2sigma2 = 1.0 / (2.0 * sigmak * sigmak);
+      
+      arma::vec sumlikelihood(N, arma::fill::zeros);
+      
+      // Direct computation without R conversions
+      for (int d = 0; d < D; ++d) {
+        for (int n = 0; n < N; ++n) {
+          const double x = centereddata(d, n);
+          const double log_lik = log_norm_const - inv_2sigma2 * x * x;
+          sumlikelihood(n) += log_lik;
+        }
+      }
+      
+      return sumlikelihood;
 }
 //' @title Compute negative log-likleihood of all components
 //' @param centereddata pointer to centered data
@@ -843,8 +868,6 @@ arma::mat comploglike(const List &centereddata,
     int N = as<arma::mat>(wrap(centereddata[1])).n_cols;
     int j;
     arma::mat likelihoods(N, K);
-    
-    Rcpp::checkUserInterrupt();
     
     for(j = 0; j < K; j++){
         likelihoods.col(j) = componentloglike(centereddata[j], sigmak(j)); 
@@ -867,8 +890,6 @@ List comploglikelist(const List &centereddata,
     arma::mat loglikelihood;
     List loglikelihoods(numRep);
     
-    Rcpp::checkUserInterrupt();
-    
     for (l = 0; l < numRep; l++) {
         loglikelihoods[l] = comploglike(centereddata[l], sigmak[l]);
     }
@@ -883,25 +904,14 @@ List comploglikelist(const List &centereddata,
 //' 
 //' @rdname bandle-cpp  
 // [[Rcpp::export]]
-arma::vec sampleDirichlet(int numSamples,
-                          NumericVector alpha
-){
-    
-    int j;
-    NumericVector shape = alpha;
-    arma::vec gamma(numSamples);
-    NumericVector dirichlet;
-    double scale = 1;
-    
-    Rcpp::checkUserInterrupt();
-    
-    for(j = 0; j < numSamples; j++){
-        gamma(j) = rgamma(1, shape(j), scale)(0); 
-    }
-    
-    dirichlet = gamma/sum(gamma);
-    
-    return(dirichlet);
+arma::vec sampleDirichlet(int numSamples, const NumericVector& alpha) {
+  arma::vec gamma(numSamples);
+  
+  for (int j = 0; j < numSamples; ++j) {
+    gamma(j) = R::rgamma(alpha[j], 1.0);  // Direct scalar call
+  }
+  
+  return gamma / arma::sum(gamma);
 }
 //' @title sample outlier allocations
 //' @param allocoutlierprob The probabilities of being allocated to the outlier
@@ -910,62 +920,44 @@ arma::vec sampleDirichlet(int numSamples,
 //' 
 //' @rdname bandle-cpp  
 // [[Rcpp::export]]
-arma::vec sampleOutliercpp(arma::mat allocoutlierprob){
-    
-    int i;
-    int N = allocoutlierprob.n_rows;
-    arma::vec u; 
-    arma::vec outlier = arma::zeros(N);
-    Rcpp::NumericVector allocoutlierprobi;
-    
-    Rcpp::checkUserInterrupt();
-    
-    for (i = 0; i < N; i++) {
-        allocoutlierprobi = allocoutlierprob.row(i);
-        
-        u = runif(1, 0, 1);
-        if (u(0) > allocoutlierprobi(1)) {
-            outlier(i) = 1;
-        }
+arma::vec sampleOutliercpp(const arma::mat& allocoutlierprob) {
+  const int N = allocoutlierprob.n_rows;
+  arma::vec outlier(N, arma::fill::zeros);
+  
+  for (int i = 0; i < N; ++i) {
+    const double u = R::runif(0.0, 1.0);
+    if (u > allocoutlierprob(i, 1)) {
+      outlier(i) = 1;
     }
-    
-    return(outlier);
-    
+  }
+  return outlier;
 }
-//' @title sample allocation for components
-//' @param allocprob probability of being allocated to particular component
+//' @title sample allocations from allocation probabilities
+//' @param allocprob The allocation probabilities for each component
 //' @md
 //' 
-//' @rdname bandle-cpp  
+//' @rdname bandle-cpp
+//' 
 // [[Rcpp::export]]
-arma::vec sampleAlloccpp(arma::mat allocprob) {
+arma::vec sampleAlloccpp(const arma::mat& allocprob) {
+  const int N = allocprob.n_rows;
+  const int K = allocprob.n_cols;
+  arma::vec alloc(N);
+  
+  for (int i = 0; i < N; ++i) {
+    const double u = R::runif(0.0, 1.0);
+    double cumsum = 0.0;
     
-    int i;
-    int N = allocprob.n_rows;
-    int k;
-    int classNumber = allocprob.n_cols;
-    arma::vec u;
-    arma::vec u1 = arma::ones(classNumber);
-    arma::vec alloc = arma::zeros(N);
-    arma::vec allocprobi;
-    arma::vec probcum;
-    Rcpp::LogicalVector loc;
-    
-    Rcpp::checkUserInterrupt();
-    
-    for (i = 0; i < N; i++) {
-        allocprobi = allocprob.row(i).t(); 
-        probcum = cumsum(allocprobi);
-        u = runif(1, 0, 1);
-        u1 = (u * u1.t()).t();
-        loc = (probcum <= u1);
-        k = sum(loc) + 1;
-        alloc(i) = k;
-        u1 = arma::ones(classNumber); //reset u1
+    int k = 0;
+    for (k = 0; k < K; ++k) {
+      cumsum += allocprob(i, k);
+      if (u <= cumsum) break;
     }
-    
-    return(alloc);
+    alloc(i) = k + 1;
+  }
+  return alloc;
 }
+
 //' @title center data based on mean of GP
 //' @param Xknown data with known localisations
 //' @param BX indexing set to make component
@@ -993,7 +985,6 @@ List centeredData(arma::mat Xknown,
     List centereddata(K);
     arma::vec currenthyper(3);
     
-    Rcpp::checkUserInterrupt();
     
     for(j = 0; j < K; j++){
         currenthyper = hypers.row(j).t();

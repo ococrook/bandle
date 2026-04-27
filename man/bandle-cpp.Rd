@@ -172,7 +172,7 @@ covariance. Defaults to Guassian covariance}
 \item{allocoutlierprob}{The probabilities of being allocated to the outlier
 component}
 
-\item{allocprob}{probability of being allocated to particular component}
+\item{allocprob}{The allocation probabilities for each component}
 
 \item{mu}{mean}
 
